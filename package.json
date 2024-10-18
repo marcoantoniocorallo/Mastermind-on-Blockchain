@@ -1,0 +1,28 @@
+{
+  "name": "mastermind",
+  "version": "1.0.0",
+  "description": "MasterMind on the Ethereum Blockchain",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marcoantoniocorallo/MasterMind.git"
+  },
+  "author": "Marco Antonio Corallo",
+  "license": "CC-BY-1.0",
+  "bugs": {
+    "url": "https://github.com/marcoantoniocorallo/MasterMind/issues"
+  },
+  "homepage": "https://github.com/marcoantoniocorallo/MasterMind#readme",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@types/mocha": "^10.0.9",
+    "@types/node": "^22.7.6",
+    "chai": "^4.5.0",
+    "hardhat": "^2.22.13",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}

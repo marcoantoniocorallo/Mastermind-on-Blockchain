@@ -1,0 +1,14 @@
+In Solidity, for dynamic types like string, bytes, array, and struct, 
+you must specify where the data is stored. 
+For function parameters in external functions, 
+the data location must be either memory or calldata.
+`calldata` is used for external function parameters because it is more efficient, 
+especially for read-only operations.
+`memory` could also be used if the data needs to be copied
+
+The emit statement, which triggers an event, modifies the blockchain's state. 
+Even though triggering an event does not modify the contract's storage, 
+it is considered a state-modifying action since it writes to the transaction logs.
+In Solidity, functions that modify the state cannot be marked as view or pure. 
+The view keyword is used for functions that only read from the state but don’t modify it,
+while pure is used for functions that don’t even read from the state.
