@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/marcoantoniocorallo/MasterMind#readme",
   "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.8",
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@types/mocha": "^10.0.9",
     "@types/node": "^22.7.6",
