@@ -12,3 +12,16 @@ it is considered a state-modifying action since it writes to the transaction log
 In Solidity, functions that modify the state cannot be marked as view or pure. 
 The view keyword is used for functions that only read from the state but don’t modify it,
 while pure is used for functions that don’t even read from the state.
+
+Prevented Security issues:
+- DDOS creating new game:
+  Eve wants to DDOS the game vectors creating a sequence of new games.
+  1. The gas makes his work in preventing it.
+  2. Since there are at most 256 games, Eve may still want to DDOS the vector by creating
+     ~256 games. This is no possible: once a player creates a game, he cannot create any others.
+- Make an user not available to play:
+  If P1 creates a game for playing with P2, P2 is not forced to play with P1 and may want to play 
+  with someone else or to play a quick game (random chosen).
+
+Design choices:
+- Overloading da problemi con il testing ==> nomi leggermente diversi

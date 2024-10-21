@@ -2,8 +2,8 @@
 pragma solidity ^0.8.0;
 
 struct Game{
-    bool pending;
     address codeMaker;
     address codeBreaker;
+    bool pending;
     uint256 stake;
 } 
