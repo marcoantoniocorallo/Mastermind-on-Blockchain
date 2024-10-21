@@ -2,18 +2,11 @@ import "@nomicfoundation/hardhat-chai-matchers"
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers";
+import { deployFixture }from "./Fixtures"
 
-describe("Game contract", function () {
+describe("Create/Join Game Tests", function () {
 
-  // Fixture to deploy the contract and get first three signers
-  async function deployFixture() {
-    const [owner, addr1, addr2] = await ethers.getSigners();
-    const contract = await ethers.deployContract("MasterMind");
-
-    return { contract, owner, addr1, addr2 };
-  }
-
-  it("Test1 : Game created and joined", async function () {
+    it("Test1 : Game created and joined", async function () {
     const { contract, owner, addr1 } = await loadFixture(deployFixture);  
 
     // game created by the owner of the contract
