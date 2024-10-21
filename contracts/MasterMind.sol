@@ -36,8 +36,8 @@ contract MasterMind {
      */
     function isPlaying(address user) private view returns (bool) {
         for (uint8 i = 0; i < games.length; ++i)
-            if  (games[i].codeMaker == user || 
-                (!games[i].pending && games[i].codeBreaker == user)
+            if  (games[i].getCodeMaker() == user || 
+                (!games[i].isPending() && games[i].getCodeBreaker() == user)
             )   return true;
         
         return false;
@@ -50,8 +50,8 @@ contract MasterMind {
     function pickFreeGame() public view returns (uint8){
         uint8 k = uint8(rand() % games.length);
         for (uint8 i = 0; i < games.length; ++i)
-            if (games[(i+k)% games.length].pending && 
-                games[(i+k)% games.length].codeBreaker == address(0))
+            if (games[(i+k)% games.length].isPending() && 
+                games[(i+k)% games.length].getCodeBreaker() == address(0))
                 return i;
 
         revert("There are no free games now.");
@@ -71,14 +71,7 @@ contract MasterMind {
         require ( ! isPlaying(msg.sender), "The player is already registered for a game.");
         require ( games.length < MAX_GAMES, "There are too many games. Try again in a few moments." );
 
-        games.push(
-            Game(
-                msg.sender, 
-                challenger_addr,
-                true,
-                0
-            )
-        );
+        games.push(new Game(address(this), msg.sender, challenger_addr));
         emit GameCreated(msg.sender, games.length-1);
         console.log("Console Log: New game created!");
 
@@ -97,9 +90,9 @@ contract MasterMind {
      */
     function joinGame(uint8 id) external {
         require(!isPlaying(msg.sender), "The player is already registered for a game.");
-        require(games[id].pending && games[id].codeBreaker == msg.sender,"You're not allowed to play this game.");
+        require(games[id].isPending() && games[id].getCodeBreaker() == msg.sender,"You're not allowed to play this game.");
 
-        games[id].pending = false;
+        games[id].setPending();
         emit GameJoined(msg.sender, id);
         console.log("Console Log: Game joined!");
     }
@@ -114,32 +107,10 @@ contract MasterMind {
         require(!isPlaying(msg.sender), "The player is already registered for a game.");
 
         uint8 id = pickFreeGame();
-        games[id].codeBreaker = msg.sender;
-        games[id].pending = false;
+        games[id].setCodeBreaker(msg.sender);
+        games[id].setPending();
         emit GameJoined(msg.sender, id);
         console.log("Console Log: Game joined!");
-    }
-
-    /**
-     * @notice shuffle the roles (codemaker/codebreaker) of the id-th game
-     *  when the game is created, the creator is codeMaker and the challenger is codeBreaker,
-     *  just to optimize variables (=> gas!). This function probabilistically revert them.
-     */
-    function shuffleRoles(uint8 id ) private {
-        if (rand() % 2 == 0)
-            (games[id].codeMaker, games[id].codeBreaker) = (games[id].codeBreaker, games[id].codeMaker);
-    }
-
-    /**
-     * @notice set agreed stake for a given game
-     * @param id: id of the game
-     * @param stake: agreed stake
-     */
-    function setStake(uint8 id, uint256 stake) private {
-        // probabilmente dovremo inserire una serie di controlli: stake minimo?
-        // msg.sender è giocatore della partita id? 
-        // Come controllare che l'altro giocatore sia d'accordo?
-        games[id].stake = stake;
     }
 
 }

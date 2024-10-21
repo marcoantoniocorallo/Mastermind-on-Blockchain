@@ -24,6 +24,8 @@ Prevented Security issues:
   with someone else or to play a quick game (random chosen).
 - Per il problema della randomness è stato utililzzato l'hashblock del blocco precedente,
   come visto a lezione. Non è la soluzione migliore ma la migliore gratis
+- Access control: il contratto Game memorizza l'indirizzo del contratto MasterMind e permette
+  operazioni sensibili (settaggi) solo provenienti da quell'indirizzo
 
 Design choices:
 - Overloading da problemi con il testing ==> nomi leggermente diversi
