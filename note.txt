@@ -22,6 +22,8 @@ Prevented Security issues:
 - Make an user not available to play:
   If P1 creates a game for playing with P2, P2 is not forced to play with P1 and may want to play 
   with someone else or to play a quick game (random chosen).
+- Per il problema della randomness è stato utililzzato l'hashblock del blocco precedente,
+  come visto a lezione. Non è la soluzione migliore ma la migliore gratis
 
 Design choices:
 - Overloading da problemi con il testing ==> nomi leggermente diversi

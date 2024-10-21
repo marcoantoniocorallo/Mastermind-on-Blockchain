@@ -44,12 +44,14 @@ contract MasterMind {
     }
 
     /**
-     * @notice return the id of the first free game: pending game without a designated challenger
+     * @notice return the id of a random free game: pending game without a designated challenger
      * @custom:revert if there are no free games
      */
-    function firstFreeGame() private view returns (uint8){
+    function pickFreeGame() public view returns (uint8){
+        uint8 k = uint8(rand() % games.length);
         for (uint8 i = 0; i < games.length; ++i)
-            if (games[i].pending && games[i].codeBreaker == address(0))
+            if (games[(i+k)% games.length].pending && 
+                games[(i+k)% games.length].codeBreaker == address(0))
                 return i;
 
         revert("There are no free games now.");
@@ -111,7 +113,7 @@ contract MasterMind {
     function joinGame() external {
         require(!isPlaying(msg.sender), "The player is already registered for a game.");
 
-        uint8 id = firstFreeGame();
+        uint8 id = pickFreeGame();
         games[id].codeBreaker = msg.sender;
         games[id].pending = false;
         emit GameJoined(msg.sender, id);
