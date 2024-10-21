@@ -5,6 +5,7 @@ import "hardhat/console.sol";
 import "./Game.sol";
 import "./Events.sol";
 import "./Constants.sol";
+import "./Utils.sol";
 
 /**
  * @title  MasterMind
@@ -116,4 +117,27 @@ contract MasterMind {
         emit GameJoined(msg.sender, id);
         console.log("Console Log: Game joined!");
     }
+
+    /**
+     * @notice shuffle the roles (codemaker/codebreaker) of the id-th game
+     *  when the game is created, the creator is codeMaker and the challenger is codeBreaker,
+     *  just to optimize variables (=> gas!). This function probabilistically revert them.
+     */
+    function shuffleRoles(uint8 id ) private {
+        if (rand() % 2 == 0)
+            (games[id].codeMaker, games[id].codeBreaker) = (games[id].codeBreaker, games[id].codeMaker);
+    }
+
+    /**
+     * @notice set agreed stake for a given game
+     * @param id: id of the game
+     * @param stake: agreed stake
+     */
+    function setStake(uint8 id, uint256 stake) private {
+        // probabilmente dovremo inserire una serie di controlli: stake minimo?
+        // msg.sender è giocatore della partita id? 
+        // Come controllare che l'altro giocatore sia d'accordo?
+        games[id].stake = stake;
+    }
+
 }

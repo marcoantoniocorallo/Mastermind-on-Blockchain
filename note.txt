@@ -25,3 +25,4 @@ Prevented Security issues:
 
 Design choices:
 - Overloading da problemi con il testing ==> nomi leggermente diversi
+- Stake deciso off-chain
