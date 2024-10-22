@@ -3,35 +3,40 @@ pragma solidity ^0.8.0;
 
 import "./Utils.sol";
 
+/**
+ * @title Game
+ * @author Marco Antonio Corallo
+ * @notice Contract of a single game
+ */
 contract Game{
-    address private MasterMindAddr;
-    address private codeMaker;
-    address private codeBreaker;
-    bool private pending;
-    uint256 private stake;
-    bytes32[] private hash;
+    uint256 private id;
+    address private MasterMindAddr; // stored to check against who sent the transaction
+    address private codeMaker;      // initially it's the creator of the game
+    address private codeBreaker;    // initially it's the challenger
+    uint256 private stake;          // agreed off-chain
+    bytes32[] private hash;         // computed off-chain
     uint8[] private guesses;
     uint8[] private feedbacks;
 
-    constructor(address _contract, address _codeMaker, address _codeBreaker){
-        (MasterMindAddr,  codeMaker,  codeBreaker,    pending) = 
-        (_contract,     _codeMaker, _codeBreaker,   true);
+    constructor(address _contract, uint256 _id, address _codeMaker, address _codeBreaker){
+        (MasterMindAddr,    id,     codeMaker,  codeBreaker) = 
+        (_contract,         _id,    _codeMaker, _codeBreaker);
     }
 
-    function getCodeMaker() external view returns (address) { return codeMaker; }
-
-    function getCodeBreaker() external view returns (address) { return codeBreaker; }
-
-    function isPending() external view returns (bool) { return pending; }
-
-    function setCodeBreaker(address _codeBreaker) external {
+    ///@notice checks that the function is invoked legally by the MasterMind contract
+    modifier calledByMasterMind {
         require(msg.sender == MasterMindAddr, "Denied operation.");
+        _;
+    }
+
+    function getCodeMaker() calledByMasterMind external view 
+        returns (address) { return codeMaker; }
+
+    function getCodeBreaker() calledByMasterMind external view 
+        returns (address) { return codeBreaker; }
+
+    function setCodeBreaker(address _codeBreaker) calledByMasterMind external {
         codeBreaker = _codeBreaker;
-    }
-
-    function setPending() external {
-        require(msg.sender == MasterMindAddr, "Denied operation.");
-        pending = false;
     }
 
     /**
@@ -45,12 +50,10 @@ contract Game{
     }
 
     /**
-     * @param _stake: stake, agreed off-chain between the two players
+     * @param _stake: stake that the two players agree on off-chain
      */
     function setStake(uint256 _stake) private {
-        // probabilmente dovremo inserire una serie di controlli: stake minimo?
-        // msg.sender è giocatore della partita id? 
-        // Come controllare che l'altro giocatore sia d'accordo?
+        // TODO: payable
         stake = _stake;
     }
 

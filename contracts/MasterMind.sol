@@ -14,85 +14,71 @@ import "./Utils.sol";
  */
 contract MasterMind {
 
-    Game[] private games;
-
-    // probably to remove: minimize the number of state vars
-    uint256 colors = 6; // we chose 4 colors in an umbrella of 6 colors
-    uint256 holes = 4;  // duplicate colors are allowed
-    uint256 guesses = 8;// 8 guesses in a set
-    uint256 turns = 3;  // number of sets in a game
+    uint256 gameId;
+    mapping (uint256 => Game) private games;
+    uint256[] private free_games;
+    mapping (address => bool) private playing;
 
     constructor() {
         console.log("Console Log: Deployed by ");
         console.log(tx.origin);
     }
 
-    /**
-     * @notice Checks if a given user is already playing a game or already created a game
-     * @param user: user who want to query
-     * @return  true if user is already playing a game
-     *          true if user created a game and is waiting for the challenger
-     *          false otherwise
-     */
-    function isPlaying(address user) private view returns (bool) {
-        for (uint8 i = 0; i < games.length; ++i)
-            if  (games[i].getCodeMaker() == user || 
-                (!games[i].isPending() && games[i].getCodeBreaker() == user)
-            )   return true;
-        
-        return false;
+    modifier ifNotPlaying {
+        require ( ! playing[msg.sender], "The player is already registered for a game.");
+        _;
     }
 
     /**
      * @notice return the id of a random free game: pending game without a designated challenger
+     *         it also remove the picked id
      * @custom:revert if there are no free games
      */
-    function pickFreeGame() public view returns (uint8){
-        uint8 k = uint8(rand() % games.length);
-        for (uint8 i = 0; i < games.length; ++i)
-            if (games[(i+k)% games.length].isPending() && 
-                games[(i+k)% games.length].getCodeBreaker() == address(0))
-                return i;
+    function pickFreeGame() private returns (uint256){
+        require(free_games.length > 0, "There are no free games now.");
 
-        revert("There are no free games now.");
+        uint256 k = rand() % free_games.length;
+        uint256 id = free_games[k];
+        free_games[k] = free_games[free_games.length-1];
+        free_games.pop();
+        return id;
     }
 
     /**
-     * @notice Create a new game
      * @param challenger_addr: address of the player the game creator wants to play with
      *                         or address(0)
-     * @return new game's id
+     * @return game's id
      * @custom:emit GameCreated
      * @custom:revert if the player is already registered for a game or 
-     *                if there are already MAX_GAMES games
+     *                if the player attempts to create a game with himself
      */
-    function newGame(address challenger_addr) public returns (uint8) {
+    function newGame(address challenger_addr) ifNotPlaying public returns (uint8) {
         require ( challenger_addr != msg.sender, "Cannot create a game with yourself.");
-        require ( ! isPlaying(msg.sender), "The player is already registered for a game.");
-        require ( games.length < MAX_GAMES, "There are too many games. Try again in a few moments." );
 
-        games.push(new Game(address(this), msg.sender, challenger_addr));
-        emit GameCreated(msg.sender, games.length-1);
+        games[gameId] = new Game(address(this), gameId, msg.sender, challenger_addr);
+        playing[msg.sender] = true;
+        emit GameCreated(msg.sender, gameId);
         console.log("Console Log: New game created!");
 
-        return uint8(games.length-1);
+        return uint8(gameId++);
     }
 
     /// @notice Overload with no params: create a new game without a specific challenger
-    function newGame() external returns (uint8){ return newGame(address(0)); }
+    function newGame() ifNotPlaying external returns (uint8){ 
+        free_games.push(gameId);
+        return newGame(address(0)); 
+    }
 
     /**
-     * @notice Join a specific game
      * @param id: identifier of the game the challenger wants to join
      * @custom:emit GameJoined
      * @custom:revert if the player is already playing a game or 
      *                if the player picks an invalid id game
      */
-    function joinGame(uint8 id) external {
-        require(!isPlaying(msg.sender), "The player is already registered for a game.");
-        require(games[id].isPending() && games[id].getCodeBreaker() == msg.sender,"You're not allowed to play this game.");
+    function joinGame(uint8 id) ifNotPlaying external {
+        require(games[id].getCodeBreaker() == msg.sender,"You're not allowed to play this game.");
 
-        games[id].setPending();
+        playing[msg.sender] = true;
         emit GameJoined(msg.sender, id);
         console.log("Console Log: Game joined!");
     }
@@ -103,14 +89,11 @@ contract MasterMind {
      * @custom:revert if the player is already playing a game or 
      *                if there are no free games
      */
-    function joinGame() external {
-        require(!isPlaying(msg.sender), "The player is already registered for a game.");
-
-        uint8 id = pickFreeGame();
+    function joinGame() ifNotPlaying external {
+        uint256 id = pickFreeGame();
         games[id].setCodeBreaker(msg.sender);
-        games[id].setPending();
+        playing[msg.sender] = true;
         emit GameJoined(msg.sender, id);
         console.log("Console Log: Game joined!");
     }
-
 }
