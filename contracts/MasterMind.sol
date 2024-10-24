@@ -126,7 +126,7 @@ contract MasterMind {
         // shuffle players
         if (games[id].howManyPayed() == 2){
             games[id].shuffleRoles();
-            emit Shuffled();
+            emit Shuffled(games[id].getCodeMaker(), games[id].getCodeBreaker());
         }
     }
 

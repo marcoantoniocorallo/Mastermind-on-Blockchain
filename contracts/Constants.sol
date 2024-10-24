@@ -15,3 +15,9 @@ enum Color {
     Black,
     White
 }
+
+enum Phase{
+    Creation,
+    Preparation,
+    SecretCode
+}

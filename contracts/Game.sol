@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "./Utils.sol";
+import "./Constants.sol";
 import "hardhat/console.sol";
 
 /**
@@ -17,12 +18,13 @@ contract Game{
     uint256 private stake;          // agreed off-chain
     address [] payedBy;             // who already put the money?
     bytes32[] private hash;         // computed off-chain
+    Phase phase;
     uint8[] private guesses;
     uint8[] private feedbacks;
 
     constructor(uint256 _id, address  _codeMaker, address  _codeBreaker){
-        (MasterMindAddr,    id,     codeMaker,  codeBreaker) = 
-        (msg.sender,       _id,    _codeMaker, _codeBreaker);
+        (MasterMindAddr,    id,     codeMaker,  codeBreaker, phase) = 
+        (msg.sender,       _id,    _codeMaker, _codeBreaker, Phase.Creation);
     }
 
     /// @notice checks that the function is invoked legally by the MasterMind contract
@@ -34,6 +36,12 @@ contract Game{
     /// @notice checks that the function is originally invoked by the codemaker
     modifier codeMakerTurn {
         require(tx.origin == codeMaker, "Denied operation.");
+        _;
+    }
+
+    /// @notice checks that the functions is called in the correct phase
+    modifier checkPhase(Phase _phase) {
+        require(phase == _phase, "Operation not allowed now.");
         _;
     }
 
@@ -49,8 +57,11 @@ contract Game{
     function getCodeBreaker() calledByMasterMind external view 
         returns (address) { return codeBreaker; }
 
-    function setCodeBreaker(address  _codeBreaker) calledByMasterMind external {
+    /// @notice after set the codebreaker, updates the phase of the game
+    function setCodeBreaker(address  _codeBreaker) 
+        calledByMasterMind checkPhase(Phase.Creation) external {
         codeBreaker = _codeBreaker;
+        phase = Phase.Preparation;
     }
 
     function howManyPayed() external view returns (uint256) { return payedBy.length; }
@@ -66,13 +77,17 @@ contract Game{
      * @notice shuffle the roles (codemaker/codebreaker) of the id-th game
      *  when the game is created, the creator is codeMaker and the challenger is codeBreaker,
      *  just to optimize variables (=> gas!). This function probabilistically revert them.
+     *  In the end, it updates the phase of the game
      * @custom:revert if not called by mastermind or 
      *                if the stakes put by the two players doesn't coincide
      */
-    function shuffleRoles() calledByMasterMind external {
+    function shuffleRoles() 
+        calledByMasterMind checkPhase(Phase.Preparation) external {
         require(payedBy.length == 2, "Both the player must put stake to start the game.");
         if (rand() % 2 == 0)
             (codeMaker, codeBreaker) = (codeBreaker, codeMaker);
+
+        phase = Phase.SecretCode;
     }
 
     /**
@@ -86,8 +101,8 @@ contract Game{
      *                if the two players put different stake values or 
      *                if not invoked by mastermind
      */
-    function setStake(uint256 _stake) calledByMasterMind  external returns (uint256) {
-        require(_stake > 0, "Stake must be greater than zero");
+    function setStake(uint256 _stake) calledByMasterMind checkPhase(Phase.Preparation) external returns (uint256) {
+        require(_stake > 0, "Stake must be greater than zero.");
         require(
             payedBy.length == 0 || (payedBy.length == 1 && payedBy[0] != tx.origin),
             "Cannot put money again."
@@ -107,7 +122,8 @@ contract Game{
      * TODO: if the codemaker attempts to change the secret code after he choose it,
      *       the system may punish him.
      */
-    function setHash(bytes32[] calldata _hash) calledByMasterMind codeMakerTurn external {
+    function setHash(bytes32[] calldata _hash) 
+        calledByMasterMind codeMakerTurn checkPhase(Phase.SecretCode) external {
         require(hash.length == 0 ,"Secret Code already setted.");
         hash = _hash;
     }
