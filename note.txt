@@ -17,8 +17,7 @@ Prevented Security issues:
 - DDOS creating new game:
   Eve wants to DDOS the game vectors creating a sequence of new games.
   1. The gas makes his work in preventing it.
-  2. Since there are at most 256 games, Eve may still want to DDOS the vector by creating
-     ~256 games. This is no possible: once a player creates a game, he cannot create any others.
+  2. Furthermore, once a player creates a game, he cannot create any others.
 - Make an user not available to play:
   If P1 creates a game for playing with P2, P2 is not forced to play with P1 and may want to play 
   with someone else or to play a quick game (random chosen).
@@ -26,7 +25,23 @@ Prevented Security issues:
   come visto a lezione. Non è la soluzione migliore ma la migliore gratis
 - Access control: il contratto Game memorizza l'indirizzo del contratto MasterMind e permette
   operazioni sensibili (settaggi) solo provenienti da quell'indirizzo (?)
+  Game effettua anche i controlli sull'indirizzo di chi inizia la transazione, per verificare
+  che sia codemaker o codebreaker, a seconda del turno
 
 Design choices:
-- Overloading da problemi con il testing ==> nomi leggermente diversi
 - Stake deciso off-chain
+- id del game salvato off-chain sul client, inviato dal client per ogni operazione. 
+  Il contratto fa dei controlli quando riceve una transazione con un dato id.
+  Alternative erano mappare address => game, in modo da accedere alla partita di un giocatore
+  direttamente tramite l'address, senza controllare l'ID. Ma questa soluzione avrebbe portato 
+  a gestire una complessità maggiore in altri casi: uno su tutti, joinGame(ID) richiede di 
+  accedere ad un game tramite il suo ID, dunque (data la struttura mapping di solidity) 
+  si sarebbe comunque dovuto tenere un mapping id => game.
+  Un'altra soluzione sarebbe appunto tenere entrambi i mapping, ma a quel punto un gioco è 
+  accessibile tramite ID e il punto di debolezza continua ad esistere.
+  Infine, un'ultima soluzione sarebbe quella di usare una struct che wrappa il vettore di games
+  e che permette l'accesso al mapping address => game in modo publico e al mapping id => game 
+  solo tramite apposite funzioni (ad es. quando si vuole fare una joinGame).
+  Tuttavia questa soluzione aggiunge costi e complessità e si è preferito mantenere una struttura
+  più semplice.
+- OOP, security by design and by contract, decoupling...

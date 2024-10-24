@@ -14,10 +14,10 @@ import "./Utils.sol";
  */
 contract MasterMind {
 
-    uint256 gameId;
     mapping (uint256 => Game) private games;
-    uint256[] private free_games;
     mapping (address => bool) private playing;
+    uint256[] private free_games;
+    uint256 gameId;
 
     constructor() {
         console.log("Console Log: Deployed by ");
@@ -26,6 +26,15 @@ contract MasterMind {
 
     modifier ifNotPlaying {
         require ( ! playing[msg.sender], "The player is already registered for a game.");
+        _;
+    }
+
+    modifier userAllowed(uint256 id) {
+        require ( 
+            games[id].getCodeMaker() == msg.sender ||  
+            games[id].getCodeBreaker() == msg.sender,
+            "Denied operation."
+        );
         _;
     }
 
@@ -52,19 +61,19 @@ contract MasterMind {
      * @custom:revert if the player is already registered for a game or 
      *                if the player attempts to create a game with himself
      */
-    function newGame(address challenger_addr) ifNotPlaying public returns (uint8) {
+    function newGame(address challenger_addr) ifNotPlaying public returns (uint256) {
         require ( challenger_addr != msg.sender, "Cannot create a game with yourself.");
 
-        games[gameId] = new Game(address(this), gameId, msg.sender, challenger_addr);
+        games[gameId] = new Game(gameId, payable(msg.sender), payable(challenger_addr));
         playing[msg.sender] = true;
         emit GameCreated(msg.sender, gameId);
         console.log("Console Log: New game created!");
 
-        return uint8(gameId++);
+        return gameId++;
     }
 
     /// @notice Overload with no params: create a new game without a specific challenger
-    function newGame() ifNotPlaying external returns (uint8){ 
+    function newGame() ifNotPlaying external returns (uint256){ 
         free_games.push(gameId);
         return newGame(address(0)); 
     }
@@ -75,7 +84,7 @@ contract MasterMind {
      * @custom:revert if the player is already playing a game or 
      *                if the player picks an invalid id game
      */
-    function joinGame(uint8 id) ifNotPlaying external {
+    function joinGame(uint256 id) ifNotPlaying external {
         require(games[id].getCodeBreaker() == msg.sender,"You're not allowed to play this game.");
 
         playing[msg.sender] = true;
@@ -91,9 +100,43 @@ contract MasterMind {
      */
     function joinGame() ifNotPlaying external {
         uint256 id = pickFreeGame();
-        games[id].setCodeBreaker(msg.sender);
+        games[id].setCodeBreaker(payable(msg.sender));
         playing[msg.sender] = true;
         emit GameJoined(msg.sender, id);
         console.log("Console Log: Game joined!");
     }
+
+    /**
+     * @notice Allow players to put stake. When both the players put it, shuffle roles
+     * @param id: game id
+     * @custom:revert if who sent the transaction is not allowed for this game or 
+     *                if the two stakes don't coincide
+     */
+    function prepareGame(uint256 id) userAllowed(id) payable external {
+        // if stakes not coincide => revert and refund
+        if (games[id].howManyPayed() == 1 &&  games[id].getStake() != msg.value) {
+            revertFirstPlayerPayment(id);
+            revert("The two stakes not coincide.");
+        }
+        
+        // set stake
+        games[id].setStake(msg.value);
+        emit StakePut(msg.sender, msg.value);
+
+        // shuffle players
+        if (games[id].howManyPayed() == 2){
+            games[id].shuffleRoles();
+            emit Shuffled();
+        }
+    }
+
+    function revertFirstPlayerPayment(uint256 id) private {
+        payable(games[id].whoPayed())
+            .transfer(games[id].getStake());
+    }
+
+    function putCode(bytes32[] calldata _hash, uint256 id) userAllowed(id) external {
+        games[id].setHash(_hash);
+    }
+
 }

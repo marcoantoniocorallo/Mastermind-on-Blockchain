@@ -96,7 +96,7 @@ describe("Create/Join Game Tests", function () {
       .withArgs(owner.address, 0);
 
     // game joined by another user
-    await expect(contract.connect(addr2)["joinGame(uint8)"](0))
+    await expect(contract.connect(addr2)["joinGame(uint256)"](0))
       .to.emit(contract, "GameJoined")
       .withArgs(addr2.address, 0);
 
@@ -116,7 +116,7 @@ describe("Create/Join Game Tests", function () {
 
 
     // game joined by another user
-    await expect(contract.connect(addr2)["joinGame(uint8)"](1))
+    await expect(contract.connect(addr2)["joinGame(uint256)"](1))
       .to.emit(contract, "GameJoined")
       .withArgs(addr2.address, 1);
 
@@ -131,7 +131,7 @@ describe("Create/Join Game Tests", function () {
       .withArgs(owner.address, 0);
 
     // game joined by another user
-    await expect(contract.connect(addr2)["joinGame(uint8)"](0))
+    await expect(contract.connect(addr2)["joinGame(uint256)"](0))
       .to.be.revertedWith("You're not allowed to play this game.");
   });
 
@@ -142,5 +142,31 @@ describe("Create/Join Game Tests", function () {
     await expect(contract["newGame(address)"](owner))
       .to.be.revertedWith("Cannot create a game with yourself.");
   });
+
+  it("Test10 : join game with no game available - revert", async function () {
+    const { contract, owner } = await loadFixture(deployFixture);  
+
+    await expect(contract["joinGame()"]())
+      .to.be.revertedWith("There are no free games now.");
+  });
+
+  it("Test11 : remove free game and then join game with no game available - revert", async function () {
+    const { contract, owner, addr1, addr2 } = await loadFixture(deployFixture);  
+
+    // game created by the owner of the contract
+    await expect(contract["newGame()"]())
+      .to.emit(contract, "GameCreated")
+      .withArgs(owner.address, 0);
+
+    // game created by the owner of the contract
+    await expect(contract.connect(addr1)["joinGame()"]())
+      .to.emit(contract, "GameJoined")
+      .withArgs(addr1.address, 0);
+
+    // now there are no free games
+    await expect(contract.connect(addr2)["joinGame()"]())
+      .to.be.revertedWith("There are no free games now.");
+  });
+
 
 });
