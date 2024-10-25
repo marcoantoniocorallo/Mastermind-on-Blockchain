@@ -29,7 +29,13 @@ Prevented Security issues:
   che sia codemaker o codebreaker, a seconda del turno
 
 Design choices:
-- Stake deciso off-chain
+- Stake deciso off-chain, poi trasmesso come messaggio al contratto da entrambi i giocatori.
+  Se i due stakes non coincidono, è probabile che uno dei due voglia barare, ma noon sappiamo chi.
+  Per evitare queste situazioni, la partita viene chiusa (poco male dato che non era ancora iniziata)...
+  Se i due stakes coincidono, vengono inviati. Se i soldi inviati da uno dei due non coincidono con
+  quanto dichiarato, il player viene punito
+- Punishment: lo stake viene dato all'altro giocatore (o me lo tengo io? :D) e in più l'indirizzo 
+  viene messo in black list per N blocchi
 - id del game salvato off-chain sul client, inviato dal client per ogni operazione. 
   Il contratto fa dei controlli quando riceve una transazione con un dato id.
   Alternative erano mappare address => game, in modo da accedere alla partita di un giocatore

@@ -18,6 +18,7 @@ enum Color {
 
 enum Phase{
     Creation,
+    Declaration,
     Preparation,
     SecretCode
 }

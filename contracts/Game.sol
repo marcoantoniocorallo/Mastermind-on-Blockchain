@@ -16,6 +16,7 @@ contract Game{
     address private codeMaker;      // initially it's the creator of the game
     address private codeBreaker;    // initially it's the challenger
     uint256 private stake;          // agreed off-chain
+    address [] declaredBy;          // who already declared the stake?
     address [] payedBy;             // who already put the money?
     bytes32[] private hash;         // computed off-chain
     Phase phase;
@@ -28,6 +29,7 @@ contract Game{
     }
 
     /// @notice checks that the function is invoked legally by the MasterMind contract
+    ///         note: MasterMind checks that the sender is allowed to access this game
     modifier calledByMasterMind {
         require(msg.sender == MasterMindAddr, "Denied operation.");
         _;
@@ -51,17 +53,17 @@ contract Game{
         _;
     }
 
-    function getCodeMaker() calledByMasterMind external view 
+    function getCodeMaker() external calledByMasterMind view 
         returns (address) { return codeMaker; }
 
-    function getCodeBreaker() calledByMasterMind external view 
+    function getCodeBreaker() external calledByMasterMind view 
         returns (address) { return codeBreaker; }
 
     /// @notice after set the codebreaker, updates the phase of the game
     function setCodeBreaker(address  _codeBreaker) 
         calledByMasterMind checkPhase(Phase.Creation) external {
         codeBreaker = _codeBreaker;
-        phase = Phase.Preparation;
+        phase = Phase.Declaration;
     }
 
     function howManyPayed() external view returns (uint256) { return payedBy.length; }
@@ -81,8 +83,8 @@ contract Game{
      * @custom:revert if not called by mastermind or 
      *                if the stakes put by the two players doesn't coincide
      */
-    function shuffleRoles() 
-        calledByMasterMind checkPhase(Phase.Preparation) external {
+    function shuffleRoles() external
+        calledByMasterMind checkPhase(Phase.Preparation) {
         require(payedBy.length == 2, "Both the player must put stake to start the game.");
         if (rand() % 2 == 0)
             (codeMaker, codeBreaker) = (codeBreaker, codeMaker);
@@ -90,28 +92,50 @@ contract Game{
         phase = Phase.SecretCode;
     }
 
+    function declareStake(uint256 _stake) external
+        calledByMasterMind checkPhase(Phase.Declaration) returns (bool) {
+        require(_stake > 0, "Stake must be greater than zero.");
+        require(
+            declaredBy.length == 0 || (declaredBy.length == 1 && declaredBy[0] != tx.origin),
+            "You already declared stake."
+        );
+
+        if (declaredBy.length == 1 && stake != _stake) 
+            return false;
+
+        stake = _stake;
+        declaredBy.push(tx.origin);
+
+        if (declaredBy.length == 2)
+            phase = Phase.Preparation;
+
+        return true;
+    }
+
     /**
      * @notice get player' stakes; 
      *         if the players put different stake values, the last transaction is reverted
      *         while the first one is refunded.
-     * @return number of players who put stake
+     * @return  false if the put stake is different from what was declared,
+     *          true otherwise
      * @custom:revert if msg.value == 0 or 
      *                if more than 1 player already put money or 
      *                if a player attempts to put money more than one time or 
-     *                if the two players put different stake values or 
      *                if not invoked by mastermind
      */
-    function setStake(uint256 _stake) calledByMasterMind checkPhase(Phase.Preparation) external returns (uint256) {
+    function setStake(uint256 _stake) external
+        calledByMasterMind checkPhase(Phase.Preparation) returns (bool) {
         require(_stake > 0, "Stake must be greater than zero.");
         require(
             payedBy.length == 0 || (payedBy.length == 1 && payedBy[0] != tx.origin),
             "Cannot put money again."
         );
 
-        stake = _stake;
-        payedBy.push((tx.origin));
-    
-        return payedBy.length;
+        if (stake != _stake) 
+            return false;
+
+        payedBy.push(tx.origin);
+        return true;
     }
 
     /**
@@ -122,8 +146,8 @@ contract Game{
      * TODO: if the codemaker attempts to change the secret code after he choose it,
      *       the system may punish him.
      */
-    function setHash(bytes32[] calldata _hash) 
-        calledByMasterMind codeMakerTurn checkPhase(Phase.SecretCode) external {
+    function setHash(bytes32[] calldata _hash) external
+        calledByMasterMind codeMakerTurn checkPhase(Phase.SecretCode) {
         require(hash.length == 0 ,"Secret Code already setted.");
         hash = _hash;
     }
