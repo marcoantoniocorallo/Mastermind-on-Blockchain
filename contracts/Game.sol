@@ -68,7 +68,12 @@ contract Game{
 
     function howManyPayed() external view returns (uint256) { return payedBy.length; }
 
-    function getStake() external view returns (uint256) { return stake; }
+    /// @notice getter for stake, but it reset the value to avoid possible reentrancy oversight
+    function popStake() external returns (uint256) { 
+        uint256 tmp = stake;
+        delete stake;
+        return tmp; 
+    }
 
     function whoPayed() external view returns (address) { 
         require(payedBy.length > 0, "Nobody paid.");

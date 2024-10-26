@@ -27,6 +27,9 @@ Prevented Security issues:
   operazioni sensibili (settaggi) solo provenienti da quell'indirizzo (?)
   Game effettua anche i controlli sull'indirizzo di chi inizia la transazione, per verificare
   che sia codemaker o codebreaker, a seconda del turno
+- Reentrancy: Lo stake viene settato a 0 prima di essere restituito dal metodo, inoltre viene 
+  usata la funzione call settando il gas a 3500: abbastanza per inviare i soldi ma non abbastanza
+  per inviarli due volte
 
 Design choices:
 - Stake deciso off-chain, poi trasmesso come messaggio al contratto da entrambi i giocatori.

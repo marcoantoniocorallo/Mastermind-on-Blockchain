@@ -16,7 +16,6 @@ contract MasterMind {
     mapping(uint256 => Game) private games;
     mapping(address => bool) private playing;
     uint256[] private free_games;
-    address[] private black_list;
     uint256 gameId;
 
     constructor() {
@@ -145,24 +144,42 @@ contract MasterMind {
 
     /**
      * @notice Allow players to put stake. When both the players put it, shuffle roles
-     *         If a player put a different stake from what was declared, the contract block it
-     *         and reward the other one.
+     *         If a player put a different stake from what was declared, the contract punish it
+     *         and reward the other one. Furthermore, if the other player already put its stake,
+     *         the cheater player pays also the gas for refunding him.
      * @param id: game id
      * @custom:emit StakePut
      *              Shuffled
      *              Punished
      *              Transfered
+     *              GameClosed
      * @custom:revert if who sent the transaction is not allowed for this game
      */
     function prepareGame(uint256 id) external payable userAllowed(id) {
-        
-        // set stake if it coincide with what was declared, punish and reward otherwise
+
+        emit StakePut(msg.sender, msg.value);
         if (! games[id].setStake(msg.value)){
-            punishAndReward(id, msg.sender, msg.value);
+
+            // stake not coincide with what was declared => punish and reward
+            address toReward = games[id].getCodeMaker() == msg.sender ? 
+                games[id].getCodeBreaker() : 
+                games[id].getCodeMaker();
+
+            uint256 stake = games[id].popStake();
+
+            call(payable(toReward), msg.value);
+            emit Punished(msg.sender);
+            emit Transfered(toReward, msg.value);
+
+            // if the other player paied, refund him
+            if (games[id].howManyPayed() == 1){
+                call(payable(toReward), stake);
+                emit Transfered(toReward, stake);
+            }
+
             closeGame(id);
         } else {
-            emit StakePut(msg.sender, msg.value);
-
+        
             // shuffle players
             if (games[id].howManyPayed() == 2) {
                 games[id].shuffleRoles();
@@ -172,23 +189,13 @@ contract MasterMind {
     }
 
     /**
-     * @notice punish an user that had a bad behaviour and reward the other one
-     * @param id: game id 
-     * @param toPunish: address of the user who behaved badly
-     * @param value: value to reward to the other user
-     * @custom:emit Punished
-     *              Transfered
+     * @notice carry out a transfering by "call" setting the gas and check the failure
+     * @param _to: address to pay
+     * @param value: value to transfer
      */
-    function punishAndReward(uint256 id, address toPunish, uint256 value) private {
-        address toReward = 
-            games[id].getCodeMaker() == toPunish ? 
-                games[id].getCodeBreaker() : 
-                games[id].getCodeMaker();
-        black_list.push(toPunish);
-        payable(toReward).transfer(value);
-        
-        emit Punished(toPunish);
-        emit Transfered(toReward, value);
+    function call(address payable _to, uint256 value) private {
+        (bool sent, ) = _to.call{value: value, gas: 3500}(""); // set gas 
+        require(sent, "Failed to send Ether");
     }
 
     function putCode(
