@@ -18,8 +18,9 @@ contract Game{
     uint256 private stake;          // agreed off-chain
     address [] declaredBy;          // who already declared the stake?
     address [] payedBy;             // who already put the money?
-    bytes32[] private hash;         // computed off-chain
+    bytes32 private hash;           // computed and salted off-chain
     Phase phase;
+    uint8 turn;
     uint8[] private guesses;
     uint8[] private feedbacks;
 
@@ -145,16 +146,18 @@ contract Game{
 
     /**
      * @param _hash: hash of a secret code, computed off-chain
+     * @return false if the codeMaker try to cheat by change the code, in order to punish him
+     *         true otherwise
      * @custom:revert if not invoked by MasterMind or 
-     *                if not originally sent by the codeMaker or 
-     *                if the secret code has been already setted.
-     * TODO: if the codemaker attempts to change the secret code after he choose it,
-     *       the system may punish him.
+     *                if not originally sent by the codeMaker
      */
-    function setHash(bytes32[] calldata _hash) external
-        calledByMasterMind codeMakerTurn checkPhase(Phase.SecretCode) {
-        require(hash.length == 0 ,"Secret Code already setted.");
+    function setHash(bytes32 _hash) external
+        calledByMasterMind codeMakerTurn checkPhase(Phase.SecretCode) returns (bool) {
+        if (hash.length != 0) 
+            return false;
+
         hash = _hash;
+        return true;
     }
 
 }

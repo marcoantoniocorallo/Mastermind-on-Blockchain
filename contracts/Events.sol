@@ -8,4 +8,5 @@ event StakePut(address _who, uint256 _stake);
 event Shuffled(address _codemaker, address _codebreaker);
 event Transfered(address _who, uint256 howmuch);
 event Punished(address _who);
+event SecretCodeSent(address _who, bytes32 hash);
 event GameClosed(uint256 id);

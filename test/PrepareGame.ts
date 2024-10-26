@@ -2,8 +2,9 @@ import "@nomicfoundation/hardhat-chai-matchers"
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers";
+import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { deployFixture } from "./Fixtures";
-import { compute_gas, expect_eq } from "./Utils";
+import { compute_gas, expect_eq, hash, Color } from "./Utils";
 
 describe("Prepare game Tests", function () {
 
@@ -503,6 +504,49 @@ describe("Prepare game Tests", function () {
     await expect(contract.declareStake(0, 1))
       .to.be.revertedWith("Operation not allowed now.");
 
+  });
+
+  it("Test17 : Secret Code sent", async function () {
+    const { contract, owner, addr1 } = await loadFixture(deployFixture);  
+
+        // game created by the owner of the contract
+    await expect(contract["newGame()"]())
+      .to.emit(contract, "GameCreated")
+      .withArgs(owner.address, 0);
+
+    // game joined by another user
+    await expect(contract.connect(addr1)["joinGame()"]())
+      .to.emit(contract, "GameJoined")
+      .withArgs(addr1.address, 0);
+
+    // declare owner
+    await expect(contract.declareStake(0, 1))
+      .to.emit(contract, "StakeDeclared")
+      .withArgs(owner, 1);
+
+    // declare addr1
+    await expect(contract.connect(addr1).declareStake(0, 1))
+      .to.emit(contract, "StakeDeclared")
+      .withArgs(addr1, 1);
+
+    let value = ethers.parseUnits("1", "wei");
+
+    // owner send money
+    await expect(contract.prepareGame(0, { value: value } ) )
+      .to.emit(contract, "StakePut")
+      .withArgs(owner.address, 1)
+
+    // addr1 send money
+    await expect(contract.connect(addr1).prepareGame(0, { value: value } ) )
+      .to.emit(contract, "StakePut")
+      .withArgs(addr1.address, 1)
+      .and.to.emit(contract, "Shuffled");
+
+    const code = [Color.Red, Color.Red, Color.Yellow, Color.Green];
+    const salt = [0, 0, 0, 0, 0];
+    await expect(contract.sendCode(hash(code, salt), 0))
+      .to.emit(contract, "SecretCodeSent")
+      .withArgs(anyValue, hash(code, salt));
   });
 
 });

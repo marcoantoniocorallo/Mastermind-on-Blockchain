@@ -9,3 +9,21 @@ export function compute_gas(gas_cost : bigint[]) : bigint {
 export function expect_eq(balance1 : bigint, balance2 : bigint) : Chai.Assertion {
     return expect(balance1).to.equal(ethers.parseUnits(balance2.toString(), 0));
 }
+
+export function hash(code : number[], salt : number[]) : string {
+    // Concatenate enums and salt as bytes
+    const data = Uint8Array.from([...code, ...salt]);
+
+    // Hash the raw byte data
+    // note: solidityPackedKeccak256 will be deprecated
+    return ethers.keccak256(data);
+}
+
+export enum Color{
+    Red, 
+    Blue,
+    Yellow,
+    Green,
+    Black,
+    White
+}

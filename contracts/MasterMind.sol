@@ -40,6 +40,15 @@ contract MasterMind {
         _;
     }
 
+    // TODO: to remove
+    function forTest() external {
+        Color[4] memory code = [Color.Red, Color.Red, Color.Yellow, Color.Green];
+        uint8[5] memory salt = [0, 0, 0, 0, 0];
+        emit SecretCodeSent(address(0), hash(code, salt));
+        //console.log("MASTERMIND");
+        //console.log(toHexString(hash(code, salt)));
+    }
+
     /**
      * @notice return the id of a random free game: pending game without a designated challenger
      *         it also remove the picked id
@@ -166,10 +175,7 @@ contract MasterMind {
                 games[id].getCodeMaker();
 
             uint256 stake = games[id].popStake();
-
-            call(payable(toReward), msg.value);
-            emit Punished(msg.sender);
-            emit Transfered(toReward, msg.value);
+            punishAndReward(msg.sender, payable(toReward), msg.value);
 
             // if the other player paied, refund him
             if (games[id].howManyPayed() == 1){
@@ -189,6 +195,19 @@ contract MasterMind {
     }
 
     /**
+     * @param toPunish: user to punish
+     * @param toReward: user to reward
+     * @param stake: the reward
+     * @custom:emit Punished
+     *              Transfered
+     */
+    function punishAndReward(address toPunish, address payable toReward, uint256 stake) private {
+        call(toReward, stake);
+        emit Punished(toPunish);
+        emit Transfered(toReward, stake);
+    }
+
+    /**
      * @notice carry out a transfering by "call" setting the gas and check the failure
      * @param _to: address to pay
      * @param value: value to transfer
@@ -198,10 +217,28 @@ contract MasterMind {
         require(sent, "Failed to send Ether");
     }
 
-    function putCode(
-        bytes32[] calldata _hash,
-        uint256 id
-    ) external userAllowed(id) {
-        games[id].setHash(_hash);
+    /**
+     * @notice allow a player to send the secret code
+     * @param _hash: secret code, hashed and salted off-chain
+     * @param id: game id 
+     * @custom:emit SecretCodeSent
+     *              Punished
+     *              Transfered
+     *              GameClosed
+     */
+    function sendCode(bytes32 _hash, uint256 id) 
+        external userAllowed(id) {
+        emit SecretCodeSent(msg.sender, _hash);
+        if (! games[id].setHash(_hash))
+            punishAndReward(
+                msg.sender,
+                payable(
+                    games[id].getCodeMaker() == msg.sender ? 
+                    games[id].getCodeBreaker() : 
+                    games[id].getCodeMaker()
+                ),
+                // at this phase of the game, the stake has been already put by both players
+                games[id].popStake() * 2 
+            );
     }
 }
