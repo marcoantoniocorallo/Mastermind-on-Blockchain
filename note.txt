@@ -31,6 +31,9 @@ Prevented Security issues:
   usata la funzione call settando il gas a 3500: abbastanza per inviare i soldi ma non abbastanza
   per inviarli due volte
 - Bruteforce sul codice: salt 
+- Integer overflow sull'id delle partite: utilizzato un uint256 => 2^256 numero improponibile di partite
+  Si potrebbe aggiungere un controllo t.c. ogni ~mln di partite resetta l'id, ragionevole come quantità
+  ma spreca gas inutilmente dato che 2^256 chissà se e quando verrà raggiunto
 
 Design choices:
 - Stake deciso off-chain, poi trasmesso come messaggio al contratto da entrambi i giocatori.
@@ -38,8 +41,7 @@ Design choices:
   Per evitare queste situazioni, la partita viene chiusa (poco male dato che non era ancora iniziata)...
   Se i due stakes coincidono, vengono inviati. Se i soldi inviati da uno dei due non coincidono con
   quanto dichiarato, il player viene punito
-- Punishment: lo stake viene dato all'altro giocatore (o me lo tengo io? :D) e in più l'indirizzo 
-  viene messo in black list per N blocchi
+- Punishment: lo stake viene dato all'altro giocatore (o me lo tengo io? :D) 
 - id del game salvato off-chain sul client, inviato dal client per ogni operazione. 
   Il contratto fa dei controlli quando riceve una transazione con un dato id.
   Alternative erano mappare address => game, in modo da accedere alla partita di un giocatore
@@ -55,3 +57,4 @@ Design choices:
   Tuttavia questa soluzione aggiunge costi e complessità e si è preferito mantenere una struttura
   più semplice.
 - OOP, security by design and by contract, decoupling...
+- Se il codemaker tenta di cambiare il codice dopo averlo settato, viene punito e premiato l'avversario

@@ -20,7 +20,7 @@ function rand() view returns (uint256) {
  * @param code: the color code
  * @param salt: a salt chosen by the user to improve robustness 
  */
-function hash(Color[N_HOLES] memory code, uint8[SALT_SZ] memory salt) pure returns (bytes32) {
+function hashOf(Color[N_HOLES] memory code, uint8[SALT_SZ] memory salt) pure returns (bytes32) {
     bytes memory packed;
     for (uint i = 0; i < N_HOLES; i++) packed = abi.encodePacked(packed, uint8(code[i]));
     for (uint i = 0; i < SALT_SZ; i++) packed = abi.encodePacked(packed, uint8(salt[i]));

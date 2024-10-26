@@ -153,7 +153,7 @@ contract Game{
      */
     function setHash(bytes32 _hash) external
         calledByMasterMind codeMakerTurn checkPhase(Phase.SecretCode) returns (bool) {
-        if (hash.length != 0) 
+        if (hash != bytes32(0))
             return false;
 
         hash = _hash;

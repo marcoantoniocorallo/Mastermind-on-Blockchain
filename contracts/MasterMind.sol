@@ -44,7 +44,7 @@ contract MasterMind {
     function forTest() external {
         Color[4] memory code = [Color.Red, Color.Red, Color.Yellow, Color.Green];
         uint8[5] memory salt = [0, 0, 0, 0, 0];
-        emit SecretCodeSent(address(0), hash(code, salt));
+        emit SecretCodeSent(address(0), hashOf(code, salt));
         //console.log("MASTERMIND");
         //console.log(toHexString(hash(code, salt)));
     }
@@ -229,7 +229,7 @@ contract MasterMind {
     function sendCode(bytes32 _hash, uint256 id) 
         external userAllowed(id) {
         emit SecretCodeSent(msg.sender, _hash);
-        if (! games[id].setHash(_hash))
+        if (! games[id].setHash(_hash)){
             punishAndReward(
                 msg.sender,
                 payable(
@@ -238,7 +238,10 @@ contract MasterMind {
                     games[id].getCodeMaker()
                 ),
                 // at this phase of the game, the stake has been already put by both players
-                games[id].popStake() * 2 
+                //games[id].popStake() * 2 
+                games[id].popStake() * 2
             );
+            closeGame(id);
+        }
     }
 }
