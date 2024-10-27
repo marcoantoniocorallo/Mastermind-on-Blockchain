@@ -21,5 +21,6 @@ enum Phase{
     Creation,
     Declaration,
     Preparation,
-    SecretCode
+    SecretCode,
+    Play
 }

@@ -57,4 +57,3 @@ Design choices:
   Tuttavia questa soluzione aggiunge costi e complessità e si è preferito mantenere una struttura
   più semplice.
 - OOP, security by design and by contract, decoupling...
-- Se il codemaker tenta di cambiare il codice dopo averlo settato, viene punito e premiato l'avversario

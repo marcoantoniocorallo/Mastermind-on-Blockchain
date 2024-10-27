@@ -90,6 +90,16 @@ describe("Prepare game Tests", function () {
       .and.to.emit(contract, "GameClosed")
       .withArgs(0);
 
+    // game created by the owner of the contract
+    await expect(contract.connect(owner)["newGame()"]())
+      .to.emit(contract, "GameCreated")
+      .withArgs(owner.address, 1);
+
+    // game created by addr1
+    await expect(contract.connect(addr1)["newGame()"]())
+      .to.emit(contract, "GameCreated")
+      .withArgs(addr1.address, 2);
+
   });
 
   it("Test5 : Stakes declared two times - revert", async function () {
@@ -651,7 +661,7 @@ describe("Prepare game Tests", function () {
       .to.be.revertedWith("Denied operation.")
   });
 
-  it("Test21 : Secret Code sent two times - punish and reward", async function () {
+  it("Test21 : Secret Code sent two times - revert", async function () {
     const { contract, owner, addr1 } = await loadFixture(deployFixture);  
 
     // game created by the owner of the contract
@@ -696,144 +706,7 @@ describe("Prepare game Tests", function () {
 
     // re-send
     await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
-      .to.emit(contract, "SecretCodeSent")
-      .withArgs(anyValue, hash(code, salt))
-      .and.to.emit(contract, "Punished")
-      .withArgs(codemaker)
-      .and.to.emit(contract, "Transfered")
-      .withArgs(codebreaker, 2)
-      .and.to.emit(contract, "GameClosed")
-      .withArgs(0);
-
-  });
-
-  it("Test22 : Secret Code sent two times - punish and reward - check balances", async function () {
-    const { contract, owner, addr1 } = await loadFixture(deployFixture);  
-    let owner_gas_cost = [];
-    let addr1_gas_cost = [];
-
-    let owner_balance0 = await ethers.provider.getBalance(owner);
-    let addr1_balance0 = await ethers.provider.getBalance(addr1);
-    let contract_balance0 = await ethers.provider.getBalance(contract);
-
-    // owner create a game
-    let owner_receipt_newgame = await (await contract["newGame()"]()).wait();
-    owner_gas_cost.push(owner_receipt_newgame!.gasUsed * owner_receipt_newgame!.gasPrice);
-
-    // addr1 join
-    let addr1_receipt_newgame = await (await contract.connect(addr1)["joinGame()"]()).wait();
-    addr1_gas_cost.push(addr1_receipt_newgame!.gasUsed * addr1_receipt_newgame!.gasPrice);
-
-    // declare owner
-    let owner_receipt_declaregame = await (await contract.declareStake(0, 1)).wait();
-    owner_gas_cost.push(owner_receipt_declaregame!.gasUsed * owner_receipt_declaregame!.gasPrice);
-
-    // declare addr1
-    let addr1_receipt_declaregame = await (await contract.connect(addr1).declareStake(0, 1)).wait();
-    addr1_gas_cost.push(addr1_receipt_declaregame!.gasUsed * addr1_receipt_declaregame!.gasPrice);
-
-    let value = ethers.parseUnits("1", "wei");
-    
-    // owner pays
-    let owner_receipt_preparegame = await (await contract.prepareGame(0, { value: value } )).wait();
-    owner_gas_cost.push(owner_receipt_preparegame!.gasUsed * owner_receipt_preparegame!.gasPrice);
-
-    // addr1 pays
-    let addr1_receipt_preparegame = await (await contract.connect(addr1).prepareGame(0, { value: value } )).wait();
-    addr1_gas_cost.push(addr1_receipt_preparegame!.gasUsed * addr1_receipt_preparegame!.gasPrice);
-
-    const logs : any =  addr1_receipt_preparegame!.logs;
-    const codemaker_addr : string = logs[logs.length-1].args[0];
-
-    let [codemaker, codebreaker, cm_gas, cb_gas] = 
-        codemaker_addr === owner.address ? 
-        [owner, addr1, owner_gas_cost, addr1_gas_cost] : 
-        [addr1, owner, addr1_gas_cost, owner_gas_cost];
-
-    // send secret code
-    const code = [Color.Red, Color.Red, Color.Yellow, Color.Green];
-    const salt = [0, 0, 0, 0, 0];
-    let cm_receipt_send = await (await contract.connect(codemaker).sendCode(hash(code, salt), 0)).wait();
-    cm_gas.push(cm_receipt_send!.gasUsed * cm_receipt_send!.gasPrice);
-
-    // send secret code again
-    cm_receipt_send = await (await contract.connect(codemaker).sendCode(hash(code, salt), 0)).wait();
-    cm_gas.push(cm_receipt_send!.gasUsed * cm_receipt_send!.gasPrice);
-
-    let owner_balance1 = await ethers.provider.getBalance(owner);
-    let addr1_balance1 = await ethers.provider.getBalance(addr1);
-    let contract_balance1 = await ethers.provider.getBalance(contract);
-
-    // codemaker == owner => owner bad behaviour
-    if (codemaker_addr == owner.address) {
-      expect_eq(owner_balance1, owner_balance0 - compute_gas(cm_gas) - 1n);
-      expect_eq(addr1_balance1, addr1_balance0 - compute_gas(cb_gas) + 1n );
-      expect_eq(contract_balance1, contract_balance0);
-    } else{
-      expect_eq(owner_balance1, owner_balance0 - compute_gas(cb_gas) + 1n);
-      expect_eq(addr1_balance1, addr1_balance0 - compute_gas(cm_gas) - 1n );
-      expect_eq(contract_balance1, contract_balance0);
-    }
-  });
-
-  it("Test23 : Secret Code sent two times - punish and reward - create new game", async function () {
-    const { contract, owner, addr1 } = await loadFixture(deployFixture);  
-
-    // game created by the owner of the contract
-    await expect(contract["newGame()"]())
-      .to.emit(contract, "GameCreated")
-      .withArgs(owner.address, 0);
-
-    // game joined by another user
-    await expect(contract.connect(addr1)["joinGame()"]())
-      .to.emit(contract, "GameJoined")
-      .withArgs(addr1.address, 0);
-
-    // declare owner
-    await expect(contract.declareStake(0, 1))
-      .to.emit(contract, "StakeDeclared")
-      .withArgs(owner, 1);
-
-    // declare addr1
-    await expect(contract.connect(addr1).declareStake(0, 1))
-      .to.emit(contract, "StakeDeclared")
-      .withArgs(addr1, 1);
-
-    let value = ethers.parseUnits("1", "wei");
-
-    // owner send money
-    await expect(contract.prepareGame(0, { value: value } ) )
-      .to.emit(contract, "StakePut")
-      .withArgs(owner.address, 1)
-
-    // addr1 send money
-    let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
-    const logs : any =  receipt!.logs;
-    const codemaker_addr : string = logs[logs.length-1].args[0];
-
-    const [codemaker, codebreaker] = codemaker_addr === owner.address ? [owner, addr1] : [addr1, owner];
-
-    const code = [Color.Red, Color.Red, Color.Yellow, Color.Green];
-    const salt = [0, 0, 0, 0, 0];
-    await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
-      .to.emit(contract, "SecretCodeSent")
-      .withArgs(anyValue, hash(code, salt));
-
-    // re-send
-    await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
-      .to.emit(contract, "SecretCodeSent")
-      .withArgs(anyValue, hash(code, salt))
-      .and.to.emit(contract, "Punished")
-      .withArgs(codemaker)
-      .and.to.emit(contract, "Transfered")
-      .withArgs(codebreaker, 2)
-      .and.to.emit(contract, "GameClosed")
-      .withArgs(0);
-
-    // game created by the owner of the contract
-    await expect(contract.connect(codemaker)["newGame()"]())
-      .to.emit(contract, "GameCreated")
-      .withArgs(codemaker.address, 1);
+      .to.be.revertedWith("Operation not allowed now.");
 
   });
 

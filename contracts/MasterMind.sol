@@ -222,26 +222,10 @@ contract MasterMind {
      * @param _hash: secret code, hashed and salted off-chain
      * @param id: game id 
      * @custom:emit SecretCodeSent
-     *              Punished
-     *              Transfered
-     *              GameClosed
      */
     function sendCode(bytes32 _hash, uint256 id) 
         external userAllowed(id) {
         emit SecretCodeSent(msg.sender, _hash);
-        if (! games[id].setHash(_hash)){
-            punishAndReward(
-                msg.sender,
-                payable(
-                    games[id].getCodeMaker() == msg.sender ? 
-                    games[id].getCodeBreaker() : 
-                    games[id].getCodeMaker()
-                ),
-                // at this phase of the game, the stake has been already put by both players
-                //games[id].popStake() * 2 
-                games[id].popStake() * 2
-            );
-            closeGame(id);
-        }
+        games[id].setHash(_hash);
     }
 }

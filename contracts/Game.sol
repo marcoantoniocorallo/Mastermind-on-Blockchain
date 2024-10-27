@@ -87,7 +87,8 @@ contract Game{
      *  just to optimize variables (=> gas!). This function probabilistically revert them.
      *  In the end, it updates the phase of the game
      * @custom:revert if not called by mastermind or 
-     *                if the stakes put by the two players doesn't coincide
+     *                if the stakes put by the two players doesn't coincide or
+     *                if invoked while in another phase
      */
     function shuffleRoles() external
         calledByMasterMind checkPhase(Phase.Preparation) {
@@ -98,6 +99,16 @@ contract Game{
         phase = Phase.SecretCode;
     }
 
+    /**
+     * @notice allow the players to declare the stake
+     * @param _stake: stake that they agreed on off-chain
+     * @return false if the stakes declared by the two players don't coincide
+     *         true otherwise
+     * @custom:revert if _stake == 0 or 
+     *                if a player attempts to declare more than one time the stake or 
+     *                if this tx is not invoked by the mastermind contract or 
+     *                if this tx is sent while in another phase
+     */
     function declareStake(uint256 _stake) external
         calledByMasterMind checkPhase(Phase.Declaration) returns (bool) {
         require(_stake > 0, "Stake must be greater than zero.");
@@ -127,7 +138,8 @@ contract Game{
      * @custom:revert if msg.value == 0 or 
      *                if more than 1 player already put money or 
      *                if a player attempts to put money more than one time or 
-     *                if not invoked by mastermind
+     *                if not invoked by mastermind or
+     *                if invoked while in another phase
      */
     function setStake(uint256 _stake) external
         calledByMasterMind checkPhase(Phase.Preparation) returns (bool) {
@@ -146,18 +158,14 @@ contract Game{
 
     /**
      * @param _hash: hash of a secret code, computed off-chain
-     * @return false if the codeMaker try to cheat by change the code, in order to punish him
-     *         true otherwise
      * @custom:revert if not invoked by MasterMind or 
-     *                if not originally sent by the codeMaker
+     *                if not sent by the codeMaker or
+     *                if invoked while in another phase
      */
     function setHash(bytes32 _hash) external
-        calledByMasterMind codeMakerTurn checkPhase(Phase.SecretCode) returns (bool) {
-        if (hash != bytes32(0))
-            return false;
-
+        calledByMasterMind codeMakerTurn checkPhase(Phase.SecretCode) {
         hash = _hash;
-        return true;
+        phase = Phase.Play;
     }
 
 }
