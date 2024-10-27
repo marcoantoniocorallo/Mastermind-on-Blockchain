@@ -1,17 +1,9 @@
-In Solidity, for dynamic types like string, bytes, array, and struct, 
-you must specify where the data is stored. 
-For function parameters in external functions, 
-the data location must be either memory or calldata.
-`calldata` is used for external function parameters because it is more efficient, 
-especially for read-only operations.
-`memory` could also be used if the data needs to be copied
-
-The emit statement, which triggers an event, modifies the blockchain's state. 
-Even though triggering an event does not modify the contract's storage, 
-it is considered a state-modifying action since it writes to the transaction logs.
-In Solidity, functions that modify the state cannot be marked as view or pure. 
-The view keyword is used for functions that only read from the state but don’t modify it,
-while pure is used for functions that don’t even read from the state.
+TODO:
+- check the "TODO" keep written into the code 
+- remove console.log into the code
+- tx.origin instead of msg.sender? enforce tx.origin == msg.sender?
+- ^ --- => remove calledByMasterMind modifier?
+- fix event arguments
 
 Prevented Security issues:
 - DDOS creating new game:
@@ -57,3 +49,18 @@ Design choices:
   Tuttavia questa soluzione aggiunge costi e complessità e si è preferito mantenere una struttura
   più semplice.
 - OOP, security by design and by contract, decoupling...
+- ^ --- => MasterMind funge il ruolo "centralizzato" di orchestratore di partite, 
+  con cui i giocatori si interfacciano nell'invio di dati e soldi. Le informazioni e le operazioni 
+  vengono poi delegate al contratto Game corrispondete
+- Cheat: revert o punish tentativi di imbroglio? I.e.:
+  - un giocatore tenta di modificare l'hash prima del termine della partita 
+  - il codemaker sottomette una soluzione che non matcha l'hash inviato inizialmente
+  :
+  La mia idea è che questi tentativi vengono annullati tramite una revert: sarebbe oltretutto
+  sciocco tentare di barare in questo modo, infatti il sistema rivelerebbe facilmente una combinazione
+  diversa (tramite il calcolo dell'hash) e il giocatore andrebbe incontro a punizione sicura.
+  L'unico modo che ha il giocatore per barare è facendo leva sui punti che il contratto non verifica:
+  dare feedback sbagliati. In questo caso il codemaker deve sperare che il codebreaker non se ne accorga
+  altrimenti inizierebbe una disputa che non può vincere.
+  Questo, d'altronde, gestisce implicitamente la possibilità che il codemaker sbagli (ad es. il salt)
+  NOTA: immagino il capitolo che inizia con "To revert or to punish? That's the question."

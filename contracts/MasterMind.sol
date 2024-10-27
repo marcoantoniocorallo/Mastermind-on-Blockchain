@@ -42,11 +42,11 @@ contract MasterMind {
 
     // TODO: to remove
     function forTest() external {
-        Color[4] memory code = [Color.Red, Color.Red, Color.Yellow, Color.Green];
-        uint8[5] memory salt = [0, 0, 0, 0, 0];
-        emit SecretCodeSent(address(0), hashOf(code, salt));
+        // Color[4] memory code = [Color.Red, Color.Red, Color.Yellow, Color.Green];
+        // uint8[5] memory salt = [0, 0, 0, 0, 0];
+        // emit SecretCodeSent(address(0));
         //console.log("MASTERMIND");
-        //console.log(toHexString(hash(code, salt)));
+        //console.log(toHexString(hashOf(code, salt)));
     }
 
     /**
@@ -129,6 +129,10 @@ contract MasterMind {
      * @notice set stake value. If the two players declare different values => close the game
      * @param id: game id
      * @param stake: stake declared by the sender
+     * @custom:revert if who sent the transaction is not allowed for this game or 
+     *                if _stake == 0 or 
+     *                if a player attempts to declare more than one time the stake or 
+     *                if this tx is sent while not in declaration phase
      * @custom:emit StakeDeclared
      *              GameClosed
      */
@@ -163,6 +167,10 @@ contract MasterMind {
      *              Transfered
      *              GameClosed
      * @custom:revert if who sent the transaction is not allowed for this game
+     *                if msg.value == 0 or 
+     *                if more than 1 player already put money or 
+     *                if a player attempts to put money more than one time or 
+     *                if invoked while not in set-stake phase
      */
     function prepareGame(uint256 id) external payable userAllowed(id) {
 
@@ -211,6 +219,7 @@ contract MasterMind {
      * @notice carry out a transfering by "call" setting the gas and check the failure
      * @param _to: address to pay
      * @param value: value to transfer
+     * @custom:revert if the transfer wasn't successful
      */
     function call(address payable _to, uint256 value) private {
         (bool sent, ) = _to.call{value: value, gas: 3500}(""); // set gas 
@@ -222,10 +231,52 @@ contract MasterMind {
      * @param _hash: secret code, hashed and salted off-chain
      * @param id: game id 
      * @custom:emit SecretCodeSent
+     * @custom:revert if msg.sender is not a player of games[id] or 
+     *                if not invoked by MasterMind or 
+     *                if not sent by the codeMaker or
+     *                if invoked while not in phase of code submission
      */
-    function sendCode(bytes32 _hash, uint256 id) 
-        external userAllowed(id) {
-        emit SecretCodeSent(msg.sender, _hash);
+    function sendCode(bytes32 _hash, uint256 id) external
+        userAllowed(id) {
         games[id].setHash(_hash);
+        emit SecretCodeSent(msg.sender);
+    }
+
+    /**
+     * @notice allow the codebreaker to send the secret code
+     * @param code: proposed secret code
+     * @param id: game id
+     * @custom:revert if invoked while not in phase of guess submission
+     *                if not sent by the codebreaker or
+     *                if already reached max number of guesses or 
+     *                if msg.sender is not a player of games[id]
+     * @custom:emit GuessSent
+     */
+    function sendGuess(Color[N_HOLES] calldata code, uint256 id) external userAllowed(id) {
+        games[id].pushGuess(code);
+        emit GuessSent(msg.sender);
+    }
+
+    /**
+     * @notice allow the codemaker to send a feedback about the last guess
+     * @param CC: number of colors belonging to the last guess in the correct position
+     * @param NC: number of colors belonging to the last guess, but not in the correc: game id positions
+     * @param id: game id
+     * @custom:revert if not sent by the codemaker or
+     *                if invoked while in another phase or
+     *                if already reached max number of feedbacks or 
+     *                if the codemaker sent an invalid feedback
+     * @custom:emit FeedbackSent
+     */
+    function sendFeedback(uint8 CC, uint8 NC, uint256 id) external userAllowed(id) {
+        require(CC <= N_HOLES && NC <= N_HOLES && CC + NC <= N_HOLES, "Invalid feedback.");
+        games[id].pushFeedback(CC, NC);
+        emit FeedbackSent(msg.sender);
+    }
+
+    function submitSolution(uint256 id, Color[N_HOLES] memory code, uint8[SALT_SZ] memory salt)  
+        external userAllowed(id) {
+        games[id].reveal(code, salt);
+        emit SolutionSubmitted(id, code, salt);
     }
 }

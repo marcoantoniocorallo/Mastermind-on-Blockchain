@@ -8,7 +8,7 @@ import "hardhat/console.sol";
 /**
  * @title Game
  * @author Marco Antonio Corallo
- * @notice Contract of a single game
+ * @notice Contract for a single game composed by several turns
  */
 contract Game{
     uint256 private id;
@@ -16,13 +16,16 @@ contract Game{
     address private codeMaker;      // initially it's the creator of the game
     address private codeBreaker;    // initially it's the challenger
     uint256 private stake;          // agreed off-chain
-    address [] declaredBy;          // who already declared the stake?
-    address [] payedBy;             // who already put the money?
+    address[] private declaredBy;   // who already declared the stake?
+    address[] private payedBy;      // who already put the money?
     bytes32 private hash;           // computed and salted off-chain
-    Phase phase;
-    uint8 turn;
-    uint8[] private guesses;
-    uint8[] private feedbacks;
+    Phase private phase;            // phase of the game: state-machine
+    uint8 private n_guess;          // how many guesses codebreaker sent?
+    uint8 private turn;             // a game is composed by several turns
+    uint256 private dispute_block;  // block number where the dispute starts
+    Color[N_HOLES] private solution;
+    Color[N_HOLES][N_GUESSES][N_TURNS] private guesses;
+    uint8[2][N_FEEDBACKS][N_TURNS] private feedbacks;
 
     constructor(uint256 _id, address  _codeMaker, address  _codeBreaker){
         (MasterMindAddr,    id,     codeMaker,  codeBreaker, phase) = 
@@ -42,15 +45,15 @@ contract Game{
         _;
     }
 
-    /// @notice checks that the functions is called in the correct phase
-    modifier checkPhase(Phase _phase) {
-        require(phase == _phase, "Operation not allowed now.");
+    /// @notice checks that the function is originally invoked by the codebreaker
+    modifier codeBreakerTurn {
+        require(tx.origin == codeBreaker, "Denied operation.");
         _;
     }
 
-    /// @notice checks that the function is originally invoked by the codebreaker
-    modifier codeBreakerTurn {
-        require(tx.origin == codeMaker, "Denied operation.");
+    /// @notice checks that the functions is called in the correct phase
+    modifier checkPhase(Phase _phase) {
+        require(phase == _phase, "Operation not allowed now.");
         _;
     }
 
@@ -135,7 +138,7 @@ contract Game{
      *         while the first one is refunded.
      * @return  false if the put stake is different from what was declared,
      *          true otherwise
-     * @custom:revert if msg.value == 0 or 
+     * @custom:revert if _stake == 0 or 
      *                if more than 1 player already put money or 
      *                if a player attempts to put money more than one time or 
      *                if not invoked by mastermind or
@@ -157,7 +160,7 @@ contract Game{
     }
 
     /**
-     * @param _hash: hash of a secret code, computed off-chain
+     * @param _hash: hash of a secret code, computed off-chain. Then update the phase.
      * @custom:revert if not invoked by MasterMind or 
      *                if not sent by the codeMaker or
      *                if invoked while in another phase
@@ -165,7 +168,45 @@ contract Game{
     function setHash(bytes32 _hash) external
         calledByMasterMind codeMakerTurn checkPhase(Phase.SecretCode) {
         hash = _hash;
-        phase = Phase.Play;
+        phase = Phase.Guess;
+    }
+
+    /**
+     * @notice allow the codebreaker to send a guess, then update the phase.
+     * @param _guess: proposed secret code
+     * @custom:revert if not invoked by MasterMind or 
+     *                if not sent by the codebreaker or
+     *                if invoked while in another phase or
+     *                if already reached max number of guesses
+     */
+    function pushGuess(Color[N_HOLES] calldata _guess) external
+        calledByMasterMind codeBreakerTurn checkPhase(Phase.Guess) {
+        require(n_guess < N_GUESSES, "Max number of guesses reached.");
+        guesses[turn][n_guess++] = _guess;
+        phase = n_guess < N_GUESSES ? Phase.Feedback : Phase.Solution;
+    }
+
+    /**
+     * @notice allow the codemaker to send a feedback about the last guess, then update the phase.
+     * @param CC: number of colors belonging to the last guess in the correct position
+     * @param NC: number of colors belonging to the last guess, but not in the correct positions
+     * @custom:revert if not invoked by MasterMind or 
+     *                if not sent by the codemaker or
+     *                if invoked while in another phase or
+     *                if already reached max number of feedbacks
+     */
+    function pushFeedback(uint8 CC, uint8 NC) external
+        calledByMasterMind codeMakerTurn checkPhase(Phase.Feedback){
+        feedbacks[turn][n_guess-1][0] = CC;
+        feedbacks[turn][n_guess-1][1] = NC;
+        phase = CC < N_HOLES ? Phase.Guess : Phase.Solution;
+    }
+
+    function reveal(Color[N_HOLES] memory code, uint8[SALT_SZ] memory salt) external 
+        calledByMasterMind codeMakerTurn checkPhase(Phase.Solution) {
+        require(hashOf(code, salt) == hash, "Invalid Solution.");
+        phase = Phase.Dispute;
+        dispute_block = block.number;
     }
 
 }

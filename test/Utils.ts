@@ -19,6 +19,10 @@ export function hash(code : number[], salt : number[]) : string {
     return ethers.keccak256(data);
 }
 
+export function toNum(code : Color[]) : number[] { 
+    return code.map( (x : Color) =>  (x.valueOf() ));
+}
+
 export enum Color{
     Red, 
     Blue,

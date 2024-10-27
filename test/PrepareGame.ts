@@ -556,8 +556,7 @@ describe("Prepare game Tests", function () {
     const code = [Color.Red, Color.Red, Color.Yellow, Color.Green];
     const salt = [0, 0, 0, 0, 0];
     await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
-      .to.emit(contract, "SecretCodeSent")
-      .withArgs(anyValue, hash(code, salt));
+      .to.emit(contract, "SecretCodeSent");
   });
 
   it("Test18 : Secret Code sent by the codebreaker - revert ", async function () {
@@ -701,8 +700,7 @@ describe("Prepare game Tests", function () {
     const code = [Color.Red, Color.Red, Color.Yellow, Color.Green];
     const salt = [0, 0, 0, 0, 0];
     await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
-      .to.emit(contract, "SecretCodeSent")
-      .withArgs(anyValue, hash(code, salt));
+      .to.emit(contract, "SecretCodeSent");
 
     // re-send
     await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
