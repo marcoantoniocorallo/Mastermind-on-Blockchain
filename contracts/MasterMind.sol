@@ -274,6 +274,16 @@ contract MasterMind {
         emit FeedbackSent(msg.sender);
     }
 
+    /**
+     * @notice allow the codemaker to reveal the solution <code, salt>. Starts dispute timer.
+     * @param id: game id
+     * @param code: secret code he choose at the beginning
+     * @param salt: numeric code to improve robustness
+     * @custom:revert if not sent by the codemaker or
+     *                if invoked while in another phase or
+     *                if the solution doesn't match the hash he choose at the beginning
+     * @custom:emit SolutionSubmitted
+     */
     function submitSolution(uint256 id, Color[N_HOLES] memory code, uint8[SALT_SZ] memory salt)  
         external userAllowed(id) {
         games[id].reveal(code, salt);

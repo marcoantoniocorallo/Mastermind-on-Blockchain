@@ -329,4 +329,65 @@ describe("Play Game Tests", function () {
             .to.emit(contract, "SolutionSubmitted")
             .withArgs(0, code, salt);
     });
+
+    it("Test7 : Bad Solution submitted - revert", async function () {
+        const { contract, owner, addr1 } = await loadFixture(deployFixture);  
+
+        // game created by the owner of the contract
+        await expect(contract["newGame()"]())
+            .to.emit(contract, "GameCreated")
+            .withArgs(owner.address, 0);
+
+        // game joined by another user
+        await expect(contract.connect(addr1)["joinGame()"]())
+            .to.emit(contract, "GameJoined")
+            .withArgs(addr1.address, 0);
+
+        // declare owner
+        await expect(contract.declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(owner, 1);
+
+        // declare addr1
+        await expect(contract.connect(addr1).declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(addr1, 1);
+
+        let value = ethers.parseUnits("1", "wei");
+
+        // owner send money
+        await expect(contract.prepareGame(0, { value: value } ) )
+            .to.emit(contract, "StakePut")
+            .withArgs(owner.address, 1)
+
+        // addr1 send money
+        let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
+        const logs : any =  receipt!.logs;
+        const codemaker_addr : string = logs[logs.length-1].args[0];
+
+        const [codemaker, codebreaker] = codemaker_addr === owner.address ? [owner, addr1] : [addr1, owner];
+
+        // send secret code
+        const code : [Color, Color, Color, Color] = [Color.Red, Color.Red, Color.Yellow, Color.Green];
+        const salt : [number, number, number, number, number ] = [0, 0, 0, 0, 0];
+        await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
+            .to.emit(contract, "SecretCodeSent");
+
+        for (let index = 0; index < 7; index++) {
+            await expect(contract.connect(codebreaker).sendGuess(code, 0))
+                .to.emit(contract, "GuessSent")
+                .withArgs(codebreaker.address);
+
+            await expect(contract.connect(codemaker).sendFeedback(3, 1, 0))
+                .to.emit(contract, "FeedbackSent");
+        };
+
+        await expect(contract.connect(codebreaker).sendGuess(code, 0))
+                .to.emit(contract, "GuessSent")
+                .withArgs(codebreaker.address);
+        
+        // submit solution
+        await expect(contract.connect(codemaker).submitSolution(0, code, [1,1,1,1,1]))
+            .to.be.revertedWith("Invalid Solution.")
+    });
 });

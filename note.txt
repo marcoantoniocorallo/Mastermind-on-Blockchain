@@ -63,4 +63,6 @@ Design choices:
   dare feedback sbagliati. In questo caso il codemaker deve sperare che il codebreaker non se ne accorga
   altrimenti inizierebbe una disputa che non può vincere.
   Questo, d'altronde, gestisce implicitamente la possibilità che il codemaker sbagli (ad es. il salt)
+  nota: forse dovrei trattare in modo coerente anche il caso in cui un giocatore dichiara una somma
+  e ne versa un'altra...
   NOTA: immagino il capitolo che inizia con "To revert or to punish? That's the question."

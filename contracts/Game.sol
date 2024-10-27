@@ -202,11 +202,21 @@ contract Game{
         phase = CC < N_HOLES ? Phase.Guess : Phase.Solution;
     }
 
+    /**
+     * @notice codemaker submit solution <code, salt>. 
+     *         Then update the phase and starts timer for dispute.
+     * @param code: secret code he choose at the beginning
+     * @param salt: numeric code to improve robustness
+     * @custom:revert if not invoked by MasterMind or 
+     *                if not sent by the codemaker or
+     *                if invoked while in another phase or
+     *                if the solution doesn't match the hash he choose at the beginning
+     */
     function reveal(Color[N_HOLES] memory code, uint8[SALT_SZ] memory salt) external 
         calledByMasterMind codeMakerTurn checkPhase(Phase.Solution) {
         require(hashOf(code, salt) == hash, "Invalid Solution.");
-        phase = Phase.Dispute;
         dispute_block = block.number;
+        phase = Phase.Dispute;
     }
 
 }
