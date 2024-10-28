@@ -6,6 +6,9 @@ uint8 constant N_GUESSES = 8;               // 8 guesses in a set
 uint8 constant N_FEEDBACKS = N_GUESSES - 1; // reply to guesses
 uint8 constant N_TURNS = 4;                 // number of sets in a game
 uint8 constant SALT_SZ = 5;                 // size of the salt
+uint8 constant DISPUTE_TIME = 36;           // 36 secs to start a dispute - multiple of 12
+uint8 constant AFK_TIME = 36;               // 36 secs to accuse to be AFK - multiple of 12
+uint8 constant BLOCK_SPAWN_RATE = 12;       // avg block time https://etherscan.io/chart/blocktime
 
 enum Color {
     Red,

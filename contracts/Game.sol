@@ -215,8 +215,54 @@ contract Game{
     function reveal(Color[N_HOLES] memory code, uint8[SALT_SZ] memory salt) external 
         calledByMasterMind codeMakerTurn checkPhase(Phase.Solution) {
         require(hashOf(code, salt) == hash, "Invalid Solution.");
+        solution = code;
         dispute_block = block.number;
         phase = Phase.Dispute;
+    }
+
+    /**
+     * @notice verify the correctness of a disputed feedback
+     * @param feedback: the id of the disputed feedback
+     * @return true if the given feedback is correct, false otherwise
+     * @custom:revert if not invoked by MasterMind or 
+     *                if not sent by the codebreaker or
+     *                if invoked while in another phase or
+     *                if the tx has been sent after the slot closes
+     */
+    function correctFeedback(uint8 feedback) view external
+        calledByMasterMind codeBreakerTurn checkPhase(Phase.Dispute) returns (bool) {
+        require(block.number <= dispute_block + (DISPUTE_TIME / BLOCK_SPAWN_RATE), "Time Over.");
+        
+        uint8 CC_count = 0; uint8 NC_count = 0;
+        (uint8 CC, uint8 NC) = (feedbacks[turn][feedback][0], feedbacks[turn][feedback][1]);
+        bool[N_HOLES] memory used_in_solution;
+        bool[N_HOLES] memory used_in_guess;
+
+        // correct positions for correct colors
+        for (uint8 i = 0; i < N_HOLES; i++) {
+            if (guesses[turn][feedback][i] == solution[i]) {
+                CC_count++;
+                used_in_solution[i] = true;
+                used_in_guess[i] = true;
+            }
+        }
+
+        // correct colors in the wrong positions
+        for (uint i = 0; i < N_HOLES; i++) {
+            if (used_in_guess[i]) continue;  
+
+            for (uint j = 0; j < N_HOLES; j++) {
+                if (used_in_solution[j]) continue; 
+                
+                if (solution[j] == guesses[turn][feedback][i]) {
+                    NC_count++;
+                    used_in_solution[j] = true;
+                    break;
+                }
+            }
+        }
+        
+        return (CC == CC_count && NC == NC_count);
     }
 
 }

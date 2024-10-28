@@ -1,6 +1,5 @@
 TODO:
 - check the "TODO" keep written into the code 
-- remove console.log into the code
 - tx.origin instead of msg.sender? enforce tx.origin == msg.sender?
 - ^ --- => remove calledByMasterMind modifier?
 - fix event arguments

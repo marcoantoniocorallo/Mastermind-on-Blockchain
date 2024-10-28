@@ -18,11 +18,6 @@ contract MasterMind {
     uint256[] private free_games;
     uint256 gameId;
 
-    constructor() {
-        console.log("Console Log: Deployed by ");
-        console.log(tx.origin);
-    }
-
     modifier ifNotPlaying() {
         require(
             !playing[msg.sender],
@@ -38,15 +33,6 @@ contract MasterMind {
             "Denied operation."
         );
         _;
-    }
-
-    // TODO: to remove
-    function forTest() external {
-        // Color[4] memory code = [Color.Red, Color.Red, Color.Yellow, Color.Green];
-        // uint8[5] memory salt = [0, 0, 0, 0, 0];
-        // emit SecretCodeSent(address(0));
-        //console.log("MASTERMIND");
-        //console.log(toHexString(hashOf(code, salt)));
     }
 
     /**
@@ -83,7 +69,6 @@ contract MasterMind {
         );
         playing[msg.sender] = true;
         emit GameCreated(msg.sender, gameId);
-        console.log("Console Log: New game created!");
 
         return gameId++;
     }
@@ -108,7 +93,6 @@ contract MasterMind {
 
         playing[msg.sender] = true;
         emit GameJoined(msg.sender, id);
-        console.log("Console Log: Game joined!");
     }
 
     /**
@@ -122,7 +106,6 @@ contract MasterMind {
         games[id].setCodeBreaker(payable(msg.sender));
         playing[msg.sender] = true;
         emit GameJoined(msg.sender, id);
-        console.log("Console Log: Game joined!");
     }
 
     /**
@@ -288,5 +271,30 @@ contract MasterMind {
         external userAllowed(id) {
         games[id].reveal(code, salt);
         emit SolutionSubmitted(id, code, salt);
+    }
+
+    /**
+     * @notice allow the codebreaker to start a dispute on a given feedback
+     * @param id: game id 
+     * @param feedback_id: reference to the disputed feedback
+     * @custom:revert if not sent by the codebreaker or
+     *                if invoked while in another phase or
+     *                if the tx has been sent after the slot closes
+     * @custom:emit Dispute
+     *              Punished
+     *              Transfered
+     *              GameClosed
+     */
+    function startDispute(uint256 id, uint8 feedback_id) external userAllowed(id){
+        require(feedback_id < N_FEEDBACKS, "Feedback ID not valid.");
+        
+        emit Dispute(id, feedback_id);
+        uint256 stake = games[id].popStake();
+        if (games[id].correctFeedback(feedback_id))
+            punishAndReward(games[id].getCodeBreaker(), payable(games[id].getCodeMaker()), stake*2);
+        else 
+            punishAndReward(games[id].getCodeMaker(), payable(games[id].getCodeBreaker()), stake*2);
+        
+        closeGame(id);
     }
 }
