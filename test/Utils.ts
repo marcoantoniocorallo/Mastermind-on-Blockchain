@@ -31,3 +31,11 @@ export enum Color{
     Black,
     White
 }
+
+export async function delay(n_blocks : number) { 
+    await ethers.provider.send("evm_setAutomine", [false]);
+    for (let i = 0; i < n_blocks; i++) {
+        await ethers.provider.send("evm_mine", []);
+    }
+    await ethers.provider.send("evm_setAutomine", [true]);
+}
