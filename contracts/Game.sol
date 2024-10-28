@@ -23,6 +23,7 @@ contract Game{
     uint8 private n_guess;          // how many guesses codebreaker sent?
     uint8 private turn;             // a game is composed by several turns
     uint256 private dispute_block;  // block number where the dispute starts
+    mapping (address => uint8) private points;
     Color[N_HOLES] private solution;
     Color[N_HOLES][N_GUESSES][N_TURNS] private guesses;
     uint8[2][N_FEEDBACKS][N_TURNS] private feedbacks;
@@ -253,7 +254,7 @@ contract Game{
 
             for (uint j = 0; j < N_HOLES; j++) {
                 if (used_in_solution[j]) continue; 
-                
+
                 if (solution[j] == guesses[turn][feedback][i]) {
                     NC_count++;
                     used_in_solution[j] = true;
@@ -263,6 +264,26 @@ contract Game{
         }
         
         return (CC == CC_count && NC == NC_count);
+    }
+
+    function getPoints() external
+        calledByMasterMind codeMakerTurn checkPhase(Phase.Dispute) returns (uint8, uint8){
+        require(block.number >= dispute_block + (DISPUTE_TIME / BLOCK_SPAWN_RATE), "Time not Over yet.");
+
+        points[codeMaker] += 
+            n_guess + (equalCodes(guesses[turn][n_guess-1], solution) ? EXTRA_POINTS : 0);
+        
+        n_guess = 0;
+        turn++;
+        (codeMaker, codeBreaker) = (codeBreaker, codeMaker);
+        phase = turn == N_TURNS ? Phase.Closing : Phase.SecretCode;
+        
+        return (points[codeMaker], turn);
+    }
+
+    function whoWin() external view calledByMasterMind checkPhase(Phase.Closing) returns(address){
+        return  points[codeMaker] == points[codeBreaker] ? address(0) :
+                points[codeMaker] > points[codeBreaker] ? codeMaker : codeBreaker;
     }
 
 }

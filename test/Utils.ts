@@ -2,6 +2,8 @@ import "@nomicfoundation/hardhat-chai-matchers"
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
+export const N_TURNS = 4;
+
 export function compute_gas(gas_cost : bigint[]) : bigint {
     return gas_cost.reduce((partialSum : bigint, a : bigint) => partialSum + a, 0n);    
 }

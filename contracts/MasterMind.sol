@@ -297,4 +297,30 @@ contract MasterMind {
         
         closeGame(id);
     }
+
+    function checkWin(uint256 id) external userAllowed(id) {
+        (uint8 points, uint8 turn) = games[id].getPoints();
+        emit PointsUpdated(id, points);
+
+        if (turn == N_TURNS){
+            address winner = games[id].whoWin();
+            uint256 stake = games[id].popStake();
+            if (winner == address(0)) {
+                emit Tie(id);
+                
+                call(payable(games[id].getCodeMaker()), stake);
+                emit Transfered(games[id].getCodeMaker(), stake);
+
+                call(payable(games[id].getCodeBreaker()), stake);
+                emit Transfered(games[id].getCodeBreaker(), stake);
+
+            } else{
+                emit Winning(id, winner);
+                call(payable(winner), stake * 2);
+                emit Transfered(winner, stake * 2);
+            }
+            closeGame(id);
+        }
+        else emit Shuffled(games[id].getCodeMaker(), games[id].getCodeBreaker());
+    }
 }

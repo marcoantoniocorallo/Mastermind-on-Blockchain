@@ -4,7 +4,7 @@ import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { deployFixture } from "./Fixtures";
-import { compute_gas, expect_eq, hash, Color, toNum, delay } from "./Utils";
+import { compute_gas, expect_eq, hash, Color, delay, N_TURNS } from "./Utils";
 
 describe("Play Game Tests", function () {
     it("Test1 : A guess is sent", async function () {
@@ -753,5 +753,273 @@ describe("Play Game Tests", function () {
             expect_eq(addr1_balance2, addr1_balance0 - compute_gas(cm_gas) - 1n );
             expect_eq(contract_balance2, contract_balance0);
         }
+    });
+
+    it("Test12 : Invalid feedback in dispute - revert", async function () {
+        const { contract, owner, addr1 } = await loadFixture(deployFixture);  
+
+        // game created by the owner of the contract
+        await expect(contract["newGame()"]())
+            .to.emit(contract, "GameCreated")
+            .withArgs(owner.address, 0);
+
+        // game joined by another user
+        await expect(contract.connect(addr1)["joinGame()"]())
+            .to.emit(contract, "GameJoined")
+            .withArgs(addr1.address, 0);
+
+        // declare owner
+        await expect(contract.declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(owner, 1);
+
+        // declare addr1
+        await expect(contract.connect(addr1).declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(addr1, 1);
+
+        let value = ethers.parseUnits("1", "wei");
+
+        // owner send money
+        await expect(contract.prepareGame(0, { value: value } ) )
+            .to.emit(contract, "StakePut")
+            .withArgs(owner.address, 1)
+
+        // addr1 send money
+        let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
+        const logs : any =  receipt!.logs;
+        const codemaker_addr : string = logs[logs.length-1].args[0];
+
+        const [codemaker, codebreaker] = codemaker_addr === owner.address ? [owner, addr1] : [addr1, owner];
+
+        // send secret code
+        const code : [Color, Color, Color, Color] = [Color.Red, Color.Red, Color.Yellow, Color.Green];
+        const salt : [number, number, number, number, number ] = [0, 0, 0, 0, 0];
+        await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
+            .to.emit(contract, "SecretCodeSent");
+
+        for (let index = 0; index < 7; index++) {
+            await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Black], 0))
+                .to.emit(contract, "GuessSent")
+                .withArgs(codebreaker.address);
+
+            await expect(contract.connect(codemaker).sendFeedback(3, 1, 0))
+                .to.emit(contract, "FeedbackSent");
+        };
+
+        await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Black], 0))
+                .to.emit(contract, "GuessSent")
+                .withArgs(codebreaker.address);
+        
+        // submit solution
+        await expect(contract.connect(codemaker).submitSolution(0, code, salt))
+            .to.emit(contract, "SolutionSubmitted")
+            .withArgs(0, code, salt);
+
+        await expect(contract.connect(codebreaker).startDispute(0, 9))
+            .to.be.revertedWith("Feedback ID not valid.")
+    });
+
+    it("Test13 : Invalid feedback - revert", async function () {
+        const { contract, owner, addr1 } = await loadFixture(deployFixture);  
+
+        // game created by the owner of the contract
+        await expect(contract["newGame()"]())
+            .to.emit(contract, "GameCreated")
+            .withArgs(owner.address, 0);
+
+        // game joined by another user
+        await expect(contract.connect(addr1)["joinGame()"]())
+            .to.emit(contract, "GameJoined")
+            .withArgs(addr1.address, 0);
+
+        // declare owner
+        await expect(contract.declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(owner, 1);
+
+        // declare addr1
+        await expect(contract.connect(addr1).declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(addr1, 1);
+
+        let value = ethers.parseUnits("1", "wei");
+
+        // owner send money
+        await expect(contract.prepareGame(0, { value: value } ) )
+            .to.emit(contract, "StakePut")
+            .withArgs(owner.address, 1)
+
+        // addr1 send money
+        let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
+        const logs : any =  receipt!.logs;
+        const codemaker_addr : string = logs[logs.length-1].args[0];
+
+        const [codemaker, codebreaker] = codemaker_addr === owner.address ? [owner, addr1] : [addr1, owner];
+
+        // send secret code
+        const code : [Color, Color, Color, Color] = [Color.Red, Color.Red, Color.Yellow, Color.Green];
+        const salt : [number, number, number, number, number ] = [0, 0, 0, 0, 0];
+        await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
+            .to.emit(contract, "SecretCodeSent");
+
+        await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Black], 0))
+            .to.emit(contract, "GuessSent")
+            .withArgs(codebreaker.address);
+
+        await expect(contract.connect(codemaker).sendFeedback(3, 3, 0))
+            .to.be.revertedWith("Invalid feedback.")
+    });
+
+    it("Test14 : Algorithm for solution verification test", async function () {
+        const { contract, owner, addr1 } = await loadFixture(deployFixture);  
+
+        // game created by the owner of the contract
+        await expect(contract["newGame()"]())
+            .to.emit(contract, "GameCreated")
+            .withArgs(owner.address, 0);
+
+        // game joined by another user
+        await expect(contract.connect(addr1)["joinGame()"]())
+            .to.emit(contract, "GameJoined")
+            .withArgs(addr1.address, 0);
+
+        // declare owner
+        await expect(contract.declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(owner, 1);
+
+        // declare addr1
+        await expect(contract.connect(addr1).declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(addr1, 1);
+
+        let value = ethers.parseUnits("1", "wei");
+
+        // owner send money
+        await expect(contract.prepareGame(0, { value: value } ) )
+            .to.emit(contract, "StakePut")
+            .withArgs(owner.address, 1)
+
+        // addr1 send money
+        let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
+        const logs : any =  receipt!.logs;
+        const codemaker_addr : string = logs[logs.length-1].args[0];
+
+        const [codemaker, codebreaker] = codemaker_addr === owner.address ? [owner, addr1] : [addr1, owner];
+
+        // send secret code
+        const code : [Color, Color, Color, Color] = [Color.Red, Color.Yellow, Color.Red, Color.Green];
+        const salt : [number, number, number, number, number ] = [0, 0, 0, 0, 0];
+        await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
+            .to.emit(contract, "SecretCodeSent");
+
+        for (let index = 0; index < 7; index++) {
+            await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
+                .to.emit(contract, "GuessSent")
+                .withArgs(codebreaker.address);
+
+            await expect(contract.connect(codemaker).sendFeedback(1, 2, 0))
+                .to.emit(contract, "FeedbackSent");
+        };
+
+        await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
+                .to.emit(contract, "GuessSent")
+                .withArgs(codebreaker.address);
+        
+        // submit solution
+        await expect(contract.connect(codemaker).submitSolution(0, code, salt))
+            .to.emit(contract, "SolutionSubmitted")
+            .withArgs(0, code, salt);
+
+        // start dispute on the 2nd feedback
+        await expect(contract.connect(codebreaker).startDispute(0, 1))
+            .to.emit(contract, "Dispute")
+            .withArgs(0, 1)
+            .and.to.emit(contract, "Punished")
+            .withArgs(codebreaker.address)
+            .and.to.emit(contract, "Transfered")
+            .withArgs(codemaker.address, 2);
+    });
+
+    it("Test15 : Game with N_TURNS turns", async function () {
+        const { contract, owner, addr1 } = await loadFixture(deployFixture);  
+
+        // game created by the owner of the contract
+        await expect(contract["newGame()"]())
+            .to.emit(contract, "GameCreated")
+            .withArgs(owner.address, 0);
+
+        // game joined by another user
+        await expect(contract.connect(addr1)["joinGame()"]())
+            .to.emit(contract, "GameJoined")
+            .withArgs(addr1.address, 0);
+
+        // declare owner
+        await expect(contract.declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(owner, 1);
+
+        // declare addr1
+        await expect(contract.connect(addr1).declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(addr1, 1);
+
+        let value = ethers.parseUnits("1", "wei");
+
+        // owner send money
+        await expect(contract.prepareGame(0, { value: value } ) )
+            .to.emit(contract, "StakePut")
+            .withArgs(owner.address, 1)
+
+        // addr1 send money
+        let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
+        const logs : any =  receipt!.logs;
+        const codemaker_addr : string = logs[logs.length-1].args[0];
+
+        let [codemaker, codebreaker] = codemaker_addr === owner.address ? [owner, addr1] : [addr1, owner];
+
+        // send secret code
+        const code : [Color, Color, Color, Color] = [Color.Red, Color.Yellow, Color.Red, Color.Green];
+        const salt : [number, number, number, number, number ] = [0, 0, 0, 0, 0];
+
+        for (let index = 0; index < N_TURNS; index++) {
+
+            await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
+                .to.emit(contract, "SecretCodeSent");
+
+            for (let index = 0; index < 7; index++) {
+                await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
+                    .to.emit(contract, "GuessSent")
+                    .withArgs(codebreaker.address);
+
+                await expect(contract.connect(codemaker).sendFeedback(1, 2, 0))
+                    .to.emit(contract, "FeedbackSent");
+            };
+
+            await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
+                    .to.emit(contract, "GuessSent")
+                    .withArgs(codebreaker.address);
+
+            // submit solution
+            await expect(contract.connect(codemaker).submitSolution(0, code, salt))
+                .to.emit(contract, "SolutionSubmitted")
+                .withArgs(0, code, salt);
+            
+            await delay(12*38);
+
+            if (index == N_TURNS - 1) {
+                await expect(contract.connect(codemaker).checkWin(0))
+                    .to.emit(contract, "Tie")
+                    .and.to.emit(contract, "Transfered")
+                    .and.to.emit(contract, "Transfered");
+            } else{
+                await expect(contract.connect(codemaker).checkWin(0))
+                .to.emit(contract, "PointsUpdated");
+            }
+
+            [codemaker, codebreaker] = [codebreaker, codemaker];
+        }
+
     });
 });

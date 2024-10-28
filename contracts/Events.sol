@@ -15,4 +15,7 @@ event GuessSent(address _who);
 event FeedbackSent(address _who);
 event SolutionSubmitted(uint256 id, Color[N_HOLES] code, uint8[SALT_SZ] salt);
 event Dispute(uint256 game_id, uint8 feedback_id);
+event PointsUpdated(uint256 game_id, uint8 points);
+event Winning(uint256 game_id, address player);
+event Tie(uint256 game_id);
 event GameClosed(uint256 id);

@@ -37,3 +37,10 @@ function toHexString(bytes32 data) pure returns (string memory) {
         }
         return string(str);
     }
+
+/// @notice Utility to compare two array
+function equalCodes(Color[N_HOLES] storage code1, Color[N_HOLES] storage code2) view returns (bool) {
+    for (uint i = 0; i < N_HOLES; i++)
+        if (code1[i] != code2[i]) return false;
+    return true;
+}
