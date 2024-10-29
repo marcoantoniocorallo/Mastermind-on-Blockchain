@@ -47,7 +47,13 @@ Design choices:
   solo tramite apposite funzioni (ad es. quando si vuole fare una joinGame).
   Tuttavia questa soluzione aggiunge costi e complessità e si è preferito mantenere una struttura
   più semplice.
-- OOP, security by design and by contract, decoupling...
+- security by design and by contract
+- Game contract vs Game as struct: l'intero progetto è stato pensato e sviluppato in ottica OOP,
+  usando un contratto Game per permettere i benefici della OOP (decoupling, ...), semplificare 
+  lo sviluppo e migliorare la mantenibilità del codice. Una volta compreso il costo aggiuntivo di 
+  trattare una chiamata indiretta ad un altro contratto, è stato effettuato un refactory che utilizza
+  invece una libreria con una struttura dati, lasciando invariato il comportamento del contratto 
+  MasterMind che si interfaccia tramite i metodi forniti dalla liberia.
 - ^ --- => MasterMind funge il ruolo "centralizzato" di orchestratore di partite, 
   con cui i giocatori si interfacciano nell'invio di dati e soldi. Le informazioni e le operazioni 
   vengono poi delegate al contratto Game corrispondete

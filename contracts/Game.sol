@@ -8,81 +8,83 @@ import "hardhat/console.sol";
 /**
  * @title Game
  * @author Marco Antonio Corallo
- * @notice Contract for a single game composed by several turns
+ * @notice Single game composed by several turns
  */
-contract Game{
-    uint256 private id;
-    address private MasterMindAddr; // stored to check against who sent the transaction
-    address private codeMaker;      // initially it's the creator of the game
-    address private codeBreaker;    // initially it's the challenger
-    uint256 private stake;          // agreed off-chain
-    address[] private declaredBy;   // who already declared the stake?
-    address[] private payedBy;      // who already put the money?
-    bytes32 private hash;           // computed and salted off-chain
-    Phase private phase;            // phase of the game: state-machine
-    uint8 private n_guess;          // how many guesses codebreaker sent?
-    uint8 private turn;             // a game is composed by several turns
-    uint256 private dispute_block;  // block number where the dispute starts
-    mapping (address => uint8) private points;
-    Color[N_HOLES] private solution;
-    Color[N_HOLES][N_GUESSES][N_TURNS] private guesses;
-    uint8[2][N_FEEDBACKS][N_TURNS] private feedbacks;
+struct Game{
+    uint256 id;
+    address codeMaker;                  // initially it's the creator of the game
+    address codeBreaker;                // initially it's the challenger
+    uint256 stake;                      // agreed off-chain
+    address[] declaredBy;               // who already declared the stake?
+    address[] payedBy;                  // who already put the money?
+    bytes32 hash;                       // computed and salted off-chain
+    Phase phase;                        // phase of the game: state-machine
+    uint8 n_guess;                      // how many guesses codebreaker sent?
+    uint8 turn;                         // a game is composed by several turns
+    uint256 dispute_block;              // block number where the dispute starts
+    mapping (address => uint8) points;
+    Color[N_HOLES] solution;
+    Color[N_HOLES][N_GUESSES][N_TURNS] guesses;
+    uint8[2][N_FEEDBACKS][N_TURNS] feedbacks;
+}
 
-    constructor(uint256 _id, address  _codeMaker, address  _codeBreaker){
-        (MasterMindAddr,    id,     codeMaker,  codeBreaker, phase) = 
-        (msg.sender,       _id,    _codeMaker, _codeBreaker, Phase.Creation);
-    }
+/**
+ * @title GameLib
+ * @author Marco Antonio Corallo
+ * @notice Provides methods and utilities to operate on Game structs
+ */
+library GameLib {
 
-    /// @notice checks that the function is invoked legally by the MasterMind contract
-    ///         note: MasterMind checks that the sender is allowed to access this game
-    modifier calledByMasterMind {
-        require(msg.sender == MasterMindAddr, "Denied operation.");
-        _;
+    // constructor
+    function newGame(Game storage self, uint256 _id, address  _codeMaker, address  _codeBreaker) external {
+        (self.id,  self.codeMaker,  self.codeBreaker,   self.phase) = 
+        (    _id,      _codeMaker,      _codeBreaker,   Phase.Creation);
     }
 
     /// @notice checks that the function is originally invoked by the codemaker
-    modifier codeMakerTurn {
-        require(tx.origin == codeMaker, "Denied operation.");
+    modifier codeMakerTurn(Game storage self) {
+        require(tx.origin == self.codeMaker, "Denied operation.");
         _;
     }
 
     /// @notice checks that the function is originally invoked by the codebreaker
-    modifier codeBreakerTurn {
-        require(tx.origin == codeBreaker, "Denied operation.");
+    modifier codeBreakerTurn(Game storage self) {
+        require(tx.origin == self.codeBreaker, "Denied operation.");
         _;
     }
 
     /// @notice checks that the functions is called in the correct phase
-    modifier checkPhase(Phase _phase) {
-        require(phase == _phase, "Operation not allowed now.");
+    modifier checkPhase(Game storage self, Phase _phase) {
+        require(self.phase == _phase, "Operation not allowed now.");
         _;
     }
 
-    function getCodeMaker() external calledByMasterMind view 
-        returns (address) { return codeMaker; }
+    function getCodeMaker(Game storage self) external view 
+        returns (address) { return self.codeMaker; }
 
-    function getCodeBreaker() external calledByMasterMind view 
-        returns (address) { return codeBreaker; }
+    function getCodeBreaker(Game storage self) external view 
+        returns (address) { return self.codeBreaker; }
 
     /// @notice after set the codebreaker, updates the phase of the game
-    function setCodeBreaker(address  _codeBreaker) 
-        calledByMasterMind checkPhase(Phase.Creation) external {
-        codeBreaker = _codeBreaker;
-        phase = Phase.Declaration;
+    function setCodeBreaker(Game storage self, address  _codeBreaker) 
+        checkPhase(self, Phase.Creation) external {
+        self.codeBreaker = _codeBreaker;
+        self.phase = Phase.Declaration;
     }
 
-    function howManyPayed() external view returns (uint256) { return payedBy.length; }
+    function howManyPayed(Game storage self) external view 
+        returns (uint256) { return self.payedBy.length; }
 
     /// @notice getter for stake, but it reset the value to avoid possible reentrancy oversight
-    function popStake() external returns (uint256) { 
-        uint256 tmp = stake;
-        delete stake;
-        return tmp; 
+    function popStake(Game storage self) external returns (uint256) {
+        uint256 tmp = self.stake;
+        delete self.stake;
+        return tmp;
     }
 
-    function whoPayed() external view returns (address) { 
-        require(payedBy.length > 0, "Nobody paid.");
-        return payedBy[0]; 
+    function whoPayed(Game storage self) external view returns (address) {
+        require(self.payedBy.length > 0, "Nobody paid.");
+        return self.payedBy[0];
     }
 
     /**
@@ -94,13 +96,13 @@ contract Game{
      *                if the stakes put by the two players doesn't coincide or
      *                if invoked while in another phase
      */
-    function shuffleRoles() external
-        calledByMasterMind checkPhase(Phase.Preparation) {
-        require(payedBy.length == 2, "Both the player must put stake to start the game.");
+    function shuffleRoles(Game storage self) external
+        checkPhase(self, Phase.Preparation) {
+        require(self.payedBy.length == 2, "Both the player must put stake to start the game.");
         if (rand() % 2 == 0)
-            (codeMaker, codeBreaker) = (codeBreaker, codeMaker);
+            (self.codeMaker, self.codeBreaker) = (self.codeBreaker, self.codeMaker);
 
-        phase = Phase.SecretCode;
+        self.phase = Phase.SecretCode;
     }
 
     /**
@@ -113,22 +115,23 @@ contract Game{
      *                if this tx is not invoked by the mastermind contract or 
      *                if this tx is sent while in another phase
      */
-    function declareStake(uint256 _stake) external
-        calledByMasterMind checkPhase(Phase.Declaration) returns (bool) {
+    function declareStake(Game storage self, uint256 _stake) external
+        checkPhase(self, Phase.Declaration) returns (bool) {
         require(_stake > 0, "Stake must be greater than zero.");
         require(
-            declaredBy.length == 0 || (declaredBy.length == 1 && declaredBy[0] != tx.origin),
+            self.declaredBy.length == 0 || 
+            (self.declaredBy.length == 1 && self.declaredBy[0] != tx.origin),
             "You already declared stake."
         );
 
-        if (declaredBy.length == 1 && stake != _stake) 
+        if (self.declaredBy.length == 1 && self.stake != _stake) 
             return false;
 
-        stake = _stake;
-        declaredBy.push(tx.origin);
+        self.stake = _stake;
+        self.declaredBy.push(tx.origin);
 
-        if (declaredBy.length == 2)
-            phase = Phase.Preparation;
+        if (self.declaredBy.length == 2)
+            self.phase = Phase.Preparation;
 
         return true;
     }
@@ -142,65 +145,61 @@ contract Game{
      * @custom:revert if _stake == 0 or 
      *                if more than 1 player already put money or 
      *                if a player attempts to put money more than one time or 
-     *                if not invoked by mastermind or
      *                if invoked while in another phase
      */
-    function setStake(uint256 _stake) external
-        calledByMasterMind checkPhase(Phase.Preparation) returns (bool) {
+    function setStake(Game storage self, uint256 _stake) external
+        checkPhase(self, Phase.Preparation) returns (bool) {
         require(_stake > 0, "Stake must be greater than zero.");
         require(
-            payedBy.length == 0 || (payedBy.length == 1 && payedBy[0] != tx.origin),
+            self.payedBy.length == 0 || (self.payedBy.length == 1 && self.payedBy[0] != tx.origin),
             "Cannot put money again."
         );
 
-        if (stake != _stake) 
+        if (self.stake != _stake) 
             return false;
 
-        payedBy.push(tx.origin);
+        self.payedBy.push(tx.origin);
         return true;
     }
 
     /**
      * @param _hash: hash of a secret code, computed off-chain. Then update the phase.
-     * @custom:revert if not invoked by MasterMind or 
-     *                if not sent by the codeMaker or
+     * @custom:revert if not sent by the codeMaker or
      *                if invoked while in another phase
      */
-    function setHash(bytes32 _hash) external
-        calledByMasterMind codeMakerTurn checkPhase(Phase.SecretCode) {
-        hash = _hash;
-        phase = Phase.Guess;
+    function setHash(Game storage self, bytes32 _hash) external
+        codeMakerTurn(self) checkPhase(self, Phase.SecretCode) {
+        self.hash = _hash;
+        self.phase = Phase.Guess;
     }
 
     /**
      * @notice allow the codebreaker to send a guess, then update the phase.
      * @param _guess: proposed secret code
-     * @custom:revert if not invoked by MasterMind or 
-     *                if not sent by the codebreaker or
+     * @custom:revert if not sent by the codebreaker or
      *                if invoked while in another phase or
      *                if already reached max number of guesses
      */
-    function pushGuess(Color[N_HOLES] calldata _guess) external
-        calledByMasterMind codeBreakerTurn checkPhase(Phase.Guess) {
-        require(n_guess < N_GUESSES, "Max number of guesses reached.");
-        guesses[turn][n_guess++] = _guess;
-        phase = n_guess < N_GUESSES ? Phase.Feedback : Phase.Solution;
+    function pushGuess(Game storage self, Color[N_HOLES] calldata _guess) external
+        codeBreakerTurn(self) checkPhase(self, Phase.Guess) {
+        require(self.n_guess < N_GUESSES, "Max number of guesses reached.");
+        self.guesses[self.turn][self.n_guess++] = _guess;
+        self.phase = self.n_guess < N_GUESSES ? Phase.Feedback : Phase.Solution;
     }
 
     /**
      * @notice allow the codemaker to send a feedback about the last guess, then update the phase.
      * @param CC: number of colors belonging to the last guess in the correct position
      * @param NC: number of colors belonging to the last guess, but not in the correct positions
-     * @custom:revert if not invoked by MasterMind or 
-     *                if not sent by the codemaker or
+     * @custom:revert if not sent by the codemaker or
      *                if invoked while in another phase or
      *                if already reached max number of feedbacks
      */
-    function pushFeedback(uint8 CC, uint8 NC) external
-        calledByMasterMind codeMakerTurn checkPhase(Phase.Feedback){
-        feedbacks[turn][n_guess-1][0] = CC;
-        feedbacks[turn][n_guess-1][1] = NC;
-        phase = CC < N_HOLES ? Phase.Guess : Phase.Solution;
+    function pushFeedback(Game storage self, uint8 CC, uint8 NC) external
+        codeMakerTurn(self) checkPhase(self, Phase.Feedback){
+        self.feedbacks[self.turn][self.n_guess-1][0] = CC;
+        self.feedbacks[self.turn][self.n_guess-1][1] = NC;
+        self.phase = CC < N_HOLES ? Phase.Guess : Phase.Solution;
     }
 
     /**
@@ -208,40 +207,38 @@ contract Game{
      *         Then update the phase and starts timer for dispute.
      * @param code: secret code he choose at the beginning
      * @param salt: numeric code to improve robustness
-     * @custom:revert if not invoked by MasterMind or 
-     *                if not sent by the codemaker or
+     * @custom:revert if not sent by the codemaker or
      *                if invoked while in another phase or
      *                if the solution doesn't match the hash he choose at the beginning
      */
-    function reveal(Color[N_HOLES] memory code, uint8[SALT_SZ] memory salt) external 
-        calledByMasterMind codeMakerTurn checkPhase(Phase.Solution) {
-        require(hashOf(code, salt) == hash, "Invalid Solution.");
-        solution = code;
-        dispute_block = block.number;
-        phase = Phase.Dispute;
+    function reveal(Game storage self, Color[N_HOLES] memory code, uint8[SALT_SZ] memory salt) external 
+        codeMakerTurn(self) checkPhase(self, Phase.Solution) {
+        require(hashOf(code, salt) == self.hash, "Invalid Solution.");
+        self.solution = code;
+        self.dispute_block = block.number;
+        self.phase = Phase.Dispute;
     }
 
     /**
      * @notice verify the correctness of a disputed feedback
      * @param feedback: the id of the disputed feedback
      * @return true if the given feedback is correct, false otherwise
-     * @custom:revert if not invoked by MasterMind or 
-     *                if not sent by the codebreaker or
+     * @custom:revert if not sent by the codebreaker or
      *                if invoked while in another phase or
      *                if the tx has been sent after the slot closes
      */
-    function correctFeedback(uint8 feedback) view external
-        calledByMasterMind codeBreakerTurn checkPhase(Phase.Dispute) returns (bool) {
-        require(block.number <= dispute_block + (DISPUTE_TIME / BLOCK_SPAWN_RATE), "Time Over.");
+    function correctFeedback(Game storage self, uint8 feedback) view external
+        codeBreakerTurn(self) checkPhase(self, Phase.Dispute) returns (bool) {
+        require(block.number <= self.dispute_block + (DISPUTE_TIME / BLOCK_SPAWN_RATE), "Time Over.");
         
         uint8 CC_count = 0; uint8 NC_count = 0;
-        (uint8 CC, uint8 NC) = (feedbacks[turn][feedback][0], feedbacks[turn][feedback][1]);
+        (uint8 CC, uint8 NC) = (self.feedbacks[self.turn][feedback][0], self.feedbacks[self.turn][feedback][1]);
         bool[N_HOLES] memory used_in_solution;
         bool[N_HOLES] memory used_in_guess;
 
         // correct positions for correct colors
         for (uint8 i = 0; i < N_HOLES; i++) {
-            if (guesses[turn][feedback][i] == solution[i]) {
+            if (self.guesses[self.turn][feedback][i] == self.solution[i]) {
                 CC_count++;
                 used_in_solution[i] = true;
                 used_in_guess[i] = true;
@@ -255,7 +252,7 @@ contract Game{
             for (uint j = 0; j < N_HOLES; j++) {
                 if (used_in_solution[j]) continue; 
 
-                if (solution[j] == guesses[turn][feedback][i]) {
+                if (self.solution[j] == self.guesses[self.turn][feedback][i]) {
                     NC_count++;
                     used_in_solution[j] = true;
                     break;
@@ -270,34 +267,38 @@ contract Game{
      * @notice allows the player to get the updated points after dispute time. 
      *         Then, update Phase and Turn.
      * @return a pair <points, turn>
-     * @custom:revert if not invoked by MasterMind or 
-     *                if invoked while in another phase or
+     * @custom:revert if invoked while in another phase or
      *                if the dispute time has not been over yet.
      */
-    function getPoints() external
-        calledByMasterMind checkPhase(Phase.Dispute) returns (uint8, uint8){
-        require(block.number >= dispute_block + (DISPUTE_TIME / BLOCK_SPAWN_RATE), "Time not Over yet.");
+    function getPoints(Game storage self) external
+        checkPhase(self, Phase.Dispute) returns (uint8, uint8){
+        require(
+            block.number >= self.dispute_block + (DISPUTE_TIME / BLOCK_SPAWN_RATE), 
+            "Time not Over yet."
+        );
 
-        points[codeMaker] += 
-            n_guess + (equalCodes(guesses[turn][n_guess-1], solution) ? EXTRA_POINTS : 0);
+        self.points[self.codeMaker] += 
+            self.n_guess + (
+                equalCodes(self.guesses[self.turn][self.n_guess-1], self.solution) ? 
+                EXTRA_POINTS : 0
+            );
         
-        n_guess = 0;
-        turn++;
-        (codeMaker, codeBreaker) = (codeBreaker, codeMaker);
-        phase = turn == N_TURNS ? Phase.Closing : Phase.SecretCode;
+        self.n_guess = 0;
+        self.turn++;
+        (self.codeMaker, self.codeBreaker) = (self.codeBreaker, self.codeMaker);
+        self.phase = self.turn == N_TURNS ? Phase.Closing : Phase.SecretCode;
         
-        return (points[codeMaker], turn);
+        return (self.points[self.codeMaker], self.turn);
     }
 
     /**
      * @notice get the winner
      * @return winner address
-     * @custom:revert if not invoked by MasterMind or
-     *                if invoked while the game is in progress
+     * @custom:revert if invoked while the game is in progress
      */
-    function whoWin() external view calledByMasterMind checkPhase(Phase.Closing) returns(address){
-        return  points[codeMaker] == points[codeBreaker] ? address(0) :
-                points[codeMaker] > points[codeBreaker] ? codeMaker : codeBreaker;
+    function whoWin(Game storage self) external view checkPhase(self, Phase.Closing) returns(address){
+        return  self.points[self.codeMaker] == self.points[self.codeBreaker] ? address(0) :
+                self.points[self.codeMaker] >  self.points[self.codeBreaker] ? self.codeMaker : self.codeBreaker;
     }
-
+   
 }

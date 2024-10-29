@@ -7,6 +7,8 @@ import "./Events.sol";
 import "./Constants.sol";
 import "./Utils.sol";
 
+using GameLib for Game;
+
 /**
  * @title  MasterMind
  * @author Marco Antonio Corallo
@@ -16,7 +18,7 @@ contract MasterMind {
     mapping(uint256 => Game) private games;
     mapping(address => bool) private playing;
     uint256[] private free_games;
-    uint256 gameId;
+    uint256 private gameId;
 
     modifier ifNotPlaying() {
         require(
@@ -62,11 +64,12 @@ contract MasterMind {
         public ifNotPlaying returns (uint256) {
         require(challenger_addr != msg.sender, "Cannot create a game with yourself.");
 
-        games[gameId] = new Game(
+        games[gameId].newGame(
             gameId,
             payable(msg.sender),
             payable(challenger_addr)
         );
+
         playing[msg.sender] = true;
         emit GameCreated(msg.sender, gameId);
 

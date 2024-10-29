@@ -1022,4 +1022,105 @@ describe("Play Game Tests", function () {
         }
 
     });
+
+    it("Test16 : Game with N_TURNS turns - check balances", async function () {
+        const { contract, owner, addr1 } = await loadFixture(deployFixture);  
+
+        let owner_gas_cost = [];
+        let addr1_gas_cost = [];
+    
+        let owner_balance0 = await ethers.provider.getBalance(owner);
+        let addr1_balance0 = await ethers.provider.getBalance(addr1);
+        let contract_balance0 = await ethers.provider.getBalance(contract);
+    
+        // game created by the owner of the contract
+        let owner_receipt_newgame = await (await contract["newGame()"]()).wait();
+        owner_gas_cost.push(owner_receipt_newgame!.gasUsed * owner_receipt_newgame!.gasPrice);
+    
+        let addr1_receipt_newgame = await (await contract.connect(addr1)["joinGame()"]()).wait();
+        addr1_gas_cost.push(addr1_receipt_newgame!.gasUsed * addr1_receipt_newgame!.gasPrice);
+    
+        // declare owner
+        let owner_receipt_declaregame = await (await contract.declareStake(0, 1)).wait();
+        owner_gas_cost.push(owner_receipt_declaregame!.gasUsed * owner_receipt_declaregame!.gasPrice);
+    
+        // declare addr1
+        let addr1_receipt_declaregame = await (await contract.connect(addr1).declareStake(0, 1)).wait();
+        addr1_gas_cost.push(addr1_receipt_declaregame!.gasUsed * addr1_receipt_declaregame!.gasPrice);
+    
+        let value1 = ethers.parseUnits("1", "wei");
+        
+        // owner pays
+        let owner_receipt_preparegame = await (await contract.prepareGame(0, { value: value1 } )).wait();
+        owner_gas_cost.push(owner_receipt_preparegame!.gasUsed * owner_receipt_preparegame!.gasPrice);
+    
+        let contract_balance1 = await ethers.provider.getBalance(contract);
+        expect_eq(contract_balance1, 1n);
+    
+        let owner_balance1 = await ethers.provider.getBalance(owner);
+        expect_eq(owner_balance1, owner_balance0 - 1n - compute_gas(owner_gas_cost))
+    
+        // addr1 pays
+        let addr1_receipt_preparegame = await (await contract.connect(addr1).prepareGame(0, { value: value1 } )).wait();
+        addr1_gas_cost.push(addr1_receipt_preparegame!.gasUsed * addr1_receipt_preparegame!.gasPrice);
+    
+        let addr1_balance1 = await ethers.provider.getBalance(addr1);
+        expect_eq(addr1_balance1, addr1_balance0 - 1n - (compute_gas(addr1_gas_cost)));
+    
+        const logs : any =  addr1_receipt_preparegame!.logs;
+        const codemaker_addr : string = logs[logs.length-1].args[0];
+
+        let [codemaker, codebreaker, cm_gas, cb_gas] = 
+            codemaker_addr === owner.address ? 
+            [owner, addr1, owner_gas_cost, addr1_gas_cost] : 
+            [addr1, owner, addr1_gas_cost, owner_gas_cost] ;
+
+        const code : [Color, Color, Color, Color] = [Color.Red, Color.Red, Color.Yellow, Color.Green];
+        const salt : [number, number, number, number, number ] = [0, 0, 0, 0, 0];
+        for (let index = 0; index < N_TURNS; index++) {
+
+            // send secret code
+            let cm_receipt_sendcode = await (await contract.connect(codemaker).sendCode(hash(code, salt), 0)).wait();
+            cm_gas.push(cm_receipt_sendcode!.gasUsed * cm_receipt_sendcode!.gasPrice);
+
+            for (let index = 0; index < 7; index++) {
+                let cb_receipt_guess = await (await contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Black], 0)).wait();
+                cb_gas.push(cb_receipt_guess!.gasUsed * cb_receipt_guess!.gasPrice);
+
+                let cm_receipt_feedback = await ( await contract.connect(codemaker).sendFeedback(3, 1, 0)).wait();
+                cm_gas.push(cm_receipt_feedback!.gasUsed * cm_receipt_feedback!.gasPrice);
+            };
+
+            let cb_receipt_guess = await (await contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Black], 0)).wait();
+                cb_gas.push(cb_receipt_guess!.gasUsed * cb_receipt_guess!.gasPrice);
+        
+            // submit solution
+            let cm_receipt_sol = await (await contract.connect(codemaker).submitSolution(0, code, salt)).wait();
+            cm_gas.push(cm_receipt_sol!.gasUsed * cm_receipt_sol!.gasPrice);
+
+            await delay(12 * 38);
+
+            // update score
+            let cm_receipt_updatescore = await (await contract.connect(codemaker).updateScore(0)).wait();
+            cm_gas.push(cm_receipt_updatescore!.gasUsed * cm_receipt_updatescore!.gasPrice);
+
+            [codemaker, codebreaker, cm_gas, cb_gas] = [codebreaker, codemaker, cb_gas, cm_gas];
+        }
+
+        let owner_balance2 = await ethers.provider.getBalance(owner);
+        let addr1_balance2 = await ethers.provider.getBalance(addr1);
+        let contract_balance2 = await ethers.provider.getBalance(contract);
+
+        // codemaker == owner => owner bad behaviour
+        if (codemaker_addr == owner.address) { // tie!
+            expect_eq(owner_balance2, owner_balance0 - compute_gas(cm_gas) - 0n);
+            expect_eq(addr1_balance2, addr1_balance0 - compute_gas(cb_gas) + 0n );
+            expect_eq(contract_balance2, contract_balance0);
+        } else{ // tie!
+            expect_eq(owner_balance2, owner_balance0 - compute_gas(cb_gas) + 0n);
+            expect_eq(addr1_balance2, addr1_balance0 - compute_gas(cm_gas) - 0n );
+            expect_eq(contract_balance2, contract_balance0);
+        }
+    });
+
 });
