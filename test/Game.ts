@@ -1009,12 +1009,12 @@ describe("Play Game Tests", function () {
             await delay(12*38);
 
             if (index == N_TURNS - 1) {
-                await expect(contract.connect(codemaker).checkWin(0))
+                await expect(contract.connect(codemaker).updateScore(0))
                     .to.emit(contract, "Tie")
                     .and.to.emit(contract, "Transfered")
                     .and.to.emit(contract, "Transfered");
             } else{
-                await expect(contract.connect(codemaker).checkWin(0))
+                await expect(contract.connect(codemaker).updateScore(0))
                 .to.emit(contract, "PointsUpdated");
             }
 

@@ -298,7 +298,20 @@ contract MasterMind {
         closeGame(id);
     }
 
-    function checkWin(uint256 id) external userAllowed(id) {
+    /**
+     * @notice after the dispute time update points and, if all turns have been played, draw winner 
+     * @param id: game id
+     * @custom:revert if user not allowed to play this game or
+     *                if invoked while in another phase or
+     *                if the dispute time has not been over yet.
+     * @custom:emit PointsUpdated
+     *              Tie
+     *              Transfered
+     *              Winning
+     *              ClosedGame
+     *              Shuffled
+     */
+    function updateScore(uint256 id) external userAllowed(id) {
         (uint8 points, uint8 turn) = games[id].getPoints();
         emit PointsUpdated(id, points);
 

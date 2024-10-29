@@ -266,8 +266,16 @@ contract Game{
         return (CC == CC_count && NC == NC_count);
     }
 
+    /**
+     * @notice allows the player to get the updated points after dispute time. 
+     *         Then, update Phase and Turn.
+     * @return a pair <points, turn>
+     * @custom:revert if not invoked by MasterMind or 
+     *                if invoked while in another phase or
+     *                if the dispute time has not been over yet.
+     */
     function getPoints() external
-        calledByMasterMind codeMakerTurn checkPhase(Phase.Dispute) returns (uint8, uint8){
+        calledByMasterMind checkPhase(Phase.Dispute) returns (uint8, uint8){
         require(block.number >= dispute_block + (DISPUTE_TIME / BLOCK_SPAWN_RATE), "Time not Over yet.");
 
         points[codeMaker] += 
@@ -281,6 +289,12 @@ contract Game{
         return (points[codeMaker], turn);
     }
 
+    /**
+     * @notice get the winner
+     * @return winner address
+     * @custom:revert if not invoked by MasterMind or
+     *                if invoked while the game is in progress
+     */
     function whoWin() external view calledByMasterMind checkPhase(Phase.Closing) returns(address){
         return  points[codeMaker] == points[codeBreaker] ? address(0) :
                 points[codeMaker] > points[codeBreaker] ? codeMaker : codeBreaker;
