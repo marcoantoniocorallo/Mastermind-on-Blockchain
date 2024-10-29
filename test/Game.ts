@@ -4,7 +4,7 @@ import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { deployFixture } from "./Fixtures";
-import { compute_gas, expect_eq, hash, Color, delay, N_TURNS } from "./Utils";
+import { compute_gas, expect_eq, hash, Color, delay, N_TURNS, DELAY_TIME } from "./Utils";
 
 describe("Play Game Tests", function () {
     it("Test1 : A guess is sent", async function () {
@@ -656,7 +656,7 @@ describe("Play Game Tests", function () {
             .withArgs(0, code, salt);
 
         // start dispute on the 2nd feedback
-        await delay(12 * 38);
+        await delay(DELAY_TIME);
 
         await expect(contract.connect(codebreaker).startDispute(0, 1))
             .to.be.revertedWith("Time Over.")
@@ -1006,7 +1006,7 @@ describe("Play Game Tests", function () {
                 .to.emit(contract, "SolutionSubmitted")
                 .withArgs(0, code, salt);
             
-            await delay(12*38);
+            await delay(DELAY_TIME);
 
             if (index == N_TURNS - 1) {
                 await expect(contract.connect(codemaker).updateScore(0))
@@ -1098,7 +1098,7 @@ describe("Play Game Tests", function () {
             let cm_receipt_sol = await (await contract.connect(codemaker).submitSolution(0, code, salt)).wait();
             cm_gas.push(cm_receipt_sol!.gasUsed * cm_receipt_sol!.gasPrice);
 
-            await delay(12 * 38);
+            await delay(DELAY_TIME);
 
             // update score
             let cm_receipt_updatescore = await (await contract.connect(codemaker).updateScore(0)).wait();
@@ -1121,6 +1121,226 @@ describe("Play Game Tests", function () {
             expect_eq(addr1_balance2, addr1_balance0 - compute_gas(cm_gas) - 0n );
             expect_eq(contract_balance2, contract_balance0);
         }
+    });
+
+    it("Test17 : Complete Game with AFK", async function () {
+        const { contract, owner, addr1 } = await loadFixture(deployFixture);  
+
+        // game created by the owner of the contract
+        await expect(contract["newGame()"]())
+            .to.emit(contract, "GameCreated")
+            .withArgs(owner.address, 0);
+
+        // game joined by another user
+        await expect(contract.connect(addr1)["joinGame()"]())
+            .to.emit(contract, "GameJoined")
+            .withArgs(addr1.address, 0);
+
+        // declare owner
+        await expect(contract.declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(owner, 1);
+
+        // declare addr1
+        await expect(contract.connect(addr1).declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(addr1, 1);
+
+        let value = ethers.parseUnits("1", "wei");
+
+        // owner send money
+        await expect(contract.prepareGame(0, { value: value } ) )
+            .to.emit(contract, "StakePut")
+            .withArgs(owner.address, 1)
+
+        // addr1 send money
+        let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
+        const logs : any =  receipt!.logs;
+        const codemaker_addr : string = logs[logs.length-1].args[0];
+
+        let [codemaker, codebreaker] = codemaker_addr === owner.address ? [owner, addr1] : [addr1, owner];
+
+        // send secret code
+        const code : [Color, Color, Color, Color] = [Color.Red, Color.Yellow, Color.Red, Color.Green];
+        const salt : [number, number, number, number, number ] = [0, 0, 0, 0, 0];
+
+        for (let index = 0; index < N_TURNS; index++) {
+
+            await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
+                .to.emit(contract, "SecretCodeSent");
+
+            for (let index = 0; index < 7; index++) {
+                await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
+                    .to.emit(contract, "GuessSent")
+                    .withArgs(codebreaker.address);
+
+                // codebreaker send AFK
+                await expect(contract.connect(codebreaker).AFK(0))
+                    .to.emit(contract, "AFKStart")
+
+                await expect(contract.connect(codemaker).sendFeedback(1, 2, 0))
+                    .to.emit(contract, "FeedbackSent");
+
+                // codemaker send AFK
+                await expect(contract.connect(codemaker).AFK(0))
+                    .to.emit(contract, "AFKStart")
+            };
+
+            await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
+                    .to.emit(contract, "GuessSent")
+                    .withArgs(codebreaker.address);
+
+            // submit solution
+            await expect(contract.connect(codemaker).submitSolution(0, code, salt))
+                .to.emit(contract, "SolutionSubmitted")
+                .withArgs(0, code, salt);
+            
+            await delay(DELAY_TIME);
+
+            if (index == N_TURNS - 1) {
+                await expect(contract.connect(codemaker).updateScore(0))
+                    .to.emit(contract, "Tie")
+                    .and.to.emit(contract, "Transfered")
+                    .and.to.emit(contract, "Transfered");
+            } else{
+                await expect(contract.connect(codemaker).updateScore(0))
+                .to.emit(contract, "PointsUpdated");
+            }
+
+            [codemaker, codebreaker] = [codebreaker, codemaker];
+        }
+
+    });
+
+    it("Test18 : AFK in declaration and payment", async function () {
+        const { contract, owner, addr1 } = await loadFixture(deployFixture);  
+
+        // game created by the owner of the contract
+        await expect(contract["newGame()"]())
+            .to.emit(contract, "GameCreated")
+            .withArgs(owner.address, 0);
+
+        // game joined by another user
+        await expect(contract.connect(addr1)["joinGame()"]())
+            .to.emit(contract, "GameJoined")
+            .withArgs(addr1.address, 0);
+
+        // owner send AFK
+        await expect(contract.connect(owner).AFK(0))
+            .to.be.revertedWith("Must do your move before to accuse to be AFK.");
+
+        // declare owner
+        await expect(contract.declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(owner, 1);
+
+        // retry AFK
+        await expect(contract.connect(owner).AFK(0))
+            .to.emit(contract, "AFKStart");
+
+        // declare addr1
+        await expect(contract.connect(addr1).declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(addr1, 1);
+
+        let value = ethers.parseUnits("1", "wei");
+
+        // codebreaker send AFK
+        await expect(contract.connect(owner).AFK(0))
+            .to.be.revertedWith("Must do your move before to accuse to be AFK.");
+
+        // owner send money
+        await expect(contract.prepareGame(0, { value: value } ) )
+            .to.emit(contract, "StakePut")
+            .withArgs(owner.address, 1)
+
+        // retry AFK
+        await expect(contract.connect(owner).AFK(0))
+            .to.emit(contract, "AFKStart");
+
+        // addr1 send money
+        let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
+        const logs : any =  receipt!.logs;
+        const codemaker_addr : string = logs[logs.length-1].args[0];
+
+        let [codemaker, codebreaker] = codemaker_addr === owner.address ? [owner, addr1] : [addr1, owner];
+
+        // send secret code
+        const code : [Color, Color, Color, Color] = [Color.Red, Color.Yellow, Color.Red, Color.Green];
+        const salt : [number, number, number, number, number ] = [0, 0, 0, 0, 0];
+
+        for (let index = 0; index < N_TURNS; index++) {
+
+            await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
+                .to.emit(contract, "SecretCodeSent");
+
+            for (let index = 0; index < 7; index++) {
+                await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
+                    .to.emit(contract, "GuessSent")
+                    .withArgs(codebreaker.address);
+
+                await expect(contract.connect(codemaker).sendFeedback(1, 2, 0))
+                    .to.emit(contract, "FeedbackSent");
+
+            };
+
+            await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
+                    .to.emit(contract, "GuessSent")
+                    .withArgs(codebreaker.address);
+
+            // submit solution
+            await expect(contract.connect(codemaker).submitSolution(0, code, salt))
+                .to.emit(contract, "SolutionSubmitted")
+                .withArgs(0, code, salt);
+            
+            await delay(DELAY_TIME);
+
+            if (index == N_TURNS - 1) {
+                await expect(contract.connect(codemaker).updateScore(0))
+                    .to.emit(contract, "Tie")
+                    .and.to.emit(contract, "Transfered")
+                    .and.to.emit(contract, "Transfered");
+            } else{
+                await expect(contract.connect(codemaker).updateScore(0))
+                .to.emit(contract, "PointsUpdated");
+            }
+
+            [codemaker, codebreaker] = [codebreaker, codemaker];
+        }
+
+    });
+
+    it("Test19 : AFK player loses the game - declaration time", async function () {
+        const { contract, owner, addr1 } = await loadFixture(deployFixture);  
+
+        // game created by the owner of the contract
+        await expect(contract["newGame()"]())
+            .to.emit(contract, "GameCreated")
+            .withArgs(owner.address, 0);
+
+        // game joined by another user
+        await expect(contract.connect(addr1)["joinGame()"]())
+            .to.emit(contract, "GameJoined")
+            .withArgs(addr1.address, 0);
+
+        // owner send AFK
+        await expect(contract.connect(owner).AFK(0))
+            .to.be.revertedWith("Must do your move before to accuse to be AFK.");
+
+        // declare owner
+        await expect(contract.declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(owner, 1);
+
+        // retry AFK
+        await expect(contract.connect(owner).AFK(0))
+            .to.emit(contract, "AFKStart");
+
+        await delay(DELAY_TIME);
+
+        await expect(contract.connect(owner).claimStakeByAFK(0))
+            .to.emit(contract, "GameClosed");
+
     });
 
 });

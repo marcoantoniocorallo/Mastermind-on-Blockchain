@@ -18,4 +18,5 @@ event Dispute(uint256 game_id, uint8 feedback_id);
 event PointsUpdated(uint256 game_id, uint8 points);
 event Winning(uint256 game_id, address player);
 event Tie(uint256 game_id);
+event AFKStart(uint256 game_id, address _who);
 event GameClosed(uint256 id);

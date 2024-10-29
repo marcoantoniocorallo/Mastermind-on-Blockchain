@@ -4,6 +4,9 @@ TODO:
 - ^ --- => remove calledByMasterMind modifier?
 - fix event arguments
 
+Future Works:
+- Impostare le funzioni come pure (?)
+
 Prevented Security issues:
 - DDOS creating new game:
   Eve wants to DDOS the game vectors creating a sequence of new games.

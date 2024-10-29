@@ -21,7 +21,8 @@ struct Game{
     Phase phase;                        // phase of the game: state-machine
     uint8 n_guess;                      // how many guesses codebreaker sent?
     uint8 turn;                         // a game is composed by several turns
-    uint256 dispute_block;              // block number where the dispute starts
+    uint256 start_block_n;              // block number where the dispute/AFK starts
+    address AFK;                        // user accused to be AFK
     mapping (address => uint8) points;
     Color[N_HOLES] solution;
     Color[N_HOLES][N_GUESSES][N_TURNS] guesses;
@@ -56,6 +57,52 @@ library GameLib {
     /// @notice checks that the functions is called in the correct phase
     modifier checkPhase(Game storage self, Phase _phase) {
         require(self.phase == _phase, "Operation not allowed now.");
+        _;
+    }
+
+    modifier otherPlayerTurn(Game storage self){
+        require(
+            self.phase != Phase.Creation && 
+            self.phase != Phase.Dispute &&
+            self.phase != Phase.Closing,
+            "Cannot put under accusation now."
+        );
+
+        if (
+            self.phase == Phase.SecretCode    || 
+            self.phase == Phase.Feedback      ||
+            self.phase == Phase.Solution
+        )   require(tx.origin == self.codeBreaker,  "Denied operation.");
+        else if ( self.phase == Phase.Guess )
+            require(tx.origin == self.codeMaker,    "Denied operation.");
+        else if ( self.phase == Phase.Declaration )
+            require(
+                (self.declaredBy.length == 1 && self.declaredBy[0] == tx.origin),
+                "Must do your move before to accuse to be AFK."
+            );
+        else if ( self.phase == Phase.Preparation )
+            require(
+                (self.payedBy.length == 1 && self.payedBy[0] == tx.origin),
+                "Must do your move before to accuse to be AFK."
+            );
+        _;
+    }
+
+    /**
+     * @notice when a player is accused to be AFK moves, checks the block number.
+     *         if still in time, reset the timer and continue, otherwise revert.
+     */
+    modifier checkAFK(Game storage self){
+        require(
+            self.AFK == address(0) || self.AFK == msg.sender, 
+            "Wait for the other player or for the time to run out."
+        );
+        require(
+            self.AFK == address(0) || 
+            block.number <= self.start_block_n + (DISPUTE_TIME / BLOCK_SPAWN_RATE),
+            "You have been AFK too long."
+        );
+        self.AFK = address(0);
         _;
     }
 
@@ -97,7 +144,7 @@ library GameLib {
      *                if invoked while in another phase
      */
     function shuffleRoles(Game storage self) external
-        checkPhase(self, Phase.Preparation) {
+        checkPhase(self, Phase.Preparation) checkAFK(self) {
         require(self.payedBy.length == 2, "Both the player must put stake to start the game.");
         if (rand() % 2 == 0)
             (self.codeMaker, self.codeBreaker) = (self.codeBreaker, self.codeMaker);
@@ -116,7 +163,7 @@ library GameLib {
      *                if this tx is sent while in another phase
      */
     function declareStake(Game storage self, uint256 _stake) external
-        checkPhase(self, Phase.Declaration) returns (bool) {
+        checkPhase(self, Phase.Declaration) checkAFK(self) returns (bool) {
         require(_stake > 0, "Stake must be greater than zero.");
         require(
             self.declaredBy.length == 0 || 
@@ -148,7 +195,7 @@ library GameLib {
      *                if invoked while in another phase
      */
     function setStake(Game storage self, uint256 _stake) external
-        checkPhase(self, Phase.Preparation) returns (bool) {
+        checkPhase(self, Phase.Preparation) checkAFK(self) returns (bool) {
         require(_stake > 0, "Stake must be greater than zero.");
         require(
             self.payedBy.length == 0 || (self.payedBy.length == 1 && self.payedBy[0] != tx.origin),
@@ -168,7 +215,7 @@ library GameLib {
      *                if invoked while in another phase
      */
     function setHash(Game storage self, bytes32 _hash) external
-        codeMakerTurn(self) checkPhase(self, Phase.SecretCode) {
+        codeMakerTurn(self) checkPhase(self, Phase.SecretCode) checkAFK(self) {
         self.hash = _hash;
         self.phase = Phase.Guess;
     }
@@ -181,7 +228,7 @@ library GameLib {
      *                if already reached max number of guesses
      */
     function pushGuess(Game storage self, Color[N_HOLES] calldata _guess) external
-        codeBreakerTurn(self) checkPhase(self, Phase.Guess) {
+        codeBreakerTurn(self) checkPhase(self, Phase.Guess) checkAFK(self) {
         require(self.n_guess < N_GUESSES, "Max number of guesses reached.");
         self.guesses[self.turn][self.n_guess++] = _guess;
         self.phase = self.n_guess < N_GUESSES ? Phase.Feedback : Phase.Solution;
@@ -196,7 +243,7 @@ library GameLib {
      *                if already reached max number of feedbacks
      */
     function pushFeedback(Game storage self, uint8 CC, uint8 NC) external
-        codeMakerTurn(self) checkPhase(self, Phase.Feedback){
+        codeMakerTurn(self) checkPhase(self, Phase.Feedback) checkAFK(self) {
         self.feedbacks[self.turn][self.n_guess-1][0] = CC;
         self.feedbacks[self.turn][self.n_guess-1][1] = NC;
         self.phase = CC < N_HOLES ? Phase.Guess : Phase.Solution;
@@ -212,10 +259,10 @@ library GameLib {
      *                if the solution doesn't match the hash he choose at the beginning
      */
     function reveal(Game storage self, Color[N_HOLES] memory code, uint8[SALT_SZ] memory salt) external 
-        codeMakerTurn(self) checkPhase(self, Phase.Solution) {
+        codeMakerTurn(self) checkPhase(self, Phase.Solution) checkAFK(self) {
         require(hashOf(code, salt) == self.hash, "Invalid Solution.");
         self.solution = code;
-        self.dispute_block = block.number;
+        self.start_block_n = block.number;
         self.phase = Phase.Dispute;
     }
 
@@ -229,7 +276,7 @@ library GameLib {
      */
     function correctFeedback(Game storage self, uint8 feedback) view external
         codeBreakerTurn(self) checkPhase(self, Phase.Dispute) returns (bool) {
-        require(block.number <= self.dispute_block + (DISPUTE_TIME / BLOCK_SPAWN_RATE), "Time Over.");
+        require(block.number <= self.start_block_n + (DISPUTE_TIME / BLOCK_SPAWN_RATE), "Time Over.");
         
         uint8 CC_count = 0; uint8 NC_count = 0;
         (uint8 CC, uint8 NC) = (self.feedbacks[self.turn][feedback][0], self.feedbacks[self.turn][feedback][1]);
@@ -273,8 +320,8 @@ library GameLib {
     function getPoints(Game storage self) external
         checkPhase(self, Phase.Dispute) returns (uint8, uint8){
         require(
-            block.number >= self.dispute_block + (DISPUTE_TIME / BLOCK_SPAWN_RATE), 
-            "Time not Over yet."
+            block.number >= self.start_block_n + (DISPUTE_TIME / BLOCK_SPAWN_RATE), 
+            "Dispute time not Over yet."
         );
 
         self.points[self.codeMaker] += 
@@ -296,9 +343,40 @@ library GameLib {
      * @return winner address
      * @custom:revert if invoked while the game is in progress
      */
-    function whoWin(Game storage self) external view checkPhase(self, Phase.Closing) returns(address){
+    function whoWon(Game storage self) external view checkPhase(self, Phase.Closing) returns(address){
         return  self.points[self.codeMaker] == self.points[self.codeBreaker] ? address(0) :
                 self.points[self.codeMaker] >  self.points[self.codeBreaker] ? self.codeMaker : self.codeBreaker;
+    }
+
+    /**
+     * @notice allow a player to accuse to be AFK the opponent, starting the block timer
+     * @custom:revert if the player who accuse is the same who must move or
+     *                if in this phase is not possible to accuse (Creation, Dispute, Closing)
+     */
+    function accuseAFK(Game storage self, address opponent) external otherPlayerTurn(self) {
+        self.AFK = opponent;
+        self.start_block_n = block.number;
+    }
+
+    /**
+     * @notice allows the accuser to claim his reward
+     * @return the amount of the reward
+     * @custom:revert if invoked by the accused player or 
+     *                if the AFK time is not over yet
+     */
+    function winByAFK(Game storage self) external returns(uint256) {
+        require(self.AFK != address(0) && self.AFK != msg.sender, "Denied operation.");
+        require(
+            block.number >= self.start_block_n + (DISPUTE_TIME / BLOCK_SPAWN_RATE), 
+            "AFK time not Over yet."
+        );
+
+        uint256 stake = self.stake; 
+        delete self.stake;
+        
+        if ( self.phase == Phase.Declaration ) return 0;        // nobody paid
+        if ( self.phase == Phase.Preparation ) return stake;    // only the accuser paid
+        else return stake * 2;                                  // both paid
     }
    
 }

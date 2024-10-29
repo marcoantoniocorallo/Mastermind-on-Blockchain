@@ -41,3 +41,5 @@ export async function delay(n_blocks : number) {
     }
     await ethers.provider.send("evm_setAutomine", [true]);
 }
+
+export const DELAY_TIME = 12 * 38;

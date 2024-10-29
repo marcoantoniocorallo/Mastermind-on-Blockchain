@@ -31,7 +31,7 @@ contract MasterMind {
     modifier userAllowed(uint256 id) {
         require(
             games[id].getCodeMaker() == msg.sender ||
-                games[id].getCodeBreaker() == msg.sender,
+            games[id].getCodeBreaker() == msg.sender,
             "Denied operation."
         );
         _;
@@ -319,7 +319,7 @@ contract MasterMind {
         emit PointsUpdated(id, points);
 
         if (turn == N_TURNS){
-            address winner = games[id].whoWin();
+            address winner = games[id].whoWon();
             uint256 stake = games[id].popStake();
             if (winner == address(0)) {
                 emit Tie(id);
@@ -338,5 +338,39 @@ contract MasterMind {
             closeGame(id);
         }
         else emit Shuffled(games[id].getCodeMaker(), games[id].getCodeBreaker());
+    }
+
+    /**
+     * @notice sender put under accusation the opponent
+     * @param id: game id
+     * @custom:revert if the player who accuse is the same who must move or
+     *                if in this phase is not possible to accuse (Creation, Dispute, Closing)
+     * @custom:emit AFK
+     */
+    function AFK(uint256 id) external userAllowed(id) {
+        address opponent = msg.sender == games[id].getCodeMaker() ? 
+            games[id].getCodeBreaker() : games[id].getCodeMaker();
+        games[id].accuseAFK(opponent);
+        emit AFKStart(id, opponent);
+    }
+
+    /**
+     * @notice transfer the stake to the player that accuse and win the AFK
+     * @param id: game id 
+     * @custom:revert if invoked by the accused player or 
+     *                if the AFK time is not over yet or 
+     *                if the user is not allowed for this game
+     * @custom:emit Winning
+     *              Transfered
+     *              ClosedGame
+     */
+    function claimStakeByAFK(uint256 id) external userAllowed(id) {
+        uint256 award = games[id].winByAFK();
+        if (award != 0){
+            emit Winning(id, msg.sender);
+            call(payable(msg.sender), award);
+            emit Transfered(msg.sender, award);
+        }
+        closeGame(id);
     }
 }
