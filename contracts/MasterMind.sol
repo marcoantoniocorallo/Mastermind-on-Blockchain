@@ -173,10 +173,10 @@ contract MasterMind {
      * @custom:emit Punished
      *              Transfered
      */
-    function punishAndReward(address toPunish, address payable toReward, uint256 stake) private {
+    function punishAndReward(uint256 id, address toPunish, address payable toReward, uint256 stake) private {
         call(toReward, stake);
-        emit Punished(toPunish);
-        emit Transfered(toReward, stake);
+        emit Punished(id, toPunish);
+        emit Transfered(id, toReward, stake);
     }
 
     /**
@@ -203,7 +203,7 @@ contract MasterMind {
     function sendCode(bytes32 _hash, uint256 id) external
         userAllowed(id) {
         games[id].setHash(_hash);
-        emit SecretCodeSent(msg.sender);
+        emit SecretCodeSent(id, msg.sender);
     }
 
     /**
@@ -218,7 +218,7 @@ contract MasterMind {
      */
     function sendGuess(Color[N_HOLES] calldata code, uint256 id) external userAllowed(id) {
         games[id].pushGuess(code);
-        emit GuessSent(msg.sender);
+        emit GuessSent(id, msg.sender);
     }
 
     /**
@@ -272,9 +272,9 @@ contract MasterMind {
         emit Dispute(id, feedback_id);
         uint256 stake = games[id].popStake();
         if (games[id].correctFeedback(feedback_id))
-            punishAndReward(games[id].getCodeBreaker(), payable(games[id].getCodeMaker()), stake*2);
+            punishAndReward(id, games[id].getCodeBreaker(), payable(games[id].getCodeMaker()), stake*2);
         else 
-            punishAndReward(games[id].getCodeMaker(), payable(games[id].getCodeBreaker()), stake*2);
+            punishAndReward(id, games[id].getCodeMaker(), payable(games[id].getCodeBreaker()), stake*2);
         
         closeGame(id);
     }
@@ -303,15 +303,15 @@ contract MasterMind {
                 emit Tie(id);
                 
                 call(payable(games[id].getCodeMaker()), stake);
-                emit Transfered(games[id].getCodeMaker(), stake);
+                emit Transfered(id, games[id].getCodeMaker(), stake);
 
                 call(payable(games[id].getCodeBreaker()), stake);
-                emit Transfered(games[id].getCodeBreaker(), stake);
+                emit Transfered(id, games[id].getCodeBreaker(), stake);
 
             } else{
                 emit Winning(id, winner);
                 call(payable(winner), stake * 2);
-                emit Transfered(winner, stake * 2);
+                emit Transfered(id, winner, stake * 2);
             }
             closeGame(id);
         }
@@ -347,7 +347,7 @@ contract MasterMind {
         if (award != 0){
             emit Winning(id, msg.sender);
             call(payable(msg.sender), award);
-            emit Transfered(msg.sender, award);
+            emit Transfered(id, msg.sender, award);
         }
         closeGame(id);
     }

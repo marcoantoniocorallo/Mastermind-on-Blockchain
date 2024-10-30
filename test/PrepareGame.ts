@@ -487,7 +487,7 @@ describe("Prepare game Tests", function () {
     // addr1 send money
     let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
     const logs : any =  receipt!.logs;
-    const codemaker_addr : string = logs[logs.length-1].args[0];
+    const codemaker_addr : string = logs[logs.length-1].args[1];
 
     const codemaker = codemaker_addr === owner.address ? owner : addr1;
 
@@ -631,7 +631,7 @@ describe("Prepare game Tests", function () {
     // addr1 send money
     let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
     const logs : any =  receipt!.logs;
-    const codemaker_addr : string = logs[logs.length-1].args[0];
+    const codemaker_addr : string = logs[logs.length-1].args[1];
 
     const [codemaker, codebreaker] = codemaker_addr === owner.address ? [owner, addr1] : [addr1, owner];
 
