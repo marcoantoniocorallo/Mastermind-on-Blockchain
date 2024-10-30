@@ -44,13 +44,13 @@ library GameLib {
 
     /// @notice checks that the function is originally invoked by the codemaker
     modifier codeMakerTurn(Game storage self) {
-        require(tx.origin == self.codeMaker, "Denied operation.");
+        require(msg.sender == self.codeMaker, "Denied operation.");
         _;
     }
 
     /// @notice checks that the function is originally invoked by the codebreaker
     modifier codeBreakerTurn(Game storage self) {
-        require(tx.origin == self.codeBreaker, "Denied operation.");
+        require(msg.sender == self.codeBreaker, "Denied operation.");
         _;
     }
 
@@ -72,17 +72,17 @@ library GameLib {
             self.phase == Phase.SecretCode    || 
             self.phase == Phase.Feedback      ||
             self.phase == Phase.Solution
-        )   require(tx.origin == self.codeBreaker,  "Denied operation.");
+        )   require(msg.sender == self.codeBreaker,  "Denied operation.");
         else if ( self.phase == Phase.Guess )
-            require(tx.origin == self.codeMaker,    "Denied operation.");
+            require(msg.sender == self.codeMaker,    "Denied operation.");
         else if ( self.phase == Phase.Declaration )
             require(
-                (self.declaredBy.length == 1 && self.declaredBy[0] == tx.origin),
+                (self.declaredBy.length == 1 && self.declaredBy[0] == msg.sender),
                 "Must do your move before to accuse to be AFK."
             );
         else if ( self.phase == Phase.Preparation )
             require(
-                (self.payedBy.length == 1 && self.payedBy[0] == tx.origin),
+                (self.payedBy.length == 1 && self.payedBy[0] == msg.sender),
                 "Must do your move before to accuse to be AFK."
             );
         _;
@@ -167,7 +167,7 @@ library GameLib {
         require(_stake > 0, "Stake must be greater than zero.");
         require(
             self.declaredBy.length == 0 || 
-            (self.declaredBy.length == 1 && self.declaredBy[0] != tx.origin),
+            (self.declaredBy.length == 1 && self.declaredBy[0] != msg.sender),
             "You already declared stake."
         );
 
@@ -175,7 +175,7 @@ library GameLib {
             return false;
 
         self.stake = _stake;
-        self.declaredBy.push(tx.origin);
+        self.declaredBy.push(msg.sender);
 
         if (self.declaredBy.length == 2)
             self.phase = Phase.Preparation;
@@ -198,14 +198,14 @@ library GameLib {
         checkPhase(self, Phase.Preparation) checkAFK(self) returns (bool) {
         require(_stake > 0, "Stake must be greater than zero.");
         require(
-            self.payedBy.length == 0 || (self.payedBy.length == 1 && self.payedBy[0] != tx.origin),
+            self.payedBy.length == 0 || (self.payedBy.length == 1 && self.payedBy[0] != msg.sender),
             "Cannot put money again."
         );
 
         if (self.stake != _stake) 
             return false;
 
-        self.payedBy.push(tx.origin);
+        self.payedBy.push(msg.sender);
         return true;
     }
 

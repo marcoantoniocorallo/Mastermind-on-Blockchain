@@ -2,7 +2,7 @@ import "@nomicfoundation/hardhat-chai-matchers"
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers";
-import { deployFixture }from "./Fixtures"
+import { deployFixture }from "./Utils"
 
 describe("Create/Join Game Tests", function () {
 

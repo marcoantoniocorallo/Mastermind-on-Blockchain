@@ -3,8 +3,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
-import { deployFixture } from "./Fixtures";
-import { compute_gas, expect_eq, hash, Color, delay, N_TURNS, DELAY_TIME } from "./Utils";
+import { deployFixture, compute_gas, expect_eq, hash, Color, delay, N_TURNS, DELAY_TIME } from "./Utils";
 
 describe("Play Game Tests", function () {
     it("Test1 : A guess is sent", async function () {
