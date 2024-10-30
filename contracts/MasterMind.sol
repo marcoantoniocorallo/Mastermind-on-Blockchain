@@ -235,7 +235,7 @@ contract MasterMind {
     function sendFeedback(uint8 CC, uint8 NC, uint256 id) external userAllowed(id) {
         require(CC <= N_HOLES && NC <= N_HOLES && CC + NC <= N_HOLES, "Invalid feedback.");
         games[id].pushFeedback(CC, NC);
-        emit FeedbackSent(msg.sender);
+        emit FeedbackSent(id, msg.sender);
     }
 
     /**

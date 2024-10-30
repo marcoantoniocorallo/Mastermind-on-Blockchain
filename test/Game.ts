@@ -203,7 +203,7 @@ describe("Play Game Tests", function () {
 
         await expect(contract.connect(codemaker).sendFeedback(4, 0, 0))
             .to.emit(contract, "FeedbackSent")
-            .withArgs(codemaker.address);
+            .withArgs(0, codemaker.address);
     });
 
     it("Test5 : N_GUESSES Guess and feedback", async function () {
