@@ -184,7 +184,7 @@ describe("Prepare game Tests", function () {
     // owner put money
     await expect(contract.connect(addr1).prepareGame(0, { value: value } ) )
       .to.emit(contract, "StakePut")
-      .withArgs(addr1.address, 1)
+      .withArgs(0, addr1.address, 1)
 
   });
 
@@ -230,12 +230,12 @@ describe("Prepare game Tests", function () {
     // owner pay
     await expect(contract.prepareGame(0, { value: value } ) )
       .to.emit(contract, "StakePut")
-      .withArgs(owner.address, 1)
+      .withArgs(0, owner.address, 1)
 
     // addr1 pay
     await expect(contract.connect(addr1).prepareGame(0, { value: value } ) )
       .to.emit(contract, "StakePut")
-      .withArgs(addr1.address, 1)
+      .withArgs(0, addr1.address, 1)
       .and.to.emit(contract, "Shuffled");
 
     // owner pay again
@@ -303,7 +303,7 @@ describe("Prepare game Tests", function () {
     // owner pay 1
     await expect(contract.prepareGame(0, { value: value1 } ) )
       .to.emit(contract, "StakePut")
-      .withArgs(owner.address, 1)
+      .withArgs(0, owner.address, 1)
 
     // addr1 pay 2
     await expect(contract.connect(addr1).prepareGame(0, { value: value2 } ) )
@@ -417,11 +417,11 @@ describe("Prepare game Tests", function () {
 
     await expect(contract.prepareGame(0, { value: value } ) )
       .to.emit(contract, "StakePut")
-      .withArgs(owner.address, 1)
+      .withArgs(0, owner.address, 1)
 
     await expect(contract.connect(addr1).prepareGame(0, { value: value } ) )
       .to.emit(contract, "StakePut")
-      .withArgs(addr1.address, 1)
+      .withArgs(0, addr1.address, 1)
       .and.to.emit(contract, "Shuffled");
 
   });
@@ -482,7 +482,7 @@ describe("Prepare game Tests", function () {
     // owner send money
     await expect(contract.prepareGame(0, { value: value } ) )
       .to.emit(contract, "StakePut")
-      .withArgs(owner.address, 1)
+      .withArgs(0, owner.address, 1)
 
     // addr1 send money
     let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
@@ -525,12 +525,12 @@ describe("Prepare game Tests", function () {
     // owner send money
     await expect(contract.prepareGame(0, { value: value } ) )
       .to.emit(contract, "StakePut")
-      .withArgs(owner.address, 1)
+      .withArgs(0, owner.address, 1)
 
     // addr1 send money
     let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
     const logs : any =  receipt!.logs;
-    const codebreaker_addr : string = logs[logs.length-1].args[1];
+    const codebreaker_addr : string = logs[logs.length-1].args[2];
 
     const codebreaker = codebreaker_addr === owner.address ? owner : addr1;
 
@@ -587,7 +587,7 @@ describe("Prepare game Tests", function () {
     // owner send money
     await expect(contract.prepareGame(0, { value: value } ) )
       .to.emit(contract, "StakePut")
-      .withArgs(owner.address, 1)
+      .withArgs(0, owner.address, 1)
 
     // addr1 send money
     let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
@@ -626,7 +626,7 @@ describe("Prepare game Tests", function () {
     // owner send money
     await expect(contract.prepareGame(0, { value: value } ) )
       .to.emit(contract, "StakePut")
-      .withArgs(owner.address, 1)
+      .withArgs(0, owner.address, 1)
 
     // addr1 send money
     let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();

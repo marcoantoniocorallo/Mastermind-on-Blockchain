@@ -156,13 +156,13 @@ contract MasterMind {
      */
     function prepareGame(uint256 id) external payable userAllowed(id) {
 
-        emit StakePut(msg.sender, msg.value);
+        emit StakePut(id, msg.sender, msg.value);
         games[id].setStake(msg.value);
 
         // shuffle players
         if (games[id].howManyPayed() == 2) {
             games[id].shuffleRoles();
-            emit Shuffled(games[id].getCodeMaker(), games[id].getCodeBreaker());
+            emit Shuffled(id, games[id].getCodeMaker(), games[id].getCodeBreaker());
         }
     }
 
@@ -315,7 +315,7 @@ contract MasterMind {
             }
             closeGame(id);
         }
-        else emit Shuffled(games[id].getCodeMaker(), games[id].getCodeBreaker());
+        else emit Shuffled(id, games[id].getCodeMaker(), games[id].getCodeBreaker());
     }
 
     /**
