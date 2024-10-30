@@ -22,12 +22,12 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -71,12 +71,12 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -123,12 +123,12 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -170,12 +170,12 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -222,12 +222,12 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -283,12 +283,12 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -345,12 +345,12 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -406,12 +406,12 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -467,12 +467,12 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -538,12 +538,12 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -609,12 +609,12 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -770,12 +770,12 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -835,12 +835,12 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -886,12 +886,12 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -957,12 +957,12 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -1038,12 +1038,12 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -1234,12 +1234,12 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -1333,7 +1333,7 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // retry AFK
         await expect(contract.connect(owner).AFK(0))
@@ -1342,7 +1342,7 @@ describe("Play Game Tests", function () {
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -1431,7 +1431,7 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // retry AFK
         await expect(contract.connect(owner).AFK(0))
@@ -1464,7 +1464,7 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // retry AFK
         await expect(contract.connect(owner).AFK(0))
@@ -1473,7 +1473,7 @@ describe("Play Game Tests", function () {
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 
@@ -1634,7 +1634,7 @@ describe("Play Game Tests", function () {
         // declare owner
         await expect(contract.declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(owner, 1);
+            .withArgs(0, owner, 1);
 
         // retry AFK
         await expect(contract.connect(owner).AFK(0))
@@ -1643,7 +1643,7 @@ describe("Play Game Tests", function () {
         // declare addr1
         await expect(contract.connect(addr1).declareStake(0, 1))
             .to.emit(contract, "StakeDeclared")
-            .withArgs(addr1, 1);
+            .withArgs(0, addr1, 1);
 
         let value = ethers.parseUnits("1", "wei");
 

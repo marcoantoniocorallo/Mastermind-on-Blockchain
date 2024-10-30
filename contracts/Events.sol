@@ -5,7 +5,7 @@ import "./Constants.sol";
 
 event GameCreated(address _who, uint256 id);
 event GameJoined(address _who, uint256 id);
-event StakeDeclared(address _who, uint256 _stake);
+event StakeDeclared(uint256 id, address _who, uint256 _stake);
 event StakePut(address _who, uint256 _stake);
 event Shuffled(address _codemaker, address _codebreaker);
 event Transfered(address _who, uint256 howmuch);

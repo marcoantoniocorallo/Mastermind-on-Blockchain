@@ -124,9 +124,9 @@ contract MasterMind {
      */
     function declareStake(uint256 id, uint256 stake) external userAllowed(id) {
         if ( ! games[id].declareStake(stake) ){
-            emit StakeDeclared(msg.sender, stake);
+            emit StakeDeclared(id, msg.sender, stake);
             closeGame(id);
-        } else emit StakeDeclared(msg.sender, stake);
+        } else emit StakeDeclared(id, msg.sender, stake);
     }
 
     /**
