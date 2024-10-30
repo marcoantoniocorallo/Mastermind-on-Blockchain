@@ -1,0 +1,1124 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts/MasterMind.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> MasterMind.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>74/74</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">80% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>48/60</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>20/20</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>81/81</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">168×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">165×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">773×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">772×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">48×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">46×</span>
+<span class="cline-any cline-yes">46×</span>
+<span class="cline-any cline-yes">46×</span>
+<span class="cline-any cline-yes">46×</span>
+<span class="cline-any cline-yes">46×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">59×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">58×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">58×</span>
+<span class="cline-any cline-yes">58×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">58×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-yes">55×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">48×</span>
+<span class="cline-any cline-yes">46×</span>
+<span class="cline-any cline-yes">46×</span>
+<span class="cline-any cline-yes">46×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">83×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">66×</span>
+<span class="cline-any cline-yes">66×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">62×</span>
+<span class="cline-any cline-yes">29×</span>
+<span class="cline-any cline-yes">29×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">16×</span>
+<span class="cline-any cline-yes">16×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">41×</span>
+<span class="cline-any cline-yes">38×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">235×</span>
+<span class="cline-any cline-yes">233×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">204×</span>
+<span class="cline-any cline-yes">203×</span>
+<span class="cline-any cline-yes">202×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">29×</span>
+<span class="cline-any cline-yes">27×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">84×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">84×</span>
+<span class="cline-any cline-yes">76×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">//SPDX-License-Identifier: CC-BY-1.0
+pragma solidity ^0.8.0;
+&nbsp;
+import "hardhat/console.sol";
+import "./Game.sol";
+import "./Events.sol";
+import "./Constants.sol";
+import "./Utils.sol";
+&nbsp;
+using GameLib for Game;
+&nbsp;
+/**
+ * @title  MasterMind
+ * @author Marco Antonio Corallo
+ * @notice An implementation of MasterMind on Ethereum Blockchain
+ */
+contract MasterMind {
+    mapping(uint256 =&gt; Game) private games;
+    mapping(address =&gt; bool) private playing;
+    uint256[] private free_games;
+    uint256 private gameId;
+&nbsp;
+    modifier ifNotPlaying() {
+        require(
+            !playing[msg.sender],
+            "The player is already registered for a game."
+        );
+        _;
+    }
+&nbsp;
+    modifier userAllowed(uint256 id) {
+        require(
+            games[id].getCodeMaker() == msg.sender ||
+            games[id].getCodeBreaker() == msg.sender,
+            "Denied operation."
+        );
+        _;
+    }
+&nbsp;
+    /**
+     * @notice return the id of a random free game: pending game without a designated challenger
+     *         it also remove the picked id
+     * @custom:revert if there are no free games
+     */
+    function pickFreeGame() private returns (uint256) {
+        require(free_games.length &gt; 0, "There are no free games now.");
+&nbsp;
+        uint256 k = rand() % free_games.length;
+        uint256 id = free_games[k];
+        free_games[k] = free_games[free_games.length - 1];
+        free_games.pop();
+        return id;
+    }
+&nbsp;
+    /**
+     * @param challenger_addr: address of the player the game creator wants to play with
+     *                         or address(0)
+     * @return game's id
+     * @custom:emit GameCreated
+     * @custom:revert if the player is already registered for a game or
+     *                if the player attempts to create a game with himself
+     */
+    function newGame (address challenger_addr) 
+        public <span class="missing-if-branch" title="else path not taken" >E</span>ifNotPlaying returns (uint256) {
+        require(challenger_addr != msg.sender, "Cannot create a game with yourself.");
+&nbsp;
+        games[gameId].newGame(
+            gameId,
+            payable(msg.sender),
+            payable(challenger_addr)
+        );
+&nbsp;
+        playing[msg.sender] = true;
+        emit GameCreated(msg.sender, gameId);
+&nbsp;
+        return gameId++;
+    }
+&nbsp;
+    /// @notice Overload with no params: create a new game without a specific challenger
+    function newGame() external ifNotPlaying returns (uint256) {
+        free_games.push(gameId);
+        return newGame(address(0));
+    }
+&nbsp;
+    /**
+     * @param id: identifier of the game the challenger wants to join
+     * @custom:emit GameJoined
+     * @custom:revert if the player is already playing a game or
+     *                if the player picks an invalid id game
+     */
+    function joinGame(uint256 id) external <span class="missing-if-branch" title="else path not taken" >E</span>ifNotPlaying {
+        require(
+            games[id].getCodeBreaker() == msg.sender,
+            "You're not allowed to play this game."
+        );
+&nbsp;
+        playing[msg.sender] = true;
+        emit GameJoined(msg.sender, id);
+    }
+&nbsp;
+    /**
+     * @notice Overload with no params: join a random game
+     * @custom:emit GameJoined
+     * @custom:revert if the player is already playing a game or
+     *                if there are no free games
+     */
+    function joinGame() external ifNotPlaying {
+        uint256 id = pickFreeGame();
+        games[id].setCodeBreaker(payable(msg.sender));
+        playing[msg.sender] = true;
+        emit GameJoined(msg.sender, id);
+    }
+&nbsp;
+    /**
+     * @notice set stake value. If the two players declare different values =&gt; close the game
+     * @param id: game id
+     * @param stake: stake declared by the sender
+     * @custom:revert if who sent the transaction is not allowed for this game or 
+     *                if _stake == 0 or 
+     *                if a player attempts to declare more than one time the stake or 
+     *                if this tx is sent while not in declaration phase
+     * @custom:emit StakeDeclared
+     *              GameClosed
+     */
+    function declareStake(uint256 id, uint256 stake) external <span class="missing-if-branch" title="else path not taken" >E</span>userAllowed(id) {
+        if ( ! games[id].declareStake(stake) ){
+            emit StakeDeclared(msg.sender, stake);
+            closeGame(id);
+        } else emit StakeDeclared(msg.sender, stake);
+    }
+&nbsp;
+    /**
+     * @notice close a game turning off playing[players] and games[id]
+     * @param id: game id to close
+     * @custom:emit GameClosed
+     */
+    function closeGame(uint256 id) private {
+        delete playing[games[id].getCodeMaker()];
+        delete playing[games[id].getCodeBreaker()];
+        delete games[id];
+        emit GameClosed(id);
+    }
+&nbsp;
+    /**
+     * @notice Allow players to put stake. When both the players put it, shuffle roles
+     *         If a player put a different stake from what was declared, the tx is reverted.
+     * @param id: game id
+     * @custom:emit StakePut
+     *              Shuffled
+     * @custom:revert if who sent the transaction is not allowed for this game
+     *                if msg.value == 0 or 
+     *                if more than 1 player already put money or 
+     *                if a player attempts to put money more than one time or 
+     *                if invoked while not in set-stake phase or 
+     *                if invoked with a stake different from what was declared
+     */
+    function prepareGame(uint256 id) external payable <span class="missing-if-branch" title="else path not taken" >E</span>userAllowed(id) {
+&nbsp;
+        emit StakePut(msg.sender, msg.value);
+        games[id].setStake(msg.value);
+&nbsp;
+        // shuffle players
+        if (games[id].howManyPayed() == 2) {
+            games[id].shuffleRoles();
+            emit Shuffled(games[id].getCodeMaker(), games[id].getCodeBreaker());
+        }
+    }
+&nbsp;
+    /**
+     * @param toPunish: user to punish
+     * @param toReward: user to reward
+     * @param stake: the reward
+     * @custom:emit Punished
+     *              Transfered
+     */
+    function punishAndReward(address toPunish, address payable toReward, uint256 stake) private {
+        call(toReward, stake);
+        emit Punished(toPunish);
+        emit Transfered(toReward, stake);
+    }
+&nbsp;
+    /**
+     * @notice carry out a transfering by "call" setting the gas and check the failure
+     * @param _to: address to pay
+     * @param value: value to transfer
+     * @custom:revert if the transfer wasn't successful
+     */
+    function call(address payable _to, uint256 value) private {
+        (bool sent, ) = _to.call{value: value, gas: 3500}(""); // set gas 
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(sent, "Failed to send Ether");
+    }
+&nbsp;
+    /**
+     * @notice allow a player to send the secret code
+     * @param _hash: secret code, hashed and salted off-chain
+     * @param id: game id 
+     * @custom:emit SecretCodeSent
+     * @custom:revert if msg.sender is not a player of games[id] or 
+     *                if not invoked by MasterMind or 
+     *                if not sent by the codeMaker or
+     *                if invoked while not in phase of code submission
+     */
+    function sendCode(bytes32 _hash, uint256 id) external
+        userAllowed(id) {
+        games[id].setHash(_hash);
+        emit SecretCodeSent(msg.sender);
+    }
+&nbsp;
+    /**
+     * @notice allow the codebreaker to send the secret code
+     * @param code: proposed secret code
+     * @param id: game id
+     * @custom:revert if invoked while not in phase of guess submission
+     *                if not sent by the codebreaker or
+     *                if already reached max number of guesses or 
+     *                if msg.sender is not a player of games[id]
+     * @custom:emit GuessSent
+     */
+    function sendGuess(Color[N_HOLES] calldata code, uint256 id) external <span class="missing-if-branch" title="else path not taken" >E</span>userAllowed(id) {
+        games[id].pushGuess(code);
+        emit GuessSent(msg.sender);
+    }
+&nbsp;
+    /**
+     * @notice allow the codemaker to send a feedback about the last guess
+     * @param CC: number of colors belonging to the last guess in the correct position
+     * @param NC: number of colors belonging to the last guess, but not in the correc: game id positions
+     * @param id: game id
+     * @custom:revert if not sent by the codemaker or
+     *                if invoked while in another phase or
+     *                if already reached max number of feedbacks or 
+     *                if the codemaker sent an invalid feedback
+     * @custom:emit FeedbackSent
+     */
+    function sendFeedback(uint8 CC, uint8 NC, uint256 id) external <span class="missing-if-branch" title="else path not taken" >E</span>userAllowed(id) {
+        require(CC &lt;= N_HOLES &amp;&amp; NC &lt;= N_HOLES &amp;&amp; CC + NC &lt;= N_HOLES, "Invalid feedback.");
+        games[id].pushFeedback(CC, NC);
+        emit FeedbackSent(msg.sender);
+    }
+&nbsp;
+    /**
+     * @notice allow the codemaker to reveal the solution &lt;code, salt&gt;. Starts dispute timer.
+     * @param id: game id
+     * @param code: secret code he choose at the beginning
+     * @param salt: numeric code to improve robustness
+     * @custom:revert if not sent by the codemaker or
+     *                if invoked while in another phase or
+     *                if the solution doesn't match the hash he choose at the beginning
+     * @custom:emit SolutionSubmitted
+     */
+    function submitSolution(uint256 id, Color[N_HOLES] memory code, uint8[SALT_SZ] memory salt)  
+        external <span class="missing-if-branch" title="else path not taken" >E</span>userAllowed(id) {
+        games[id].reveal(code, salt);
+        emit SolutionSubmitted(id, code, salt);
+    }
+&nbsp;
+    /**
+     * @notice allow the codebreaker to start a dispute on a given feedback
+     * @param id: game id 
+     * @param feedback_id: reference to the disputed feedback
+     * @custom:revert if not sent by the codebreaker or
+     *                if invoked while in another phase or
+     *                if the tx has been sent after the slot closes
+     * @custom:emit Dispute
+     *              Punished
+     *              Transfered
+     *              GameClosed
+     */
+    function startDispute(uint256 id, uint8 feedback_id) external <span class="missing-if-branch" title="else path not taken" >E</span>userAllowed(id){
+        require(feedback_id &lt; N_FEEDBACKS, "Feedback ID not valid.");
+        
+        emit Dispute(id, feedback_id);
+        uint256 stake = games[id].popStake();
+        if (games[id].correctFeedback(feedback_id))
+            punishAndReward(games[id].getCodeBreaker(), payable(games[id].getCodeMaker()), stake*2);
+        else 
+            punishAndReward(games[id].getCodeMaker(), payable(games[id].getCodeBreaker()), stake*2);
+        
+        closeGame(id);
+    }
+&nbsp;
+    /**
+     * @notice after the dispute time update points and, if all turns have been played, draw winner 
+     * @param id: game id
+     * @custom:revert if user not allowed to play this game or
+     *                if invoked while in another phase or
+     *                if the dispute time has not been over yet.
+     * @custom:emit PointsUpdated
+     *              Tie
+     *              Transfered
+     *              Winning
+     *              ClosedGame
+     *              Shuffled
+     */
+    function updateScore(uint256 id) external <span class="missing-if-branch" title="else path not taken" >E</span>userAllowed(id) {
+        (uint8 points, uint8 turn) = games[id].getPoints();
+        emit PointsUpdated(id, points);
+&nbsp;
+        if (turn == N_TURNS){
+            address winner = games[id].whoWon();
+            uint256 stake = games[id].popStake();
+            if (winner == address(0)) {
+                emit Tie(id);
+                
+                call(payable(games[id].getCodeMaker()), stake);
+                emit Transfered(games[id].getCodeMaker(), stake);
+&nbsp;
+                call(payable(games[id].getCodeBreaker()), stake);
+                emit Transfered(games[id].getCodeBreaker(), stake);
+&nbsp;
+            } else{
+                emit Winning(id, winner);
+                call(payable(winner), stake * 2);
+                emit Transfered(winner, stake * 2);
+            }
+            closeGame(id);
+        }
+        else emit Shuffled(games[id].getCodeMaker(), games[id].getCodeBreaker());
+    }
+&nbsp;
+    /**
+     * @notice sender put under accusation the opponent
+     * @param id: game id
+     * @custom:revert if the player who accuse is the same who must move or
+     *                if in this phase is not possible to accuse (Creation, Dispute, Closing)
+     * @custom:emit AFK
+     */
+    function AFK(uint256 id) external <span class="missing-if-branch" title="else path not taken" >E</span>userAllowed(id) {
+        address opponent = msg.sender == games[id].getCodeMaker() ? 
+            games[id].getCodeBreaker() : games[id].getCodeMaker();
+        games[id].accuseAFK(opponent);
+        emit AFKStart(id, opponent);
+    }
+&nbsp;
+    /**
+     * @notice transfer the stake to the player that accuse and win the AFK
+     * @param id: game id 
+     * @custom:revert if invoked by the accused player or 
+     *                if the AFK time is not over yet or 
+     *                if the user is not allowed for this game
+     * @custom:emit Winning
+     *              Transfered
+     *              ClosedGame
+     */
+    function claimStakeByAFK(uint256 id) external <span class="missing-if-branch" title="else path not taken" >E</span>userAllowed(id) {
+        uint256 award = games[id].winByAFK();
+        if (award != 0){
+            emit Winning(id, msg.sender);
+            call(payable(msg.sender), award);
+            emit Transfered(msg.sender, award);
+        }
+        closeGame(id);
+    }
+}</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Wed Oct 30 2024 16:13:12 GMT+0100 (Ora standard dell’Europa centrale)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

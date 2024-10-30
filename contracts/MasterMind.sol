@@ -143,48 +143,26 @@ contract MasterMind {
 
     /**
      * @notice Allow players to put stake. When both the players put it, shuffle roles
-     *         If a player put a different stake from what was declared, the contract punish it
-     *         and reward the other one. Furthermore, if the other player already put its stake,
-     *         the cheater player pays also the gas for refunding him.
+     *         If a player put a different stake from what was declared, the tx is reverted.
      * @param id: game id
      * @custom:emit StakePut
      *              Shuffled
-     *              Punished
-     *              Transfered
-     *              GameClosed
      * @custom:revert if who sent the transaction is not allowed for this game
      *                if msg.value == 0 or 
      *                if more than 1 player already put money or 
      *                if a player attempts to put money more than one time or 
-     *                if invoked while not in set-stake phase
+     *                if invoked while not in set-stake phase or 
+     *                if invoked with a stake different from what was declared
      */
     function prepareGame(uint256 id) external payable userAllowed(id) {
 
         emit StakePut(msg.sender, msg.value);
-        if (! games[id].setStake(msg.value)){
+        games[id].setStake(msg.value);
 
-            // stake not coincide with what was declared => punish and reward
-            address toReward = games[id].getCodeMaker() == msg.sender ? 
-                games[id].getCodeBreaker() : 
-                games[id].getCodeMaker();
-
-            uint256 stake = games[id].popStake();
-            punishAndReward(msg.sender, payable(toReward), msg.value);
-
-            // if the other player paied, refund him
-            if (games[id].howManyPayed() == 1){
-                call(payable(toReward), stake);
-                emit Transfered(toReward, stake);
-            }
-
-            closeGame(id);
-        } else {
-        
-            // shuffle players
-            if (games[id].howManyPayed() == 2) {
-                games[id].shuffleRoles();
-                emit Shuffled(games[id].getCodeMaker(), games[id].getCodeBreaker());
-            }
+        // shuffle players
+        if (games[id].howManyPayed() == 2) {
+            games[id].shuffleRoles();
+            emit Shuffled(games[id].getCodeMaker(), games[id].getCodeBreaker());
         }
     }
 

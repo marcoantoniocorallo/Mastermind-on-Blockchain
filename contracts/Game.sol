@@ -129,11 +129,6 @@ library GameLib {
         return tmp;
     }
 
-    function whoPayed(Game storage self) external view returns (address) {
-        require(self.payedBy.length > 0, "Nobody paid.");
-        return self.payedBy[0];
-    }
-
     /**
      * @notice shuffle the roles (codemaker/codebreaker) of the id-th game
      *  when the game is created, the creator is codeMaker and the challenger is codeBreaker,
@@ -185,28 +180,23 @@ library GameLib {
 
     /**
      * @notice get player' stakes; 
-     *         if the players put different stake values, the last transaction is reverted
-     *         while the first one is refunded.
-     * @return  false if the put stake is different from what was declared,
-     *          true otherwise
+     *         if a player put a different stake from what was declared, revert.
      * @custom:revert if _stake == 0 or 
      *                if more than 1 player already put money or 
      *                if a player attempts to put money more than one time or 
-     *                if invoked while in another phase
+     *                if invoked while in another phase or 
+     *                if invoked with a stake different frmo what was declared
      */
     function setStake(Game storage self, uint256 _stake) external
-        checkPhase(self, Phase.Preparation) checkAFK(self) returns (bool) {
+        checkPhase(self, Phase.Preparation) checkAFK(self) {
         require(_stake > 0, "Stake must be greater than zero.");
         require(
             self.payedBy.length == 0 || (self.payedBy.length == 1 && self.payedBy[0] != msg.sender),
             "Cannot put money again."
         );
-
-        if (self.stake != _stake) 
-            return false;
+        require( _stake == self.stake, "Wrong stake.");
 
         self.payedBy.push(msg.sender);
-        return true;
     }
 
     /**

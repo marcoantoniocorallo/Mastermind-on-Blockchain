@@ -27,17 +27,6 @@ function hashOf(Color[N_HOLES] memory code, uint8[SALT_SZ] memory salt) pure ret
     return keccak256(abi.encodePacked(packed));
 }
 
-/// @notice Utility to print the hash hex code, probably to remove
-function toHexString(bytes32 data) pure returns (string memory) {
-        bytes memory hexChars = "0123456789abcdef";
-        bytes memory str = new bytes(64);
-        for (uint i = 0; i < 32; i++) {
-            str[i*2] = hexChars[uint8(data[i] >> 4)];
-            str[1+i*2] = hexChars[uint8(data[i] & 0x0f)];
-        }
-        return string(str);
-    }
-
 /// @notice Utility to compare two array
 function equalCodes(Color[N_HOLES] storage code1, Color[N_HOLES] storage code2) view returns (bool) {
     for (uint i = 0; i < N_HOLES; i++)

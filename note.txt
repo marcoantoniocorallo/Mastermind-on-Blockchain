@@ -1,11 +1,31 @@
 TODO:
 - check the "TODO" keep written into the code 
-- tx.origin instead of msg.sender? enforce tx.origin == msg.sender?
-- ^ --- => remove calledByMasterMind modifier?
 - fix event arguments
+- Gas Analysis
+- Vulnerability Analysis
+- add punishment event in claimstake
+
 
 Future Works:
-- Impostare le funzioni come pure (?)
+- punished users in a black_list: infatti una possibile strategia di attacco potrebbe essere quella di 
+  iniziare partite con utenti, fargli spendere il gas per delle transazioni e poi andare AFK prima 
+  di mettere lo stake. Questo vorrebbe dire che il giocatore onesto viene sì rimborsato, ma ha speso il gas 
+  senza vincere nulla.
+
+
+
+Test Coverage: npx hardhat coverage
+-----------------|----------|----------|----------|----------|----------------|
+ contracts/      |      100 |     80.2 |      100 |      100 |                |
+  Constants.sol  |      100 |      100 |      100 |      100 |                |
+  Events.sol     |      100 |      100 |      100 |      100 |                |
+  Game.sol       |      100 |       80 |      100 |      100 |                |
+  MasterMind.sol |      100 |       80 |      100 |      100 |                |
+  Utils.sol      |      100 |      100 |      100 |      100 |                |
+-----------------|----------|----------|----------|----------|----------------|
+All files        |      100 |     80.2 |      100 |      100 |                |
+-----------------|----------|----------|----------|----------|----------------|
+> Istanbul reports written to ./coverage/ and ./coverage.json
 
 Prevented Security issues:
 - DDOS creating new game:
@@ -63,6 +83,7 @@ Design choices:
 - Cheat: revert o punish tentativi di imbroglio? I.e.:
   - un giocatore tenta di modificare l'hash prima del termine della partita 
   - il codemaker sottomette una soluzione che non matcha l'hash inviato inizialmente
+  - un giocatore dichiara uno stake e ne vesa un altro
   :
   La mia idea è che questi tentativi vengono annullati tramite una revert: sarebbe oltretutto
   sciocco tentare di barare in questo modo, infatti il sistema rivelerebbe facilmente una combinazione
@@ -71,6 +92,4 @@ Design choices:
   dare feedback sbagliati. In questo caso il codemaker deve sperare che il codebreaker non se ne accorga
   altrimenti inizierebbe una disputa che non può vincere.
   Questo, d'altronde, gestisce implicitamente la possibilità che il codemaker sbagli (ad es. il salt)
-  nota: forse dovrei trattare in modo coerente anche il caso in cui un giocatore dichiara una somma
-  e ne versa un'altra...
   NOTA: immagino il capitolo che inizia con "To revert or to punish? That's the question."

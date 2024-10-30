@@ -941,7 +941,7 @@ describe("Play Game Tests", function () {
             .withArgs(codemaker.address, 2);
     });
 
-    it("Test15 : Game with N_TURNS turns", async function () {
+    it("Test15 : Game with N_TURNS turns - tie", async function () {
         const { contract, owner, addr1 } = await loadFixture(deployFixture);  
 
         // game created by the owner of the contract
@@ -1022,7 +1022,103 @@ describe("Play Game Tests", function () {
 
     });
 
-    it("Test16 : Game with N_TURNS turns - check balances", async function () {
+    it("Test16 : Game with N_TURNS turns - win", async function () {
+        const { contract, owner, addr1 } = await loadFixture(deployFixture);  
+
+        // game created by the owner of the contract
+        await expect(contract["newGame()"]())
+            .to.emit(contract, "GameCreated")
+            .withArgs(owner.address, 0);
+
+        // game joined by another user
+        await expect(contract.connect(addr1)["joinGame()"]())
+            .to.emit(contract, "GameJoined")
+            .withArgs(addr1.address, 0);
+
+        // declare owner
+        await expect(contract.declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(owner, 1);
+
+        // declare addr1
+        await expect(contract.connect(addr1).declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(addr1, 1);
+
+        let value = ethers.parseUnits("1", "wei");
+
+        // owner send money
+        await expect(contract.prepareGame(0, { value: value } ) )
+            .to.emit(contract, "StakePut")
+            .withArgs(owner.address, 1)
+
+        // addr1 send money
+        let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
+        const logs : any =  receipt!.logs;
+        const codemaker_addr : string = logs[logs.length-1].args[0];
+
+        let [codemaker, codebreaker] = codemaker_addr === owner.address ? [owner, addr1] : [addr1, owner];
+
+        // send secret code
+        const code : [Color, Color, Color, Color] = [Color.Red, Color.Yellow, Color.Red, Color.Green];
+        const salt : [number, number, number, number, number ] = [0, 0, 0, 0, 0];
+
+        for (let index = 0; index < N_TURNS; index++) {
+
+            // owner wins
+            if (codemaker == addr1){
+                await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
+                .to.emit(contract, "SecretCodeSent");
+
+                await expect(contract.connect(codebreaker).sendGuess(code, 0))
+                    .to.emit(contract, "GuessSent")
+                    .withArgs(codebreaker.address);
+
+                await expect(contract.connect(codemaker).sendFeedback(4, 0, 0))
+                    .to.emit(contract, "FeedbackSent");
+            }
+            else {
+                await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
+                    .to.emit(contract, "SecretCodeSent");
+
+                for (let index = 0; index < 7; index++) {
+                    await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
+                        .to.emit(contract, "GuessSent")
+                        .withArgs(codebreaker.address);
+
+                    await expect(contract.connect(codemaker).sendFeedback(1, 2, 0))
+                        .to.emit(contract, "FeedbackSent");
+                };
+                
+                await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
+                    .to.emit(contract, "GuessSent")
+                    .withArgs(codebreaker.address);
+   
+            }
+
+            // submit solution
+            await expect(contract.connect(codemaker).submitSolution(0, code, salt))
+                .to.emit(contract, "SolutionSubmitted")
+                .withArgs(0, code, salt);
+            
+            await delay(DELAY_TIME);
+
+            if (index == N_TURNS - 1) {
+                await expect(contract.connect(codemaker).updateScore(0))
+                    .to.emit(contract, "Winning")
+                    .and.to.emit(contract, "Transfered")
+                    .and.to.emit(contract, "GameClosed");
+            } else{
+                await expect(contract.connect(codemaker).updateScore(0))
+                .to.emit(contract, "PointsUpdated");
+            }
+
+            [codemaker, codebreaker] = [codebreaker, codemaker];
+        }
+
+    });
+
+    it("Test17 : Game with N_TURNS turns - check balances", async function () {
         const { contract, owner, addr1 } = await loadFixture(deployFixture);  
 
         let owner_gas_cost = [];
@@ -1122,7 +1218,7 @@ describe("Play Game Tests", function () {
         }
     });
 
-    it("Test17 : Complete Game with AFK", async function () {
+    it("Test18 : Complete Game with AFK", async function () {
         const { contract, owner, addr1 } = await loadFixture(deployFixture);  
 
         // game created by the owner of the contract
@@ -1159,6 +1255,9 @@ describe("Play Game Tests", function () {
 
         let [codemaker, codebreaker] = codemaker_addr === owner.address ? [owner, addr1] : [addr1, owner];
 
+        await expect(contract.connect(codebreaker).AFK(0))
+            .to.emit(contract, "AFKStart");
+
         // send secret code
         const code : [Color, Color, Color, Color] = [Color.Red, Color.Yellow, Color.Red, Color.Green];
         const salt : [number, number, number, number, number ] = [0, 0, 0, 0, 0];
@@ -1189,6 +1288,9 @@ describe("Play Game Tests", function () {
                     .to.emit(contract, "GuessSent")
                     .withArgs(codebreaker.address);
 
+            await expect(contract.connect(codebreaker).AFK(0))
+                .to.emit(contract, "AFKStart");
+
             // submit solution
             await expect(contract.connect(codemaker).submitSolution(0, code, salt))
                 .to.emit(contract, "SolutionSubmitted")
@@ -1211,7 +1313,7 @@ describe("Play Game Tests", function () {
 
     });
 
-    it("Test18 : AFK in declaration and payment", async function () {
+    it("Test19 : AFK in declaration and payment", async function () {
         const { contract, owner, addr1 } = await loadFixture(deployFixture);  
 
         // game created by the owner of the contract
@@ -1309,7 +1411,7 @@ describe("Play Game Tests", function () {
 
     });
 
-    it("Test19 : AFK player loses the game - declaration time", async function () {
+    it("Test20 : AFK player loses the game - declaration time", async function () {
         const { contract, owner, addr1 } = await loadFixture(deployFixture);  
 
         // game created by the owner of the contract
@@ -1342,7 +1444,7 @@ describe("Play Game Tests", function () {
 
     });
 
-    it("Test20 : AFK player loses the game - guess time", async function () {
+    it("Test21 : AFK player loses the game - guess time", async function () {
         const { contract, owner, addr1 } = await loadFixture(deployFixture);  
 
         // game created by the owner of the contract
@@ -1432,6 +1534,152 @@ describe("Play Game Tests", function () {
             .to.emit(contract, "Winning")
             .and.to.emit(contract, "Transfered")
             .and.to.emit(contract, "GameClosed");
+
+    });
+
+    it("Test22 : AFK - check balances", async function () {
+        const { contract, owner, addr1 } = await loadFixture(deployFixture);  
+        let owner_gas_cost = [];
+        let addr1_gas_cost = [];
+        let cm_gas = [];
+        let cb_gas = [];
+        let codemaker, codebreaker;
+    
+        let owner_balance0 = await ethers.provider.getBalance(owner);
+        let addr1_balance0 = await ethers.provider.getBalance(addr1);
+        let contract_balance0 = await ethers.provider.getBalance(contract);
+    
+        // game created by the owner of the contract
+        let owner_receipt_newgame = await (await contract["newGame()"]()).wait();
+        owner_gas_cost.push(owner_receipt_newgame!.gasUsed * owner_receipt_newgame!.gasPrice);
+    
+        let addr1_receipt_newgame = await (await contract.connect(addr1)["joinGame()"]()).wait();
+        addr1_gas_cost.push(addr1_receipt_newgame!.gasUsed * addr1_receipt_newgame!.gasPrice);
+    
+        // declare owner
+        let owner_receipt_declaregame = await (await contract.declareStake(0, 1)).wait();
+        owner_gas_cost.push(owner_receipt_declaregame!.gasUsed * owner_receipt_declaregame!.gasPrice);
+    
+        // declare addr1
+        let addr1_receipt_declaregame = await (await contract.connect(addr1).declareStake(0, 1)).wait();
+        addr1_gas_cost.push(addr1_receipt_declaregame!.gasUsed * addr1_receipt_declaregame!.gasPrice);
+    
+        let value1 = ethers.parseUnits("1", "wei");
+        
+        // owner pays
+        let owner_receipt_preparegame = await (await contract.prepareGame(0, { value: value1 } )).wait();
+        owner_gas_cost.push(owner_receipt_preparegame!.gasUsed * owner_receipt_preparegame!.gasPrice);
+    
+        let contract_balance1 = await ethers.provider.getBalance(contract);
+        expect_eq(contract_balance1, 1n);
+    
+        let owner_balance1 = await ethers.provider.getBalance(owner);
+        expect_eq(owner_balance1, owner_balance0 - 1n - compute_gas(owner_gas_cost))
+    
+        // addr1 pays
+        let addr1_receipt_preparegame = await (await contract.connect(addr1).prepareGame(0, { value: value1 } )).wait();
+        addr1_gas_cost.push(addr1_receipt_preparegame!.gasUsed * addr1_receipt_preparegame!.gasPrice);
+
+        const logs : any =  addr1_receipt_preparegame!.logs;
+        const codemaker_addr : string = logs[logs.length-1].args[0];
+
+        [codemaker, codebreaker, cm_gas, cb_gas] = 
+            codemaker_addr === owner.address ? 
+            [owner, addr1, owner_gas_cost, addr1_gas_cost] : 
+            [addr1, owner, addr1_gas_cost, owner_gas_cost];
+
+        // gas for AFK
+        let cb_receipt_afk = await (await contract.connect(codebreaker).AFK(0)).wait();
+        cb_gas.push(cb_receipt_afk!.gasUsed * cb_receipt_afk!.gasPrice);
+    
+        await delay(DELAY_TIME);
+    
+        let cb_receipt_claim = await (await contract.connect(codebreaker).claimStakeByAFK(0)).wait();
+        cb_gas.push(cb_receipt_claim!.gasUsed * cb_receipt_claim!.gasPrice);
+    
+        let addr1_balance1 = await ethers.provider.getBalance(addr1);
+        let owner_balance2 = await ethers.provider.getBalance(owner);
+        let contract_balance2 = await ethers.provider.getBalance(contract);
+    
+        // codemaker == owner => owner bad behaviour
+        if (codemaker_addr == owner.address) {
+            expect_eq(owner_balance2, owner_balance0 - compute_gas(cm_gas) - 1n);
+            expect_eq(addr1_balance1, addr1_balance0 - compute_gas(cb_gas) + 1n );
+            expect_eq(contract_balance2, contract_balance0);
+        } else{
+            expect_eq(owner_balance2, owner_balance0 - compute_gas(cb_gas) + 1n);
+            expect_eq(addr1_balance1, addr1_balance0 - compute_gas(cm_gas) - 1n );
+            expect_eq(contract_balance2, contract_balance0);
+        }
+
+      });
+
+      it("Test23 : AFK in payment", async function () {
+        const { contract, owner, addr1 } = await loadFixture(deployFixture);  
+
+        // game created by the owner of the contract
+        await expect(contract["newGame()"]())
+            .to.emit(contract, "GameCreated")
+            .withArgs(owner.address, 0);
+
+        // game joined by another user
+        await expect(contract.connect(addr1)["joinGame()"]())
+            .to.emit(contract, "GameJoined")
+            .withArgs(addr1.address, 0);
+
+        // owner send AFK
+        await expect(contract.connect(owner).AFK(0))
+            .to.be.revertedWith("Must do your move before to accuse to be AFK.");
+
+        // declare owner
+        await expect(contract.declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(owner, 1);
+
+        // retry AFK
+        await expect(contract.connect(owner).AFK(0))
+            .to.emit(contract, "AFKStart");
+
+        // declare addr1
+        await expect(contract.connect(addr1).declareStake(0, 1))
+            .to.emit(contract, "StakeDeclared")
+            .withArgs(addr1, 1);
+
+        let value = ethers.parseUnits("1", "wei");
+
+        // codebreaker send AFK
+        await expect(contract.connect(owner).AFK(0))
+            .to.be.revertedWith("Must do your move before to accuse to be AFK.");
+
+        // owner send money
+        await expect(contract.prepareGame(0, { value: value } ) )
+            .to.emit(contract, "StakePut")
+            .withArgs(owner.address, 1)
+
+        // retry AFK
+        await expect(contract.connect(owner).AFK(0))
+            .to.emit(contract, "AFKStart");
+      
+        await delay(DELAY_TIME);
+
+        await expect(contract.connect(owner).claimStakeByAFK(0))
+            .to.emit(contract, "GameClosed")
+            .and.to.emit(contract, "Winning")
+            .and.to.emit(contract, "Transfered");
+
+    });
+
+    it("Test24 : AFK in creation", async function () {
+        const { contract, owner, addr1 } = await loadFixture(deployFixture);  
+
+        // game created by the owner of the contract
+        await expect(contract["newGame()"]())
+            .to.emit(contract, "GameCreated")
+            .withArgs(owner.address, 0);
+
+        
+        await expect(contract.connect(owner).AFK(0))
+            .to.be.revertedWith("Cannot put under accusation now.");
 
     });
 
