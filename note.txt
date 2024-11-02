@@ -1,3 +1,10 @@
+Front-end: npx create-react-app pippo
+
+deploy on live: 
+  npx hardhat ignition deploy ./ignition/modules/MasterMind.js --network <network-name>
+
+API key saved in hardhat vars
+
 - Gas Analysis: 
 2406282977195962 // codebreaker
 2239529392717676 // codemaker 
@@ -57,6 +64,8 @@ npm install --save-dev hardhat-gas-reporter
 ·············································································································
 |  Toolchain:  hardhat                                                                                      │
 ·············································································································
+
+note: it depends on gasprice, here are 13gwei but it changes (fetched from live networks!)
 
 - Vulnerability Analysis
 

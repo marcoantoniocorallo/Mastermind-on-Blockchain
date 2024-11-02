@@ -1,8 +1,7 @@
-import { HardhatUserConfig } from "hardhat/config";
+import { HardhatUserConfig, vars } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import 'solidity-coverage';
 import "hardhat-gas-reporter";
-import { coinmarketcap_key, etherscan_key } from "./APIKey";
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -18,8 +17,11 @@ const config: HardhatUserConfig = {
     enabled: (process.env.REPORT_GAS) ? true : false,
     L1 : "ethereum",
     currency: 'EUR',
-    L1Etherscan: etherscan_key,
-    coinmarketcap: coinmarketcap_key,
+    L1Etherscan: vars.get("ETHERSCAN_KEY"),
+    coinmarketcap: vars.get("COINMARKETCAP_KEY"),
+    // gasPrice: by default fetched from live network
+    gasPrice: 13,
+    excludeContracts: ["GameLib"]
   }
 };
 
