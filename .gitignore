@@ -4,4 +4,4 @@ cache
 prova
 typechain-types
 .vscode
-APIKey.ts
+private.ts
