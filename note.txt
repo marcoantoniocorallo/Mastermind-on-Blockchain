@@ -1,4 +1,6 @@
-Front-end: npx create-react-app pippo
+Front-end: npx create-react-app client
+// npm i @metamask/sdk-react
+npm i @metamask/sdk
 
 deploy on live: 
   npx hardhat ignition deploy ./ignition/modules/MasterMind.js --network <network-name>
