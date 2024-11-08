@@ -1,18 +1,27 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Login from './Login';
 import reportWebVitals from './reportWebVitals';
-import { MetaMaskUIProvider } from "@metamask/sdk-react-ui"
 import './index.css';
-import Header from './Header';
+import Prova from './NewGame';
+import NewGame from './NewGame';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <div className="App">
-      <Header/>
-      <App/>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path='/'
+          element={<Login/>}
+        />
+        <Route
+          path='/chooseGame'
+          element={<NewGame/>}
+        />
+      </Routes>
+    </BrowserRouter>
   </React.StrictMode>
 );
 

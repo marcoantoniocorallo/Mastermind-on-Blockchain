@@ -1,30 +1,21 @@
 import { MetaMaskSDK } from "@metamask/sdk";
 // import detectEthereumProvider from "@metamask/detect-provider";
-import { React, useState } from "react";
-import { ethers } from "ethers";
-import logo from './logo.png';
+import { React, useContext, useState } from "react";
+import LoginHeader from './LoginHeader';
 import './App.css';
-import { abi } from "./ABI";
+import MetamaskButton from "./MetamaskButton";
+import { Navigate, Outlet } from "react-router-dom";
+import { userContext } from "./Context";
+import NewGame from "./NewGame";
 
-async function metamaskConnect() {
-  // const accounts = await window.ethereum 
-  if (window.ethereum)
-    try {
-      await window.ethereum.request({ method: "eth_requestAccounts" }); 
-      //const account = accounts[0];
-    } catch (err) {
-      if (err.code === -32002)
-        alert("Login request pending.");
-      else console.error(err);
-      return;
-    } 
-  else alert("Need to install MetaMask!");
-}
-
-export default function App() {
-
-  return(
-    <button className="button-28" role="button" onClick={metamaskConnect}>Login</button>
+export default function Login() {
+  window.ethereum.on("disconnect", () => userContext.Provider({login:false, address:null}) );
+  let login = useContext(userContext).login;
+  return( login? <Navigate to="/chooseGame"></Navigate> : 
+    <div className="App">
+      <LoginHeader/>
+      <MetamaskButton/>
+    </div>
   );
 }
 

@@ -1,5 +1,16 @@
+Future Works:
+- punished users in a black_list: infatti una possibile strategia di attacco potrebbe essere quella di 
+  iniziare partite con utenti, fargli spendere il gas per delle transazioni e poi andare AFK prima 
+  di mettere lo stake. Questo vorrebbe dire che il giocatore onesto viene sì rimborsato, ma ha speso il gas 
+  senza vincere nulla.
+- minimizzare ulteriormente il gas 
+- Multiaccount metamask (Da testare)
+
+TODO: 
+- Vulnerability Analysis
+
 Front-end: npx create-react-app client
-// npm i @metamask/sdk-react
+npm install react-router-dom
 npm i @metamask/sdk
 
 deploy on live: 
@@ -68,16 +79,6 @@ npm install --save-dev hardhat-gas-reporter
 ·············································································································
 
 note: it depends on gasprice, here are 13gwei but it changes (fetched from live networks!)
-
-- Vulnerability Analysis
-
-
-Future Works:
-- punished users in a black_list: infatti una possibile strategia di attacco potrebbe essere quella di 
-  iniziare partite con utenti, fargli spendere il gas per delle transazioni e poi andare AFK prima 
-  di mettere lo stake. Questo vorrebbe dire che il giocatore onesto viene sì rimborsato, ma ha speso il gas 
-  senza vincere nulla.
-
 
 
 Test Coverage: npx hardhat coverage

@@ -10,8 +10,15 @@
   color: white;
 }
 
-.App-logo {
+.Login-logo {
   height: 60vmin;
+  position: absolute;
+  top: 0;
+  pointer-events: none;
+}
+
+.App-logo {
+  height: 20vmin;
   position: absolute;
   top: 0;
   pointer-events: none;
@@ -23,9 +30,20 @@
   }
 }
 
-.App-header {
+.Login-header {
   background-color: #282c34;
   min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 10vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -39,7 +57,7 @@
 }
 
 /* Metamask button */
-.button-28 {
+.metamaskButton {
   appearance: none;
   background: whitesmoke;
   border: 2px solid #282c34;
@@ -72,18 +90,18 @@
   
 }
 
-.button-28:disabled {
+.metamaskButton:disabled {
   pointer-events: none;
 }
 
-.button-28:hover {
+.metamaskButton:hover {
   color: #fff;
   background-color: #1A1A1A;
   box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
   transform: translateY(-2px);
 }
 
-.button-28:active {
+.metamaskButton:active {
   box-shadow: none;
   transform: translateY(0);
 }
