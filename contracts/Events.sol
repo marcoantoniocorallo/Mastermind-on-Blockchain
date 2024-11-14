@@ -20,3 +20,4 @@ event Winning(uint256 id, address player);
 event Tie(uint256 id);
 event AFKStart(uint256 id, address _who);
 event GameClosed(uint256 id);
+event GameLeft(uint256 id, address who);

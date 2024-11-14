@@ -646,4 +646,175 @@ describe("Prepare game Tests", function () {
 
   });
 
+  it("Test22 : Game left by who put stake", async function () {
+    const { contract, owner, addr1 } = await loadFixture(deployFixture);  
+
+    // game created by the owner of the contract
+    await expect(contract["newGame()"]())
+      .to.emit(contract, "GameCreated")
+      .withArgs(owner.address, 0);
+
+    // game joined by another user
+    await expect(contract.connect(addr1)["joinGame()"]())
+      .to.emit(contract, "GameJoined")
+      .withArgs(addr1.address, 0);
+
+    // declare owner
+    await expect(contract.declareStake(0, 1))
+      .to.emit(contract, "StakeDeclared")
+      .withArgs(0, owner, 1);
+
+    // declare addr1
+    await expect(contract.connect(addr1).declareStake(0, 1))
+      .to.emit(contract, "StakeDeclared")
+      .withArgs(0, addr1, 1);
+
+    let value = ethers.parseUnits("1", "wei");
+
+    // owner send money
+    await expect(contract.prepareGame(0, { value: value } ) )
+      .to.emit(contract, "StakePut")
+      .withArgs(0, owner.address, 1)
+
+    // game left by the owner of the contract
+    await expect(contract.leaveGame(0))
+      .to.emit(contract, "GameLeft")
+      .withArgs(0, owner.address)
+      .and.to.emit(contract, "GameClosed")
+      .and.to.emit(contract, "Transfered")
+      .withArgs(0, owner.address, 1);
+
+  });
+
+  it("Test23 : Game left after both put stake 1 ", async function () {
+    const { contract, owner, addr1 } = await loadFixture(deployFixture);  
+
+    // game created by the owner of the contract
+    await expect(contract["newGame()"]())
+      .to.emit(contract, "GameCreated")
+      .withArgs(owner.address, 0);
+
+    // game joined by another user
+    await expect(contract.connect(addr1)["joinGame()"]())
+      .to.emit(contract, "GameJoined")
+      .withArgs(addr1.address, 0);
+
+    // declare owner
+    await expect(contract.declareStake(0, 1))
+      .to.emit(contract, "StakeDeclared")
+      .withArgs(0, owner, 1);
+
+    // declare addr1
+    await expect(contract.connect(addr1).declareStake(0, 1))
+      .to.emit(contract, "StakeDeclared")
+      .withArgs(0, addr1, 1);
+
+    let value = ethers.parseUnits("1", "wei");
+
+    // owner send money
+    await expect(contract.prepareGame(0, { value: value } ) )
+      .to.emit(contract, "StakePut")
+      .withArgs(0, owner.address, 1)
+
+    // addr1 send money
+    let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
+    const logs : any =  receipt!.logs;
+    const codemaker_addr : string = logs[logs.length-1].args[1];
+
+    // game left by the owner of the contract
+    await expect(contract.leaveGame(0))
+      .to.emit(contract, "GameLeft")
+      .withArgs(0, owner.address)
+      .and.to.emit(contract, "GameClosed")
+      .and.to.emit(contract, "Transfered")
+      .withArgs(0, addr1.address, 2);
+
+  });
+
+  it("Test24 : Game left after both put stake 2 ", async function () {
+    const { contract, owner, addr1 } = await loadFixture(deployFixture);  
+
+    // game created by the owner of the contract
+    await expect(contract["newGame()"]())
+      .to.emit(contract, "GameCreated")
+      .withArgs(owner.address, 0);
+
+    // game joined by another user
+    await expect(contract.connect(addr1)["joinGame()"]())
+      .to.emit(contract, "GameJoined")
+      .withArgs(addr1.address, 0);
+
+    // declare owner
+    await expect(contract.declareStake(0, 1))
+      .to.emit(contract, "StakeDeclared")
+      .withArgs(0, owner, 1);
+
+    // declare addr1
+    await expect(contract.connect(addr1).declareStake(0, 1))
+      .to.emit(contract, "StakeDeclared")
+      .withArgs(0, addr1, 1);
+
+    let value = ethers.parseUnits("1", "wei");
+
+    // owner send money
+    await expect(contract.prepareGame(0, { value: value } ) )
+      .to.emit(contract, "StakePut")
+      .withArgs(0, owner.address, 1)
+
+    // addr1 send money
+    let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
+    const logs : any =  receipt!.logs;
+    const codemaker_addr : string = logs[logs.length-1].args[1];
+
+    // game left by the owner of the contract
+    await expect(contract.connect(addr1).leaveGame(0))
+      .to.emit(contract, "GameLeft")
+      .withArgs(0, addr1.address)
+      .and.to.emit(contract, "GameClosed")
+      .and.to.emit(contract, "Transfered")
+      .withArgs(0, owner.address, 2);
+
+  });
+
+  it("Test25 : Game left by not-allowed user ", async function () {
+    const { contract, owner, addr1, addr2 } = await loadFixture(deployFixture);  
+
+    // game created by the owner of the contract
+    await expect(contract["newGame()"]())
+      .to.emit(contract, "GameCreated")
+      .withArgs(owner.address, 0);
+
+    // game joined by another user
+    await expect(contract.connect(addr1)["joinGame()"]())
+      .to.emit(contract, "GameJoined")
+      .withArgs(addr1.address, 0);
+
+    // declare owner
+    await expect(contract.declareStake(0, 1))
+      .to.emit(contract, "StakeDeclared")
+      .withArgs(0, owner, 1);
+
+    // declare addr1
+    await expect(contract.connect(addr1).declareStake(0, 1))
+      .to.emit(contract, "StakeDeclared")
+      .withArgs(0, addr1, 1);
+
+    let value = ethers.parseUnits("1", "wei");
+
+    // owner send money
+    await expect(contract.prepareGame(0, { value: value } ) )
+      .to.emit(contract, "StakePut")
+      .withArgs(0, owner.address, 1)
+
+    // addr1 send money
+    let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
+    const logs : any =  receipt!.logs;
+    const codemaker_addr : string = logs[logs.length-1].args[1];
+
+    // game left by the owner of the contract
+    await expect(contract.connect(addr2).leaveGame(0))
+      .to.be.revertedWith("Denied operation.")
+
+  });
+
 });

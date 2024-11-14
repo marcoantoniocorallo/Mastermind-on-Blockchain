@@ -168,5 +168,39 @@ describe("Create/Join Game Tests", function () {
       .to.be.revertedWith("There are no free games now.");
   });
 
+  it("Test12 : leave a game before to put the stake", async function () {
+    const { contract, owner, addr1, addr2 } = await loadFixture(deployFixture);  
+
+    // game created by the owner of the contract
+    await expect(contract["newGame()"]())
+      .to.emit(contract, "GameCreated")
+      .withArgs(owner.address, 0);
+
+    // game created by the owner of the contract
+    await expect(contract.leaveGame(0))
+      .to.emit(contract, "GameLeft")
+      .withArgs(0, owner.address)
+      .and.to.emit(contract, "GameClosed");
+  });
+
+  it("Test13 : leave a game before to put the stake", async function () {
+    const { contract, owner, addr1, addr2 } = await loadFixture(deployFixture);  
+
+    // game created by the owner of the contract
+    await expect(contract["newGame()"]())
+      .to.emit(contract, "GameCreated")
+      .withArgs(owner.address, 0);
+
+    // game created by the owner of the contract
+    await expect(contract.connect(addr1)["joinGame()"]())
+      .to.emit(contract, "GameJoined")
+      .withArgs(addr1.address, 0);
+
+    // game created by the owner of the contract
+    await expect(contract.connect(addr1).leaveGame(0))
+      .to.emit(contract, "GameLeft")
+      .withArgs(0, addr1.address)
+      .and.to.emit(contract, "GameClosed");
+  });
 
 });

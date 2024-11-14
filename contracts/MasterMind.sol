@@ -289,7 +289,7 @@ contract MasterMind {
      *              Tie
      *              Transfered
      *              Winning
-     *              ClosedGame
+     *              GameClosed
      *              Shuffled
      */
     function updateScore(uint256 id) external userAllowed(id) {
@@ -340,7 +340,7 @@ contract MasterMind {
      *                if the user is not allowed for this game
      * @custom:emit Winning
      *              Transfered
-     *              ClosedGame
+     *              GameClosed
      */
     function claimStakeByAFK(uint256 id) external userAllowed(id) {
         uint256 award = games[id].winByAFK();
@@ -349,6 +349,35 @@ contract MasterMind {
             call(payable(msg.sender), award);
             emit Transfered(id, msg.sender, award);
         }
+        closeGame(id);
+    }
+
+    /**
+     * @notice Allow a player to leave the game. 
+     *         If the stake has already been put, the give-up player lose the game.
+     * @param id: game id 
+     * @custom:revert if the user is not allowed for this game
+     * @custom:emit Winning
+     *              Transfered
+     *              GameClosed
+     *              GameLeft
+     */
+    function leaveGame(uint256 id) external userAllowed(id){
+        emit GameLeft(id, msg.sender);
+
+        uint256 stake = games[id].popStake();
+        if (games[id].howManyPayed() == 1) {
+            address whoPayed = games[id].payedBy[0];
+            call(payable(whoPayed), stake);
+            emit Transfered(id, whoPayed, stake);
+        } else if (games[id].howManyPayed() == 2) {
+            address opponent = msg.sender == games[id].getCodeMaker() ? 
+                games[id].getCodeBreaker() : games[id].getCodeMaker();
+            call(payable(opponent), stake * 2);
+            emit Winning(id, opponent);
+            emit Transfered(id, opponent, stake * 2);
+        }
+        
         closeGame(id);
     }
 }
