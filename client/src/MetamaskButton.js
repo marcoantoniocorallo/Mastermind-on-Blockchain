@@ -1,16 +1,15 @@
-import { useState } from "react";
-import { userContext } from "./Context";
+import { authenticate, connectToMastermind } from "./utils";
 
 async function metamaskDownload() {
     window.open('https://metamask.io/it/download');
 }
 
-async function metamaskConnect(setUser) {
+async function metamaskConnect() {
     try {
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-        setUser(accounts[0]);
-        window.location="/chooseGame";
-        userContext.Provider({login:true, address:accounts[0]});
+        authenticate();
+        connectToMastermind();
+        window.location="/";
     } catch (err) {
         if (err.code === -32002) alert("Login request pending.");
         else console.error(err);
@@ -18,13 +17,9 @@ async function metamaskConnect(setUser) {
 }
 
 export default function MetamaskButton(){
-    const [user, setUser] = useState('');
-
     return(
         window.ethereum ? 
-            <button className="metamaskButton" role="button" onClick={
-                () => metamaskConnect(setUser)
-            }>Login</button> :
+            <button className="metamaskButton" role="button" onClick={metamaskConnect}>Login</button> :
             <button className="metamaskButton" role="button" onClick={metamaskDownload}>Download</button>
     );
 }

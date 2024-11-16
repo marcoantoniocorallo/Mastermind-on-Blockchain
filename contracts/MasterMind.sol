@@ -378,6 +378,25 @@ contract MasterMind {
             emit Transfered(id, opponent, stake * 2);
         }
         
+        if (games[id].phase == Phase.Creation && games[id].codeBreaker == address(0))
+            removeFreeGame(id);
+
         closeGame(id);
+    }
+
+    /**
+     * @notice remove a game_id from the list of free games.
+     *         This feature need to scan the entire free games list,
+     *         but it should not generally be to much long. 
+     *         Furthermore, it may be considered a discouragement to continue to play instead of leaving.
+     * @param id : game id to remove
+     */
+    function removeFreeGame(uint256 id) private {
+        for (uint i = 0; i < free_games.length; i++)
+            if (free_games[i] == id) {
+                free_games[i] = free_games[free_games.length-1];
+                free_games.pop();
+                return;
+            }
     }
 }

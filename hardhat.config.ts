@@ -1,7 +1,7 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import 'solidity-coverage';
-import "hardhat-gas-reporter";
+import "hardhat-gas-reporter"; 
 
 import { vars } from "hardhat/config";
 

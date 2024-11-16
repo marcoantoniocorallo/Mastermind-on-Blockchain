@@ -1,24 +1,47 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './Login';
 import reportWebVitals from './reportWebVitals';
 import './index.css';
-import Prova from './NewGame';
 import NewGame from './NewGame';
+import Wait from './Wait';
+import Play from './Play';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { getCurrentPhase, provider, init, setCurrentAccount, authenticate, deauthenticate, isAuthenticated } from './utils';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
+if (window.ethereum){
+  init();
+
+  const accounts = await provider.listAccounts();
+  if (accounts.length === 0)
+    deauthenticate();
+
+  window.ethereum.on('accountsChanged', async (accounts) => {
+    if (accounts.length === 0)
+      deauthenticate();
+    else
+      authenticate(accounts[0]);
+    window.location="/";
+  });
+}
+
+const pageOf = {
+  null :  isAuthenticated() ? <NewGame/> : <Login/>,
+  "" :    isAuthenticated() ? <NewGame/> : <Login/>,
+  "creation" : isAuthenticated() ? <Wait/> : <Login/>,
+  "declaration" : isAuthenticated() ? <Play/> : <Login/>,
+}
+
 root.render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
         <Route
-          path='/'
-          element={<Login/>}
-        />
-        <Route
-          path='/chooseGame'
-          element={<NewGame/>}
+         path='/'
+         element={pageOf[getCurrentPhase()]}
         />
       </Routes>
     </BrowserRouter>
