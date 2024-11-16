@@ -5,8 +5,9 @@ import { ethers } from "ethers";
 import { ABI, CONTRACT_ADDRESS } from './ABI';
 import { hexZeroPad } from '@ethersproject/bytes';
 import { useEffect } from 'react';
+import Chat from "./Chat";
 
-export default function Play(){
+export default function Stake(){
     const game_id = getCurrentGame();
 
     useEffect(() =>{
@@ -22,7 +23,6 @@ export default function Play(){
                 fromBlock: provider.getBlockNumber() - 10000, 
             });
             if( leftLogs.length > 0){
-                console.log("Found!");
                 console.debug(leftLogs);
                 leftLogs.forEach(element => {
                     console.debug(element.topics);
@@ -53,6 +53,7 @@ export default function Play(){
             <h2 className="loading">
                 Playing the game {getCurrentGame()}
             </h2>
+            <Chat/>
         </div>
     )
 }

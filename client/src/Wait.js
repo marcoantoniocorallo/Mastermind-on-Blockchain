@@ -40,7 +40,6 @@ export default function Wait(){
                 fromBlock: provider.getBlockNumber() - 10000, 
             });
             if( leftLogs.length > 0){
-                console.log("Found!");
                 console.debug(leftLogs);
                 leftLogs.forEach(element => {
                     console.debug(element.topics);

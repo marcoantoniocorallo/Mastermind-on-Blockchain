@@ -6,9 +6,10 @@ import reportWebVitals from './reportWebVitals';
 import './index.css';
 import NewGame from './NewGame';
 import Wait from './Wait';
-import Play from './Play';
+import Stake from './Stake';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { getCurrentPhase, provider, init, setCurrentAccount, authenticate, deauthenticate, isAuthenticated } from './utils';
+import Chat from './Chat';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -32,7 +33,7 @@ const pageOf = {
   null :  isAuthenticated() ? <NewGame/> : <Login/>,
   "" :    isAuthenticated() ? <NewGame/> : <Login/>,
   "creation" : isAuthenticated() ? <Wait/> : <Login/>,
-  "declaration" : isAuthenticated() ? <Play/> : <Login/>,
+  "declaration" : isAuthenticated() ? <Stake/> : <Login/>,
 }
 
 root.render(
@@ -40,8 +41,12 @@ root.render(
     <BrowserRouter>
       <Routes>
         <Route
-         path='/'
-         element={pageOf[getCurrentPhase()]}
+          path='/'
+          element={pageOf[getCurrentPhase()]}
+        />
+        <Route // TODO: to remove
+          path='/test'
+          element={<Stake/>}
         />
       </Routes>
     </BrowserRouter>

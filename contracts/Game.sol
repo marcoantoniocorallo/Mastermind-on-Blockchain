@@ -134,8 +134,7 @@ library GameLib {
      *  when the game is created, the creator is codeMaker and the challenger is codeBreaker,
      *  just to optimize variables (=> gas!). This function probabilistically revert them.
      *  In the end, it updates the phase of the game
-     * @custom:revert if not called by mastermind or 
-     *                if the stakes put by the two players doesn't coincide or
+     * @custom:revert if the stakes put by the two players doesn't coincide or
      *                if invoked while in another phase
      */
     function shuffleRoles(Game storage self) external
@@ -154,7 +153,6 @@ library GameLib {
      *         true otherwise
      * @custom:revert if _stake == 0 or 
      *                if a player attempts to declare more than one time the stake or 
-     *                if this tx is not invoked by the mastermind contract or 
      *                if this tx is sent while in another phase
      */
     function declareStake(Game storage self, uint256 _stake) external

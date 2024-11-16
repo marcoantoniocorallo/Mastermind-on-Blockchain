@@ -5,6 +5,7 @@ Future Works:
   senza vincere nulla.
 - minimizzare ulteriormente il gas 
 - Multiaccount metamask (Da testare)
+- Feature che permette di trovare partite già create e designate a te
 
 TODO: 
 - Vulnerability Analysis
@@ -157,3 +158,4 @@ Design choices:
   altrimenti inizierebbe una disputa che non può vincere.
   Questo, d'altronde, gestisce implicitamente la possibilità che il codemaker sbagli (ad es. il salt)
   NOTA: immagino il capitolo che inizia con "To revert or to punish? That's the question."
+  nota: questa scelta permette anche sviluppo e manutenzione più semplice
