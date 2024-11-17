@@ -1,6 +1,9 @@
 import logo from './logo.png';
 import CloseButton from 'react-bootstrap/CloseButton';
-import { getCurrentAccount, getCurrentGame, contract, init, readEvent, provider, setCurrentPhase, leaveGame } from './utils';
+import { 
+    getCurrentAccount, getCurrentGame, contract, init, readEvent, provider, setCurrentPhase, 
+    leaveGame, waitEvent
+} from './utils';
 import { ethers } from "ethers";
 import { ABI, CONTRACT_ADDRESS } from './ABI';
 import { hexZeroPad } from '@ethersproject/bytes';
@@ -14,25 +17,19 @@ export default function Stake(){
         const readLogs = async() => {
 
             // read for leftgame events
-            const leftLogs = await provider.getLogs({
-                address: CONTRACT_ADDRESS,
-                topics: [
+            await waitEvent(
+                [
                     ethers.utils.id("GameLeft(uint256,address)"),
-                    hexZeroPad(ethers.utils.hexlify(Number(game_id)), 32)
+                    hexZeroPad(ethers.utils.hexlify(Number(game_id)), 32),
                 ],
-                fromBlock: provider.getBlockNumber() - 10000, 
-            });
-            if( leftLogs.length > 0){
-                console.debug(leftLogs);
-                leftLogs.forEach(element => {
-                    console.debug(element.topics);
-                });
-                setCurrentPhase("");
-                window.location="/";
-            }
+                () => {setCurrentPhase(""); window.location="/";}
+            )
         };
 
-        // polling 5sec
+        // invoke immediately
+        readLogs();
+
+        // and then polling - 5sec
         const intervalId = setInterval(readLogs, 30000);
 
         // stop polling when the component is unmounted

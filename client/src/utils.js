@@ -75,3 +75,28 @@ export async function leaveGame(game_id){
         console.log("Catched: ", err.message);
     }
 }
+
+export async function readLastEvent(topics){
+    const iface = new ethers.utils.Interface(ABI);
+    const logs = await provider.getLogs({
+        address: CONTRACT_ADDRESS,
+        topics: topics,
+        fromBlock: provider.getBlockNumber() - 10000, 
+    });
+    return iface.parseLog(logs[logs.length-1]);
+}
+
+export async function waitEvent(topics, callback){
+    const joinLogs = await provider.getLogs({
+        address: CONTRACT_ADDRESS,
+        topics: topics,
+        fromBlock: provider.getBlockNumber() - 10000, 
+    });
+    if( joinLogs.length > 0){
+        console.debug(joinLogs);
+        joinLogs.forEach(element => {
+            console.debug(element.topics);
+        });
+        callback();
+    }
+}

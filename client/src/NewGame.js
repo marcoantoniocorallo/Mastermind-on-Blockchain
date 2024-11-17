@@ -2,7 +2,9 @@ import logo from './logo.png';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Form from 'react-bootstrap/Form';
-import { getCurrentAccount, contract, provider, init, filter, readEvent, setCurrentPhase } from './utils';
+import { 
+    getCurrentAccount, contract, provider, init, filter, readEvent, setCurrentPhase, readLastEvent 
+} from './utils';
 import {ABI, CONTRACT_ADDRESS} from "./ABI";
 import { ethers, EtherscanProvider, signer } from "ethers";
 import { hexZeroPad } from '@ethersproject/bytes';
@@ -19,17 +21,11 @@ async function createGame(challenger){
         setCurrentPhase("creation");
         
         // read game id on the logs
-        const logs = await provider.getLogs({
-            address: CONTRACT_ADDRESS,
-            topics: [
-                ethers.utils.id("GameCreated(address,uint256)"),
-                hexZeroPad(getCurrentAccount(), 32),
-                null
-            ],
-            fromBlock: provider.getBlockNumber() - 10000, 
-        });
-        const iface = new ethers.utils.Interface(ABI);
-        const log = iface.parseLog(logs[logs.length-1]);
+        const log = await readLastEvent([
+            ethers.utils.id("GameCreated(address,uint256)"),
+            hexZeroPad(getCurrentAccount(), 32),
+            null
+        ])
         const game_id = parseInt(log.args["id"],16);
         window.localStorage.setItem(getCurrentAccount()+"_game",game_id);
         window.location="/";
@@ -53,17 +49,11 @@ async function joinGame(game_id){
         setCurrentPhase("creation");
         
         // read game id on the logs
-        const logs = await provider.getLogs({
-            address: CONTRACT_ADDRESS,
-            topics: [
-                ethers.utils.id("GameJoined(address,uint256)"),
-                hexZeroPad(getCurrentAccount(), 32),
-                null
-            ],
-            fromBlock: provider.getBlockNumber() - 10000, 
-        });
-        const iface = new ethers.utils.Interface(ABI);
-        const log = iface.parseLog(logs[logs.length-1]);
+        const log = await readLastEvent([
+            ethers.utils.id("GameJoined(address,uint256)"),
+            hexZeroPad(getCurrentAccount(), 32),
+            null
+        ])
         game_id = parseInt(log.args["id"],16);
         window.localStorage.setItem(getCurrentAccount()+"_game",game_id);
         window.location="/";
