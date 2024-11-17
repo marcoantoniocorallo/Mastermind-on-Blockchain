@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ethers } from "ethers";
 
 const Chat = () => {
@@ -8,6 +8,14 @@ const Chat = () => {
   const [chatSize, setChatSize] = useState({ width: 300, height: 300 });
   const [minimized, setMinimized] = useState(false);
   const [resizing, setResizing] = useState(false);
+  const chatWindowRef = useRef(null); 
+
+  const suggestions = [
+    "1 gwei",
+    "5 gwei",
+    "10 gwei",
+    "50 gwei",
+  ];
 
   const checkMetaMask = async () => {
     if (window.ethereum) {
@@ -16,7 +24,7 @@ const Chat = () => {
         setCurrentAccount(accounts[0]);
       }
     } else {
-      alert("MetaMask non è installato! Per favore installala per usare questa funzionalità.");
+      alert("Install Metamask to play Mastermind.");
     }
   };
 
@@ -28,10 +36,10 @@ const Chat = () => {
         });
         setCurrentAccount(accounts[0]);
       } catch (err) {
-        console.error("Connessione MetaMask fallita:", err);
+        console.error("Connection failed:", err);
       }
     } else {
-      alert("MetaMask non è installato!");
+      alert("Install Metamask to play Mastermind.");
     }
   };
 
@@ -51,6 +59,12 @@ const Chat = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (chatWindowRef.current) {
+      chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   const saveMessages = (messages) => {
     localStorage.setItem("chat_messages_global", JSON.stringify(messages));
   };
@@ -60,12 +74,12 @@ const Chat = () => {
     setMessages(savedMessages ? JSON.parse(savedMessages) : []);
   };
 
-  const handleSend = () => {
-    if (input.trim() === "" || !currentAccount) return;
+  const handleSend = (text = input) => {
+    if (text.trim() === "" || !currentAccount) return;
 
     const newMessages = [
       ...messages,
-      { user: currentAccount, text: input },
+      { user: currentAccount, text },
     ];
 
     setMessages(newMessages);
@@ -83,8 +97,8 @@ const Chat = () => {
     const initialY = e.clientY;
   
     const handleResize = (resizeEvent) => {
-      const deltaX = initialX - resizeEvent.clientX; // Cambiato segno
-      const deltaY = initialY - resizeEvent.clientY; // Cambiato segno
+      const deltaX = initialX - resizeEvent.clientX;
+      const deltaY = initialY - resizeEvent.clientY;
   
       setChatSize({
         width: Math.max(200, initialWidth + deltaX),
@@ -101,7 +115,6 @@ const Chat = () => {
     document.addEventListener("mousemove", handleResize);
     document.addEventListener("mouseup", stopResize);
   };
-  
 
   return (
     <div
@@ -114,7 +127,7 @@ const Chat = () => {
       {!minimized && (
         <>
           <div style={styles.header}>
-            <p>Chat for Stake Agree</p>
+            <p>Chat</p>
             <button
               onClick={() => setMinimized(true)}
               style={styles.minimizeButton}
@@ -122,7 +135,7 @@ const Chat = () => {
               −
             </button>
           </div>
-          <div style={styles.chatWindow}>
+          <div style={styles.chatWindow} ref={chatWindowRef}>
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -138,6 +151,17 @@ const Chat = () => {
               </div>
             ))}
           </div>
+          <div style={styles.suggestionsContainer}>
+            {suggestions.map((suggestion, index) => (
+              <button
+                key={index}
+                style={styles.suggestionButton}
+                onClick={() => handleSend(suggestion)}
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
           <div style={styles.inputContainer}>
             <input
               type="text"
@@ -151,7 +175,7 @@ const Chat = () => {
                 }
               }}
             />
-            <button onClick={handleSend} style={styles.button} disabled={!currentAccount}>
+            <button onClick={() => handleSend()} style={styles.button} disabled={!currentAccount}>
               Send
             </button>
           </div>
@@ -259,6 +283,22 @@ const styles = {
     top: "0",
     left: "0",
     cursor: "nwse-resize",
+  },
+  suggestionsContainer: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "5px",
+    padding: "5px",
+    backgroundColor: "#f1f1f1",
+    borderBottom: "1px solid #ccc",
+  },
+  suggestionButton: {
+    padding: "5px 10px",
+    backgroundColor: "#c9eae3",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    fontSize: "12px",
+    cursor: "pointer",
   },
 };
 

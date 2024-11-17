@@ -23,6 +23,7 @@ export default function Stake(){
                 fromBlock: provider.getBlockNumber() - 10000, 
             });
             if( leftLogs.length > 0){
+                alert(leftLogs[0].topics);
                 console.debug(leftLogs);
                 leftLogs.forEach(element => {
                     console.debug(element.topics);

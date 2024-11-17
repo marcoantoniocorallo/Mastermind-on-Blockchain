@@ -7,7 +7,7 @@ async function metamaskDownload() {
 async function metamaskConnect() {
     try {
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-        authenticate();
+        authenticate(accounts[0]);
         connectToMastermind();
         window.location="/";
     } catch (err) {
