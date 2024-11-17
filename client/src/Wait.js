@@ -30,6 +30,7 @@ export default function Wait(){
                 setCurrentPhase("declaration");
                 window.location="/";
             }
+
             // read for leftgame events
             const leftLogs = await provider.getLogs({
                 address: CONTRACT_ADDRESS,
@@ -50,7 +51,7 @@ export default function Wait(){
         };
 
         // polling 5sec
-        const intervalId = setInterval(readLogs, 5000);
+        const intervalId = setInterval(readLogs, 30000);
 
         // stop polling when the component is unmounted
         return () => clearInterval(intervalId);

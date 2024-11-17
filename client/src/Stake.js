@@ -23,7 +23,6 @@ export default function Stake(){
                 fromBlock: provider.getBlockNumber() - 10000, 
             });
             if( leftLogs.length > 0){
-                alert(leftLogs[0].topics);
                 console.debug(leftLogs);
                 leftLogs.forEach(element => {
                     console.debug(element.topics);
@@ -34,7 +33,7 @@ export default function Stake(){
         };
 
         // polling 5sec
-        const intervalId = setInterval(readLogs, 5000);
+        const intervalId = setInterval(readLogs, 30000);
 
         // stop polling when the component is unmounted
         return () => clearInterval(intervalId);
