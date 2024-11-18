@@ -6,7 +6,7 @@ import {
     getCurrentAccount, contract, provider, init, filter, readEvent, setCurrentPhase, readLastEvent 
 } from './utils';
 import {ABI, CONTRACT_ADDRESS} from "./ABI";
-import { ethers, EtherscanProvider, signer } from "ethers";
+import { BigNumber, ethers, EtherscanProvider, signer } from "ethers";
 import { hexZeroPad } from '@ethersproject/bytes';
 
 
@@ -26,7 +26,8 @@ async function createGame(challenger){
             hexZeroPad(getCurrentAccount(), 32),
             null
         ])
-        const game_id = parseInt(log.args["id"],16);
+        const game_id = log.args["id"].toNumber();
+        console.debug("Game ID:",log.args["id"],game_id);
         window.localStorage.setItem(getCurrentAccount()+"_game",game_id);
         window.location="/";
 
@@ -54,7 +55,8 @@ async function joinGame(game_id){
             hexZeroPad(getCurrentAccount(), 32),
             null
         ])
-        game_id = parseInt(log.args["id"],16);
+        game_id = log.args["id"].toNumber();
+        console.debug("Game ID:",log.args["id"],game_id);
         window.localStorage.setItem(getCurrentAccount()+"_game",game_id);
         window.location="/";
 
@@ -93,7 +95,8 @@ export default function NewGame(){
                 </Button>
                 
                 <Button variant="secondary" style={{cursor: 'default'}} >
-                    <label style={{padding:10, cursor: 'pointer' }} onClick={() => joinGame(document.getElementById('game_id').value)}>
+                    <label style={{padding:10, cursor: 'pointer' }} 
+                        onClick={() => joinGame(document.getElementById('game_id').value)}>
                         Join a Game
                     </label>
                     <Form.Control required

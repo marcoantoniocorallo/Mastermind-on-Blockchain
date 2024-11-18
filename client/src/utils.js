@@ -40,8 +40,18 @@ export function setCurrentPhase(phase){
     window.localStorage.setItem(getCurrentAccount()+"_phase", phase);
 }
 
+export function setRoles(codemaker, codebreaker){
+    window.localStorage.setItem("codemaker", codemaker);
+    window.localStorage.setItem("codebreaker", codebreaker);
+}
+
+
 export function getCurrentGame() { 
     return window.localStorage.getItem(getCurrentAccount()+"_game"); 
+}
+
+export function clearChat(){
+    window.localStorage.removeItem("chat_messages");
 }
 
 export async function connectToMastermind(){
@@ -87,16 +97,44 @@ export async function readLastEvent(topics){
 }
 
 export async function waitEvent(topics, callback){
-    const joinLogs = await provider.getLogs({
+    const logs = await provider.getLogs({
         address: CONTRACT_ADDRESS,
         topics: topics,
         fromBlock: provider.getBlockNumber() - 10000, 
     });
-    if( joinLogs.length > 0){
-        console.debug(joinLogs);
-        joinLogs.forEach(element => {
+    if( logs.length > 0){
+        console.debug(logs);
+        logs.forEach(element => {
             console.debug(element.topics);
         });
         callback();
+        return logs[logs.length-1];
     }
+}
+
+export async function wait2Events(topics, callback){
+    const logs = await provider.getLogs({
+        address: CONTRACT_ADDRESS,
+        topics: topics,
+        fromBlock: provider.getBlockNumber() - 10000, 
+    });
+    if(logs.length === 2){
+        console.debug(logs);
+        logs.forEach(element => {
+            console.debug(element.topics);
+        });
+        callback();
+        return logs;
+    };
+}
+
+export function decimalToHex(d, padding) {
+    var hex = Number(d).toString(16);
+    padding = typeof (padding) === "undefined" || padding === null ? padding = 2 : padding;
+
+    while (hex.length < padding) {
+        hex = "0" + hex;
+    }
+
+    return "0x"+hex;
 }

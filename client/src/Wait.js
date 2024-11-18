@@ -1,5 +1,5 @@
 import logo from './logo.png';
-import CloseButton from 'react-bootstrap/CloseButton';
+import { Closebutton } from './Closebutton';
 import { ethers } from "ethers";
 import { 
     getCurrentAccount, getCurrentGame, contract, init, readEvent, provider, setCurrentPhase, 
@@ -12,7 +12,7 @@ import { useEffect } from 'react';
 export default function Wait(){
     const game_id = getCurrentGame();
 
-    useEffect(() =>{
+    useEffect(() => {
         const readLogs = async() => {
 
             // read for join events
@@ -38,8 +38,8 @@ export default function Wait(){
         // invoke immediately
         readLogs();
 
-        // and then polling - 30sec
-        const intervalId = setInterval(readLogs, 30000);
+        // and then polling - 10sec
+        const intervalId = setInterval(readLogs, 10000);
 
         // stop polling when the component is unmounted
         return () => clearInterval(intervalId);
@@ -51,11 +51,7 @@ export default function Wait(){
             <header className="App-header">
                 <img src={logo} className="App-logo" alt="logo" />
             </header>  
-            <CloseButton 
-                aria-label='Leave Game' 
-                onClick={() => leaveGame(game_id)}
-                style={{ width:50, height:50, position: 'absolute', right: '350px' }} 
-                variant='white'/>
+            <Closebutton/>
             <h2 className="loading">
                 Waiting for the challenger
             </h2>

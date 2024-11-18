@@ -4,8 +4,9 @@ Future Works:
   di mettere lo stake. Questo vorrebbe dire che il giocatore onesto viene sì rimborsato, ma ha speso il gas 
   senza vincere nulla.
 - minimizzare ulteriormente il gas 
-- Multiaccount metamask (Da testare)
 - Feature che permette di trovare partite già create e designate a te
+- migliorare la gui e renderla scalabile e online (questo richiede innanzitutto un server che mette 
+  in contatto i giocatori per stabilire lo stake)
 
 TODO: 
 - Vulnerability Analysis

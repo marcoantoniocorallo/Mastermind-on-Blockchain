@@ -66,11 +66,11 @@ const Chat = () => {
   }, [messages]);
 
   const saveMessages = (messages) => {
-    localStorage.setItem("chat_messages_global", JSON.stringify(messages));
+    localStorage.setItem("chat_messages", JSON.stringify(messages));
   };
 
   const loadMessages = () => {
-    const savedMessages = localStorage.getItem("chat_messages_global");
+    const savedMessages = localStorage.getItem("chat_messages");
     setMessages(savedMessages ? JSON.parse(savedMessages) : []);
   };
 
