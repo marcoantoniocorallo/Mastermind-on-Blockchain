@@ -3,7 +3,7 @@ import { Closebutton } from './Closebutton';
 import { ethers } from "ethers";
 import { 
     getCurrentAccount, getCurrentGame, contract, init, readEvent, provider, setCurrentPhase, 
-    leaveGame, waitEvent
+    leaveGame, waitEvent, listenLeft
 } from './utils';
 import { ABI, CONTRACT_ADDRESS } from './ABI';
 import { hexZeroPad } from '@ethersproject/bytes';
@@ -26,13 +26,7 @@ export default function Wait(){
             )
 
             // read for leftgame events
-            await waitEvent(
-                [
-                    ethers.utils.id("GameLeft(uint256,address)"),
-                    hexZeroPad(ethers.utils.hexlify(Number(game_id)), 32),
-                ],
-                () => {setCurrentPhase(""); window.location="/";}
-            )
+            await listenLeft();
         };
 
         // invoke immediately

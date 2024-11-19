@@ -93,6 +93,9 @@ All files        |      100 |    80.95 |      100 |      100 |                |
 -----------------|----------|----------|----------|----------|----------------|
 > Istanbul reports written to ./coverage/ and ./coverage.json
 
+Test manuali sulla GUI per ogni fase di gioco, considerando casi critici ed eventuali rimborsi.
+Casistica di rimborso presente su etherscan, transazione numero 0xf582f2e87cc6b2cdde113d40c2a1970b998941a10118b3f0b16db2f665c4180c
+
 Prevented Security issues:
 - DDOS creating new game:
   Eve wants to DDOS the game vectors creating a sequence of new games.

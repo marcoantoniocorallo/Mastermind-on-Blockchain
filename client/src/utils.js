@@ -1,5 +1,6 @@
 import { ethers, EtherscanProvider, signer } from "ethers";
 import { ABI, CONTRACT_ADDRESS } from "./ABI";
+import { hexlify, hexZeroPad } from '@ethersproject/bytes';
 
 export var contract, provider;
 
@@ -40,11 +41,18 @@ export function setCurrentPhase(phase){
     window.localStorage.setItem(getCurrentAccount()+"_phase", phase);
 }
 
-export function setRoles(codemaker, codebreaker){
-    window.localStorage.setItem("codemaker", codemaker);
-    window.localStorage.setItem("codebreaker", codebreaker);
+function setRole(account, role){
+    window.localStorage.setItem(account+"_role", role);
 }
 
+export function setRoles(codemaker, codebreaker){
+    setRole(codemaker,"codemaker");
+    setRole(codebreaker,"codebreaker");
+}
+
+export function getRole(){
+    return window.localStorage.getItem(getCurrentAccount()+"_role");
+}
 
 export function getCurrentGame() { 
     return window.localStorage.getItem(getCurrentAccount()+"_game"); 
@@ -93,7 +101,7 @@ export async function readLastEvent(topics){
         topics: topics,
         fromBlock: provider.getBlockNumber() - 10000, 
     });
-    return iface.parseLog(logs[logs.length-1]);
+    if(logs!=undefined && logs.length!=0) return iface.parseLog(logs[logs.length-1]);
 }
 
 export async function waitEvent(topics, callback){
@@ -137,4 +145,18 @@ export function decimalToHex(d, padding) {
     }
 
     return "0x"+hex;
+}
+
+export async function listenLeft(){
+    await waitEvent(
+        [
+            ethers.utils.id("GameLeft(uint256,address)"),
+            hexZeroPad(ethers.utils.hexlify(Number(getCurrentGame())), 32),
+        ],
+        () => {
+            alert("A player left the game.");
+            setCurrentPhase(""); 
+            window.location="/";
+        }
+    );
 }

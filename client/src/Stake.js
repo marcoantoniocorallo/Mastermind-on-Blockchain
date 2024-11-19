@@ -1,4 +1,5 @@
 import logo from './logo.png';
+import { ABI } from './ABI';
 import CloseButton from 'react-bootstrap/CloseButton';
 import { FaRegPaperPlane } from "react-icons/fa";
 import { 
@@ -7,10 +8,10 @@ import {
     decimalToHex,
     wait2Events,
     readLastEvent,
-    setRoles
+    setRoles,
+    listenLeft
 } from './utils';
 import { ethers } from "ethers";
-import { hexlify, hexZeroPad } from '@ethersproject/bytes';
 import { useEffect } from 'react';
 import Chat from "./Chat";
 import Button from 'react-bootstrap/Button';
@@ -30,8 +31,10 @@ async function declareStake(stake){
             getCurrentGame(), 
             ethers.utils.parseUnits(stake, "gwei")
         );
-        const form = document.getElementById("stake");
-        form.disabled=true;
+        const form1 = document.getElementById("stake");
+        const form2 = document.getElementById("dec_button");
+        form1.disabled=true;
+        form2.disabled=true;
 
         const receipt = await tx.wait();
         console.debug(receipt);
@@ -76,13 +79,7 @@ export default function Stake(){
         const readLogs = async() => {
 
             // read for leftgame events
-            await waitEvent(
-                [
-                    ethers.utils.id("GameLeft(uint256,address)"),
-                    hexZeroPad(ethers.utils.hexlify(Number(game_id)), 32),
-                ],
-                () => {setCurrentPhase(""); window.location="/";}
-            );
+            await listenLeft();
 
             if(getCurrentPhase()==="declaration"){
 
@@ -92,11 +89,22 @@ export default function Stake(){
                         ethers.utils.id("StakeDeclared(uint256,address,uint256)"),
                         ethers.utils.hexZeroPad(decimalToHex(getCurrentGame(), 32).toString(16),32)
                     ],
-                    () => {
+                    () => {}
+                );
+                if(logs!=undefined && logs.length===2){
+                    const iface = new ethers.utils.Interface(ABI);
+                    const stake1 = iface.parseLog(logs[0]).args["_stake"].toNumber();
+                    const stake2 = iface.parseLog(logs[1]).args["_stake"].toNumber();
+                    if(stake1 != stake2){
+                        console.debug("Stakes: ",stake1, stake2);
+                        alert("A player declared a non-lecit stake.");
+                        setCurrentPhase(""); 
+                        window.location="/";
+                    } else{
                         setCurrentPhase("preparation");
                         window.location="/";
                     }
-                );
+                }
             }
 
             if(getCurrentPhase()==="preparation"){
@@ -108,13 +116,14 @@ export default function Stake(){
                         ethers.utils.hexZeroPad(decimalToHex(getCurrentGame(), 32).toString(16),32)
                     ]
                 );
-                console.debug("logs: ",log.args);
-                const codemaker = log.args["_codemaker"];
-                const codebreaker = log.args["_codebreaker"];
-                setRoles(codemaker, codebreaker);
-
-                setCurrentPhase("secretcode");
-                window.location="/";
+                if (log != undefined){
+                    console.debug("logs: ",log.args);
+                    const codemaker = log.args["_codemaker"];
+                    const codebreaker = log.args["_codebreaker"];
+                    setRoles(codemaker, codebreaker);
+                    setCurrentPhase("secretcode");
+                    window.location="/";
+                }
             }
         };
 
@@ -139,9 +148,10 @@ export default function Stake(){
                 <Form.Group>
                     <Form.Label>Definitive Stake</Form.Label>
                     <InputGroup style={{zIndex:"0"}}>
-                        <Form.Control type='number' id="stake" placeholder='Stake in gwei' 
+                        <Form.Control type='number' id="stake" 
+                            placeholder={getCurrentPhase()==="declaration" ? 'Stake in gwei' : window.localStorage.getItem("stake")}
                             disabled={(getCurrentPhase()==="preparation"?true:false)}/>
-                        <Button variant="primary" onClick={() => declareStake(document.getElementById('stake').value)}>
+                        <Button variant="primary" onClick={() => declareStake(document.getElementById('stake').value)} id="dec_button">
                             Declare
                         </Button>
                     </InputGroup>

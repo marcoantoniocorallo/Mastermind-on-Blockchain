@@ -10,6 +10,7 @@ import Stake from './Stake';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { getCurrentPhase, provider, init, setCurrentAccount, authenticate, deauthenticate, isAuthenticated } from './utils';
 import Chat from './Chat';
+import SecretCode from './SecretCode';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
