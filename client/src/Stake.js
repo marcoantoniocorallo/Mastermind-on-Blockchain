@@ -9,7 +9,10 @@ import {
     wait2Events,
     readLastEvent,
     setRoles,
-    listenLeft
+    listenLeft,
+    clearCurrentStake,
+    getCurrentStake,
+    setCurrentStake
 } from './utils';
 import { ethers } from "ethers";
 import { useEffect } from 'react';
@@ -18,6 +21,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { Closebutton } from './Closebutton';
+import AFKButton from './AFKButton';
 
 async function declareStake(stake){
     if (stake===undefined || stake===null || stake===NaN || stake===""){
@@ -25,7 +29,7 @@ async function declareStake(stake){
         return;
     }
 
-    window.localStorage.setItem("stake",stake);
+    setCurrentStake(stake);
     try{
         const tx = await contract.declareStake(
             getCurrentGame(), 
@@ -73,13 +77,8 @@ async function sendStake(stake){
 }
 
 export default function Stake(){
-    const game_id = getCurrentGame();
-
     useEffect(() =>{
         const readLogs = async() => {
-
-            // read for leftgame events
-            await listenLeft();
 
             if(getCurrentPhase()==="declaration"){
 
@@ -121,8 +120,10 @@ export default function Stake(){
                     const codemaker = log.args["_codemaker"];
                     const codebreaker = log.args["_codebreaker"];
                     setRoles(codemaker, codebreaker);
-                    setCurrentPhase("secretcode");
-                    window.location="/";
+                    //setCurrentPhase("secretcode");
+                    //window.location="/";
+                    clearCurrentStake();
+                    clearChat();
                 }
             }
         };
@@ -130,8 +131,8 @@ export default function Stake(){
         // invoke immediately
         readLogs();
 
-        // and then polling - 5sec
-        const intervalId = setInterval(readLogs, 30000);
+        // and then polling - 10sec
+        const intervalId = setInterval(readLogs, 10000);
 
         // stop polling when the component is unmounted
         return () => clearInterval(intervalId);
@@ -149,18 +150,22 @@ export default function Stake(){
                     <Form.Label>Definitive Stake</Form.Label>
                     <InputGroup style={{zIndex:"0"}}>
                         <Form.Control type='number' id="stake" 
-                            placeholder={getCurrentPhase()==="declaration" ? 'Stake in gwei' : window.localStorage.getItem("stake")}
+                            placeholder={getCurrentPhase()==="declaration" ? 'Stake in gwei' : getCurrentStake()}
                             disabled={(getCurrentPhase()==="preparation"?true:false)}/>
-                        <Button variant="primary" onClick={() => declareStake(document.getElementById('stake').value)} id="dec_button">
+                        <Button variant="primary" id="dec_button"
+                            onClick={() => declareStake(document.getElementById('stake').value)} 
+                            disabled={(getCurrentPhase()==="preparation"?true:false)}>
                             Declare
                         </Button>
                     </InputGroup>
                 </Form.Group>
             </Form>
+            <AFKButton/>
             <Chat/>
             {
                 getCurrentPhase()==="preparation" ? 
-                <Button style={{margin:10}} id='sendstake' onClick={()=>sendStake(window.localStorage.getItem("stake"))}>
+                <Button style={{margin:10, position:'relative'}} id='sendstake' 
+                    onClick={()=>sendStake(getCurrentStake())}>
                     Send stake &nbsp;
                     <FaRegPaperPlane/>
                 </Button>: ""

@@ -3,66 +3,54 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Form from 'react-bootstrap/Form';
 import { 
-    getCurrentAccount, contract, provider, init, filter, readEvent, setCurrentPhase, readLastEvent 
+    getCurrentAccount, contract, provider, init, filter, readEvent, setCurrentPhase, readLastEvent, 
+    setCurrentGame
 } from './utils';
 import {ABI, CONTRACT_ADDRESS} from "./ABI";
 import { BigNumber, ethers, EtherscanProvider, signer } from "ethers";
 import { hexZeroPad } from '@ethersproject/bytes';
 
+init();
+
+// read game id on the logs
+const gameListener = (event, who, id) => {
+    console.debug(event, "event occurred:", who, id.toNumber());
+    setCurrentGame(id.toNumber());
+    window.location="/";   
+    setCurrentPhase("creation");
+};
+
+const newGameFilter = contract.filters.GameCreated(getCurrentAccount());
+const joinGameFilter = contract.filters.GameJoined(getCurrentAccount());
 
 async function createGame(challenger){
-    init();
-
     try{
+        contract.once(newGameFilter, (w,i) => gameListener("GameCreated", w,i));
+
         const tx = challenger ? 
             await contract["newGame(address)"](challenger) : await contract["newGame()"]();
         const receipt = await tx.wait();
         console.debug(receipt);
-        setCurrentPhase("creation");
         
-        // read game id on the logs
-        const log = await readLastEvent([
-            ethers.utils.id("GameCreated(address,uint256)"),
-            hexZeroPad(getCurrentAccount(), 32),
-            null
-        ])
-        const game_id = log.args["id"].toNumber();
-        console.debug("Game ID:",log.args["id"],game_id);
-        window.localStorage.setItem(getCurrentAccount()+"_game",game_id);
-        window.location="/";
-
     } catch(err){
-        if (err.code === 'INVALID_ARGUMENT' || err.code === 'UNSUPPORTED_OPERATION') 
-            alert("Invalid Address.");
+        if (err.code === 'INVALID_ARGUMENT' || 
+            err.code === 'UNSUPPORTED_OPERATION')        alert("Invalid Address.");
         else if (err.code === 'UNPREDICTABLE_GAS_LIMIT') alert(err.error.message.substring(20));
         console.log("Catched: ", err);
     }
 }
 
 async function joinGame(game_id){
-    init();
-
     try{
+        contract.once(joinGameFilter, (w,i) => gameListener("GameJoined", w,i));
+
         const tx = game_id ?
             await contract["joinGame(uint256)"](game_id) : await contract["joinGame()"]();
         const receipt = await tx.wait();
         console.debug(receipt);
-        setCurrentPhase("creation");
-        
-        // read game id on the logs
-        const log = await readLastEvent([
-            ethers.utils.id("GameJoined(address,uint256)"),
-            hexZeroPad(getCurrentAccount(), 32),
-            null
-        ])
-        game_id = log.args["id"].toNumber();
-        console.debug("Game ID:",log.args["id"],game_id);
-        window.localStorage.setItem(getCurrentAccount()+"_game",game_id);
-        window.location="/";
 
     } catch(err){
-        if (err.code === 'INVALID_ARGUMENT') 
-            alert("Invalid Game ID.");
+        if (err.code === 'INVALID_ARGUMENT')        alert("Invalid Game ID.");
         if (err.code === 'UNPREDICTABLE_GAS_LIMIT') alert(err.error.message.substring(20));
         console.log("Catched: ", err.message);
     }

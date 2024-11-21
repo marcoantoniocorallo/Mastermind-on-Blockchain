@@ -82,7 +82,7 @@
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
-  width: 20%;
+  width: 30%;
   will-change: transform;
   background-image: url("metamask.png");
   background-size: 50px;

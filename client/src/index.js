@@ -36,7 +36,7 @@ const pageOf = {
   "creation" : isAuthenticated() ? <Wait/> : <Login/>,
   "declaration" : isAuthenticated() ? <Stake/> : <Login/>,
   "preparation" : isAuthenticated() ? <Stake/> : <Login/>,
-  "secretcode" : isAuthenticated() ? <SecretCode/> : <Login/>,
+  //"secretcode" : isAuthenticated() ? <SecretCode/> : <Login/>,
 }
 
 root.render(

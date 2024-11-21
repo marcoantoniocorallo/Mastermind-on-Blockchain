@@ -8,6 +8,7 @@ import {
 import { ABI, CONTRACT_ADDRESS } from './ABI';
 import { hexZeroPad } from '@ethersproject/bytes';
 import { useEffect } from 'react';
+import AFKButton from './AFKButton';
 
 export default function Wait(){
     const game_id = getCurrentGame();
@@ -45,7 +46,7 @@ export default function Wait(){
             <header className="App-header">
                 <img src={logo} className="App-logo" alt="logo" />
             </header>  
-            <Closebutton/>
+            {<Closebutton/>}
             <h2 className="loading">
                 Waiting for the challenger
             </h2>
