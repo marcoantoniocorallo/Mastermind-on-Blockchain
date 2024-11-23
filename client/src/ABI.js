@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = "0xE404C03cC0c4Dc1fD4c7514e032F897c2B8F359A";
+export const CONTRACT_ADDRESS = "0xD718166F5E97706Db27a9e0017de8fa3306f089a";
 
 export const ABI = [
   {
@@ -18,6 +18,19 @@ export const ABI = [
       }
     ],
     "name": "AFKStart",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      }
+    ],
+    "name": "AFKStop",
     "type": "event"
   },
   {

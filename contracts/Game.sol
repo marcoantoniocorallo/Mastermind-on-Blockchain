@@ -89,7 +89,7 @@ library GameLib {
     }
 
     /**
-     * @notice when a player is accused to be AFK moves, checks the block number.
+     * @notice when a player accused to be AFK moves, checks the block number.
      *         if still in time, reset the timer and continue, otherwise revert.
      */
     modifier checkAFK(Game storage self){

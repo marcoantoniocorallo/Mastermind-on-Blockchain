@@ -40,10 +40,8 @@ async function declareStake(stake){
             getGame(), 
             ethers.utils.parseUnits(stake, "gwei")
         );
-        const form1 = document.getElementById("stake");
-        const form2 = document.getElementById("dec_button");
-        form1.disabled=true;
-        form2.disabled=true;
+        document.getElementById("stake").disabled=true;
+        document.getElementById("dec_button").disabled=true;
 
         const receipt = await tx.wait();
         console.debug(receipt);
@@ -53,6 +51,9 @@ async function declareStake(stake){
             alert("Invalid Stake.");
         else if (err.code === 'UNPREDICTABLE_GAS_LIMIT') alert(err.error.message.substring(20));
         console.log("Catched: ", err);
+
+        document.getElementById("stake").disabled=false;
+        document.getElementById("dec_button").disabled=false;
     }
 }
 
@@ -67,8 +68,7 @@ async function sendStake(stake){
             getGame(),
             {value: ethers.utils.parseUnits(stake, "gwei")}
         );
-        const form = document.getElementById("sendstake");
-        form.disabled=true;
+        document.getElementById("sendstake").disabled=true;
         setSentStake();
 
         const receipt = await tx.wait();
@@ -79,6 +79,8 @@ async function sendStake(stake){
             alert("Invalid Stake.");
         else if (err.code === 'UNPREDICTABLE_GAS_LIMIT') alert(err.error.message.substring(20));
         console.log("Catched: ", err);
+
+        document.getElementById("sendstake").disabled=false;
     }
 }
 

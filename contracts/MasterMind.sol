@@ -37,6 +37,14 @@ contract MasterMind {
         _;
     }
 
+    modifier handleAFK(uint256 id){
+        bool afk = false;
+        if (games[id].AFK != address(0)) afk = true;
+        _;
+        if (afk && games[id].AFK == address(0))
+            emit AFKStop(id);
+    }
+
     /**
      * @notice return the id of a random free game: pending game without a designated challenger
      *         it also remove the picked id
@@ -122,7 +130,7 @@ contract MasterMind {
      * @custom:emit StakeDeclared
      *              GameClosed
      */
-    function declareStake(uint256 id, uint256 stake) external userAllowed(id) {
+    function declareStake(uint256 id, uint256 stake) external userAllowed(id) handleAFK(id) {
         if ( ! games[id].declareStake(stake) ){
             emit StakeDeclared(id, msg.sender, stake);
             closeGame(id);
@@ -154,7 +162,7 @@ contract MasterMind {
      *                if invoked while not in set-stake phase or 
      *                if invoked with a stake different from what was declared
      */
-    function prepareGame(uint256 id) external payable userAllowed(id) {
+    function prepareGame(uint256 id) external payable userAllowed(id) handleAFK(id) {
 
         emit StakePut(id, msg.sender, msg.value);
         games[id].setStake(msg.value);
@@ -201,7 +209,7 @@ contract MasterMind {
      *                if invoked while not in phase of code submission
      */
     function sendCode(bytes32 _hash, uint256 id) external
-        userAllowed(id) {
+        userAllowed(id) handleAFK(id) {
         games[id].setHash(_hash);
         emit SecretCodeSent(id, msg.sender);
     }
@@ -216,7 +224,8 @@ contract MasterMind {
      *                if msg.sender is not a player of games[id]
      * @custom:emit GuessSent
      */
-    function sendGuess(Color[N_HOLES] calldata code, uint256 id) external userAllowed(id) {
+    function sendGuess(Color[N_HOLES] calldata code, uint256 id) external 
+        userAllowed(id) handleAFK(id) {
         games[id].pushGuess(code);
         emit GuessSent(id, msg.sender);
     }
@@ -232,7 +241,8 @@ contract MasterMind {
      *                if the codemaker sent an invalid feedback
      * @custom:emit FeedbackSent
      */
-    function sendFeedback(uint8 CC, uint8 NC, uint256 id) external userAllowed(id) {
+    function sendFeedback(uint8 CC, uint8 NC, uint256 id) external 
+        userAllowed(id) handleAFK(id){
         require(CC <= N_HOLES && NC <= N_HOLES && CC + NC <= N_HOLES, "Invalid feedback.");
         games[id].pushFeedback(CC, NC);
         emit FeedbackSent(id, msg.sender);
@@ -249,7 +259,7 @@ contract MasterMind {
      * @custom:emit SolutionSubmitted
      */
     function submitSolution(uint256 id, Color[N_HOLES] memory code, uint8[SALT_SZ] memory salt)  
-        external userAllowed(id) {
+        external userAllowed(id) handleAFK(id){
         games[id].reveal(code, salt);
         emit SolutionSubmitted(id, code, salt);
     }
@@ -266,7 +276,8 @@ contract MasterMind {
      *              Transfered
      *              GameClosed
      */
-    function startDispute(uint256 id, uint8 feedback_id) external userAllowed(id){
+    function startDispute(uint256 id, uint8 feedback_id) external 
+        userAllowed(id) {
         require(feedback_id < N_FEEDBACKS, "Feedback ID not valid.");
         
         emit Dispute(id, feedback_id);

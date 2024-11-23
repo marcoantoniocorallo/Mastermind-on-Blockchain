@@ -14,36 +14,37 @@ import { useEffect } from 'react';
 let timeout;
 
 function on_timeout(){
-    contract.off("*", on_opponentMove);
     alert("You can now get your prize!");
-    removeAfk();
-    claimButton();
+    removeAfk(); // enable button
+    claimButton(); // change behaviour to the button
     window.location="/";
 }
 
-const on_opponentMove = (event, ...args) => {
-    if(event.args["id"] === getGame()){
-        console.debug('AFK Listener - event emitted:', event);
-        alert("Opponent moved.");
-        removeAfk();
-        clearTimeout(timeout);
-    }
+const on_opponentMove = () => {
+    console.debug("StopAFK event occurred");
+
+    clearTimeout(timeout);
+    alert("Opponent moved.");
+    removeAfk();
 }
 
 async function send_afk(){
     
     try{
+        contract.once(contract.filters.AFKStop(getGame()), on_opponentMove);
+
         const tx = await contract.AFK(getGame());
         const receipt = await tx.wait();
         console.debug(receipt);
-        afkPressed();
-        timeout = setTimeout(on_timeout, afk_time+3000);
-
-        contract.once("*", on_opponentMove);
+        afkPressed(); // disable AFK button and store button label on localstorage
+        timeout = setTimeout(on_timeout, afk_time+5000);
 
     } catch(err){
         if (err.code === 'UNPREDICTABLE_GAS_LIMIT') alert(err.error.message.substring(20));
         console.log("Catched: ", err);
+
+        removeAfk();
+        clearTimeout(timeout);
     }
     }
 
@@ -59,7 +60,7 @@ const afkFilter = contract.filters.AFKStart(getGame());
 const afkHandler = (id, who) => {
     console.debug("AFKStart event occurred:", id, who);
 
-    if(who === getAccount())
+    if(who.toLowerCase() === getAccount())
         alert("You are under accusation! Play your move!");
 }
 

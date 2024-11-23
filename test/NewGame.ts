@@ -221,4 +221,14 @@ describe("Create/Join Game Tests", function () {
       .to.be.revertedWith("There are no free games now.");
   });
 
+  it("Test14 : Other tests", async function () {
+    const { contract, owner, addr1, addr2 } = await loadFixture(deployFixture);  
+
+    await expect(contract.declareStake(0,50))
+      .to.be.revertedWith("Denied operation.");
+
+    await expect(contract.prepareGame(0))
+      .to.be.revertedWith("Denied operation.");
+  });
+
 });

@@ -21,7 +21,7 @@ const config: HardhatUserConfig = {
     }
   },
   gasReporter: {
-    enabled: process.env.REPORT_GAS === "true", // Simplified enabled flag
+    enabled: process.env.REPORT_GAS === "TRUE", // Simplified enabled flag
     L1: "ethereum",
     currency: 'EUR',
     L1Etherscan: EHTERSCAN_KEY,

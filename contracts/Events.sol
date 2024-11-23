@@ -19,5 +19,6 @@ event PointsUpdated(uint256 indexed id, uint8 points);
 event Winning(uint256 indexed id, address player);
 event Tie(uint256 indexed id);
 event AFKStart(uint256 indexed id, address who);
+event AFKStop(uint256 indexed id);
 event GameClosed(uint256 indexed id);
 event GameLeft(uint256 indexed id, address who);

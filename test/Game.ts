@@ -1277,7 +1277,8 @@ describe("Play Game Tests", function () {
                     .to.emit(contract, "AFKStart")
 
                 await expect(contract.connect(codemaker).sendFeedback(1, 2, 0))
-                    .to.emit(contract, "FeedbackSent");
+                    .to.emit(contract, "FeedbackSent")
+                    .and.to.emit(contract,"AFKStop");
 
                 // codemaker send AFK
                 await expect(contract.connect(codemaker).AFK(0))
@@ -1286,7 +1287,8 @@ describe("Play Game Tests", function () {
 
             await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
                     .to.emit(contract, "GuessSent")
-                    .withArgs(0, codebreaker.address);
+                    .withArgs(0, codebreaker.address)
+                    .and.to.emit(contract,"AFKStop");
 
             await expect(contract.connect(codebreaker).AFK(0))
                 .to.emit(contract, "AFKStart");
@@ -1362,7 +1364,7 @@ describe("Play Game Tests", function () {
         // addr1 send money
         let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
         const logs : any =  receipt!.logs;
-        const codemaker_addr : string = logs[logs.length-1].args[1];
+        const codemaker_addr : string = logs[logs.length-2].args[1];
 
         let [codemaker, codebreaker] = codemaker_addr === owner.address ? [owner, addr1] : [addr1, owner];
 
@@ -1493,7 +1495,7 @@ describe("Play Game Tests", function () {
         // addr1 send money
         let receipt = await (await (contract.connect(addr1).prepareGame(0, { value: value } ) )).wait();
         const logs : any =  receipt!.logs;
-        const codemaker_addr : string = logs[logs.length-1].args[1];
+        const codemaker_addr : string = logs[logs.length-2].args[1];
 
         let [codemaker, codebreaker] = codemaker_addr === owner.address ? [owner, addr1] : [addr1, owner];
 
