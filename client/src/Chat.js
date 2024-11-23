@@ -1,14 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ethers } from "ethers";
+import { getGame } from "./utils";
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [currentAccount, setCurrentAccount] = useState(null);
+  const [currentAccount, setAccount] = useState(null);
   const [chatSize, setChatSize] = useState({ width: 300, height: 300 });
   const [minimized, setMinimized] = useState(false);
   const [resizing, setResizing] = useState(false);
-  const chatWindowRef = useRef(null); 
+  const [connected, setConnected] = useState(false);
+  const chatWindowRef = useRef(null);
+  const wsRef = useRef(null);
+  const channelId = getGame();
 
   const suggestions = [
     "1 gwei",
@@ -17,11 +21,13 @@ const Chat = () => {
     "50 gwei",
   ];
 
+  const LOCAL_STORAGE_KEY = `chat_${channelId}`;
+
   const checkMetaMask = async () => {
     if (window.ethereum) {
       const accounts = await window.ethereum.request({ method: "eth_accounts" });
       if (accounts.length > 0) {
-        setCurrentAccount(accounts[0]);
+        setAccount(accounts[0]);
       }
     } else {
       alert("Install Metamask to play Mastermind.");
@@ -34,7 +40,7 @@ const Chat = () => {
         const accounts = await window.ethereum.request({
           method: "eth_requestAccounts",
         });
-        setCurrentAccount(accounts[0]);
+        setAccount(accounts[0]);
       } catch (err) {
         console.error("Connection failed:", err);
       }
@@ -43,14 +49,26 @@ const Chat = () => {
     }
   };
 
+  // Load messages from localStorage on component mount
+  useEffect(() => {
+    const savedMessages = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (savedMessages) {
+      setMessages(JSON.parse(savedMessages));
+    }
+  }, []);
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(messages));
+  }, [messages]);
+
   useEffect(() => {
     if (window.ethereum) {
       window.ethereum.on("accountsChanged", (accounts) => {
-        setCurrentAccount(accounts[0] || null);
+        setAccount(accounts[0] || null);
       });
     }
     checkMetaMask();
-    loadMessages();
 
     return () => {
       if (window.ethereum) {
@@ -65,53 +83,92 @@ const Chat = () => {
     }
   }, [messages]);
 
-  const saveMessages = (messages) => {
-    localStorage.setItem("chat_messages", JSON.stringify(messages));
-  };
+  // WebSocket connection logic
+  useEffect(() => {
+    const ws = new WebSocket("ws://localhost:8080"); // Adjust to your server URL
+    wsRef.current = ws;
 
-  const loadMessages = () => {
-    const savedMessages = localStorage.getItem("chat_messages");
-    setMessages(savedMessages ? JSON.parse(savedMessages) : []);
-  };
+    ws.onopen = () => {
+      console.debug("WebSocket connected");
+      setConnected(true);
+
+      // Join the specified channel
+      ws.send(
+        JSON.stringify({
+          type: "connect",
+          channelId: channelId,
+        })
+      );
+    };
+
+    ws.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      console.debug("Received message:", message);
+
+      if (message.type === "message") {
+        setMessages((prev) => [...prev, { user: "Other", text: message.text }]);
+      } else if (message.type === "info") {
+        console.debug("Info:", message.message);
+      } else if (message.type === "error") {
+        console.error("Error:", message.message);
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    ws.onclose = () => {
+      console.debug("WebSocket disconnected");
+      setConnected(false);
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [channelId]);
 
   const handleSend = (text = input) => {
-    if (text.trim() === "" || !currentAccount) return;
+    if (text.trim() === "" || !currentAccount || !connected) return;
 
-    const newMessages = [
-      ...messages,
-      { user: currentAccount, text },
-    ];
+    // Send the message to the WebSocket server
+    wsRef.current.send(
+      JSON.stringify({
+        type: "message",
+        text,
+      })
+    );
 
-    setMessages(newMessages);
-    saveMessages(newMessages);
+    // Add the message to the local state
+    setMessages((prev) => [...prev, { user: currentAccount, text }]);
     setInput("");
   };
 
   const handleResizeStart = (e) => {
     e.preventDefault();
     setResizing(true);
-  
+
     const initialWidth = chatSize.width;
     const initialHeight = chatSize.height;
     const initialX = e.clientX;
     const initialY = e.clientY;
-  
+
     const handleResize = (resizeEvent) => {
       const deltaX = initialX - resizeEvent.clientX;
       const deltaY = initialY - resizeEvent.clientY;
-  
+
       setChatSize({
         width: Math.max(200, initialWidth + deltaX),
         height: Math.max(200, initialHeight + deltaY),
       });
     };
-  
+
     const stopResize = () => {
       setResizing(false);
       document.removeEventListener("mousemove", handleResize);
       document.removeEventListener("mouseup", stopResize);
     };
-  
+
     document.addEventListener("mousemove", handleResize);
     document.addEventListener("mouseup", stopResize);
   };
@@ -147,7 +204,8 @@ const Chat = () => {
                     message.user === currentAccount ? "#daf7a6" : "#a6e3f7",
                 }}
               >
-                <strong>{message.user.slice(0, 6)}...</strong>: {message.text}
+                <strong>{message.user === currentAccount ? "Me" : message.user}</strong>:{" "}
+                {message.text}
               </div>
             ))}
           </div>
@@ -175,7 +233,11 @@ const Chat = () => {
                 }
               }}
             />
-            <button onClick={() => handleSend()} style={styles.button} disabled={!currentAccount}>
+            <button
+              onClick={() => handleSend()}
+              style={styles.button}
+              disabled={!connected || !currentAccount}
+            >
               Send
             </button>
           </div>

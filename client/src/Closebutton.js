@@ -1,33 +1,38 @@
 import CloseButton from 'react-bootstrap/CloseButton';
-import { leaveGame, getCurrentGame, listenLeft } from './utils';
+import {getGame, listenLeft, contract, getAccount, setPhase, clearGame
+} from './utils';
 import { useEffect } from 'react';
 
-let intervalId;
+const leftGameFilter = contract.filters.GameLeft(getGame());
+
+async function leaveGame(game_id){  
+    try{
+        const tx = await contract.leaveGame(game_id);
+        const receipt = await tx.wait();
+        console.debug(receipt);
+    } catch(err){
+        if (err.code === 'INVALID_ARGUMENT') 
+            alert("Invalid Game ID.");
+        if (err.code === 'UNPREDICTABLE_GAS_LIMIT') alert(err.error.message.substring(20));
+        console.log("Catched: ", err.message);
+    }
+}
 
 export function Closebutton(){
-    const game_id = getCurrentGame();
 
-    useEffect(() =>{
-        const readLogs = async() => {
-            // read for leftgame events
-            await listenLeft(intervalId);
-
+    contract.once(
+        leftGameFilter,
+        (id, who) => { 
+            console.debug("LeftGame event occurred:",id,who);
+            if( who.toLowerCase() != getAccount()) alert("A player left the game.");
+            clearGame();
         }
-        
-        // invoke immediately
-        readLogs();
-
-        // and then polling - 10sec
-        intervalId = setInterval(readLogs, 10000);
-
-        // stop polling when the component is unmounted
-        return () => clearInterval(intervalId);
-    }, []);
+    );
 
     return (
         <CloseButton 
             aria-label='Leave Game' 
-            onClick={() => leaveGame(game_id)}
+            onClick={() => leaveGame(getGame())}
             style={{ width:50, height:50, position: 'absolute', left: '90%', top: '10%' }} 
             variant='white'>
             <p style={{position:'absolute', fontSize:13, top:0, right:15}}>Leave</p>

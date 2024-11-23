@@ -1,6 +1,8 @@
 
 Todo:
-  ☐ AFK Button
-  ✔ Test stake declaration (different declaration/...) @done(24-11-19 12:34)
-  ✔ Test stake submission @done(24-11-19 12:40)
-  ☐ Implement secret code phase
+  ✔ test stake events - both declaration and preparation @done(24-11-22 11:01)
+  ✔ add contract.off for already occurred events @done(24-11-22 11:01)
+  ✔ check localstorage utility and correspondent utils @done(24-11-22 11:01)
+  ☐ chat server
+  ☐ afk button
+  ✔ clearGame ==> keep authentication @done(24-11-22 11:00)

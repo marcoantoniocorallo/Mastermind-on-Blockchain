@@ -3,16 +3,21 @@ import { ABI } from './ABI';
 import CloseButton from 'react-bootstrap/CloseButton';
 import { FaRegPaperPlane } from "react-icons/fa";
 import { 
-    getCurrentAccount, getCurrentGame, contract, init, readEvent, provider, setCurrentPhase, 
-    leaveGame, waitEvent, clearChat, wait2Declarations, getCurrentPhase,
+    getAccount, getGame, contract, init, readEvent, provider, setPhase, 
+    leaveGame, waitEvent, clearChat, wait2Declarations, getPhase,
     decimalToHex,
     wait2Events,
     readLastEvent,
-    setRoles,
+    setRole,
     listenLeft,
-    clearCurrentStake,
-    getCurrentStake,
-    setCurrentStake
+    clearStake,
+    getStake,
+    setStake,
+    clearGame,
+    getFirstStake,
+    setFirstStake, setSentStake, removeSentStake,
+    getSentStake,
+    removeFirstStake
 } from './utils';
 import { ethers } from "ethers";
 import { useEffect } from 'react';
@@ -29,10 +34,10 @@ async function declareStake(stake){
         return;
     }
 
-    setCurrentStake(stake);
+    setStake(stake);
     try{
         const tx = await contract.declareStake(
-            getCurrentGame(), 
+            getGame(), 
             ethers.utils.parseUnits(stake, "gwei")
         );
         const form1 = document.getElementById("stake");
@@ -59,11 +64,12 @@ async function sendStake(stake){
 
     try{
         const tx = await contract.prepareGame(
-            getCurrentGame(),
+            getGame(),
             {value: ethers.utils.parseUnits(stake, "gwei")}
         );
         const form = document.getElementById("sendstake");
         form.disabled=true;
+        setSentStake();
 
         const receipt = await tx.wait();
         console.debug(receipt);      
@@ -76,68 +82,43 @@ async function sendStake(stake){
     }
 }
 
+const declarationFilter = contract.filters.StakeDeclared(getGame());
+const shuffledFilter = contract.filters.Shuffled(getGame());
+
+const declarationHandler = (id, who, stake) => {
+    console.debug("StakeDeclared event occurred:", id, who, stake);
+
+    if(getFirstStake()){
+        if (stake != getFirstStake()){
+            alert("A player declared a non-lecit stake.");
+            contract.off(declarationFilter);
+            clearGame();
+        } else{
+            contract.off(declarationFilter);
+            setPhase("preparation");
+            window.location="/";
+        }
+    } else setFirstStake(stake);
+
+};
+
+const ShuffledHandler = (id, cm, cb) => {
+    console.debug("Shuffled event occurred:", id, cm, cb);
+
+    setRole(cm.toLowerCase() === getAccount() ? "codemaker" : "codebreaker");
+    removeSentStake();
+    //setPhase("secretcode");
+    //window.location="/";
+};
+
 export default function Stake(){
-    useEffect(() =>{
-        const readLogs = async() => {
+    
+    if(getPhase()==="declaration") 
+        contract.on(declarationFilter, declarationHandler);
 
-            if(getCurrentPhase()==="declaration"){
+    if(getPhase()==="preparation")
+        contract.once(shuffledFilter, ShuffledHandler);
 
-                // wait for the other player's declaration
-                const logs = await wait2Events(
-                    [
-                        ethers.utils.id("StakeDeclared(uint256,address,uint256)"),
-                        ethers.utils.hexZeroPad(decimalToHex(getCurrentGame(), 32).toString(16),32)
-                    ],
-                    () => {}
-                );
-                if(logs!=undefined && logs.length===2){
-                    const iface = new ethers.utils.Interface(ABI);
-                    const stake1 = iface.parseLog(logs[0]).args["_stake"].toNumber();
-                    const stake2 = iface.parseLog(logs[1]).args["_stake"].toNumber();
-                    if(stake1 != stake2){
-                        console.debug("Stakes: ",stake1, stake2);
-                        alert("A player declared a non-lecit stake.");
-                        setCurrentPhase(""); 
-                        window.location="/";
-                    } else{
-                        setCurrentPhase("preparation");
-                        window.location="/";
-                    }
-                }
-            }
-
-            if(getCurrentPhase()==="preparation"){
-
-                // wait for the other player's declaration
-                const log = await readLastEvent(
-                    [
-                        ethers.utils.id("Shuffled(uint256,address,address)"),
-                        ethers.utils.hexZeroPad(decimalToHex(getCurrentGame(), 32).toString(16),32)
-                    ]
-                );
-                if (log != undefined){
-                    console.debug("logs: ",log.args);
-                    const codemaker = log.args["_codemaker"];
-                    const codebreaker = log.args["_codebreaker"];
-                    setRoles(codemaker, codebreaker);
-                    //setCurrentPhase("secretcode");
-                    //window.location="/";
-                    clearCurrentStake();
-                    clearChat();
-                }
-            }
-        };
-
-        // invoke immediately
-        readLogs();
-
-        // and then polling - 10sec
-        const intervalId = setInterval(readLogs, 10000);
-
-        // stop polling when the component is unmounted
-        return () => clearInterval(intervalId);
-
-    }, []);
 
     return (
         <div className="App">
@@ -150,11 +131,11 @@ export default function Stake(){
                     <Form.Label>Definitive Stake</Form.Label>
                     <InputGroup style={{zIndex:"0"}}>
                         <Form.Control type='number' id="stake" 
-                            placeholder={getCurrentPhase()==="declaration" ? 'Stake in gwei' : getCurrentStake()}
-                            disabled={(getCurrentPhase()==="preparation"?true:false)}/>
+                            placeholder={getPhase()==="declaration" ? 'Stake in gwei' : getStake()}
+                            disabled={(getPhase() === "preparation" ? true : false)}/>
                         <Button variant="primary" id="dec_button"
                             onClick={() => declareStake(document.getElementById('stake').value)} 
-                            disabled={(getCurrentPhase()==="preparation"?true:false)}>
+                            disabled={(getPhase() === "preparation" ? true : false)}>
                             Declare
                         </Button>
                     </InputGroup>
@@ -163,9 +144,10 @@ export default function Stake(){
             <AFKButton/>
             <Chat/>
             {
-                getCurrentPhase()==="preparation" ? 
+                getPhase()==="preparation" ? 
                 <Button style={{margin:10, position:'relative'}} id='sendstake' 
-                    onClick={()=>sendStake(getCurrentStake())}>
+                    onClick={()=>sendStake(getStake())}
+                    disabled={(getSentStake() ? true : false)}>
                     Send stake &nbsp;
                     <FaRegPaperPlane/>
                 </Button>: ""

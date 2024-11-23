@@ -8,7 +8,9 @@ import NewGame from './NewGame';
 import Wait from './Wait';
 import Stake from './Stake';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { getCurrentPhase, provider, init, setCurrentAccount, authenticate, deauthenticate, isAuthenticated } from './utils';
+import { getPhase, provider, init, setAccount, authenticate, deauthenticate, isAuthenticated, contract 
+
+} from './utils';
 import Chat from './Chat';
 import SecretCode from './SecretCode';
 
@@ -16,7 +18,6 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 
 if (window.ethereum){
   init();
-
   const accounts = await provider.listAccounts();
   if (accounts.length === 0)
     deauthenticate();
@@ -24,7 +25,7 @@ if (window.ethereum){
   window.ethereum.on('accountsChanged', async (accounts) => {
     if (accounts.length === 0)
       deauthenticate();
-    else
+    else 
       authenticate(accounts[0]);
     window.location="/";
   });
@@ -40,20 +41,14 @@ const pageOf = {
 }
 
 root.render(
-  <React.StrictMode>
     <BrowserRouter>
       <Routes>
         <Route
           path='/'
-          element={pageOf[getCurrentPhase()]}
-        />
-        <Route // TODO: to remove
-          path='/test'
-          element={<Stake/>}
+          element={pageOf[getPhase()]}
         />
       </Routes>
     </BrowserRouter>
-  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

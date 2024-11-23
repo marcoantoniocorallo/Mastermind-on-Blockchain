@@ -163,7 +163,5 @@ Design choices:
   Questo, d'altronde, gestisce implicitamente la possibilità che il codemaker sbagli (ad es. il salt)
   NOTA: immagino il capitolo che inizia con "To revert or to punish? That's the question."
   nota: questa scelta permette anche sviluppo e manutenzione più semplice
-- gli eventi vengono letti dalla blockchain dopo che sono stati emessi, quindi non vi è un event listener
-  ma viene fatta una lettura ogni n secondi. Questo può sembrare meno efficiente, ma generalmente
-  solo poche letture vengono effettuate prima di trovare l'evento di interesse. D'altra parte,
-  questo metodo permette di non perdere eventi a causa, ad esempio, di cambio account.
+- le variabili del FE sono scritte in localstorage nella forma account_var; in questo modo si può 
+  gestire il multi-wallet (?); questo naturalmente potrebbe dare problemi con l'event listener

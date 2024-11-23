@@ -3,25 +3,22 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Form from 'react-bootstrap/Form';
 import { 
-    getCurrentAccount, contract, provider, init, filter, readEvent, setCurrentPhase, readLastEvent, 
-    setCurrentGame
+    getAccount, contract, provider, init, filter, readEvent, setPhase, readLastEvent, 
+    setGame
 } from './utils';
-import {ABI, CONTRACT_ADDRESS} from "./ABI";
-import { BigNumber, ethers, EtherscanProvider, signer } from "ethers";
-import { hexZeroPad } from '@ethersproject/bytes';
 
 init();
 
 // read game id on the logs
 const gameListener = (event, who, id) => {
     console.debug(event, "event occurred:", who, id.toNumber());
-    setCurrentGame(id.toNumber());
+    setGame(id.toNumber());
+    setPhase(event==="GameCreated" ? "creation" : "declaration");
     window.location="/";   
-    setCurrentPhase("creation");
 };
 
-const newGameFilter = contract.filters.GameCreated(getCurrentAccount());
-const joinGameFilter = contract.filters.GameJoined(getCurrentAccount());
+const newGameFilter = contract.filters.GameCreated(getAccount());
+const joinGameFilter = contract.filters.GameJoined(getAccount());
 
 async function createGame(challenger){
     try{
@@ -37,6 +34,8 @@ async function createGame(challenger){
             err.code === 'UNSUPPORTED_OPERATION')        alert("Invalid Address.");
         else if (err.code === 'UNPREDICTABLE_GAS_LIMIT') alert(err.error.message.substring(20));
         console.log("Catched: ", err);
+
+        contract.off(newGameFilter);
     }
 }
 
@@ -53,10 +52,13 @@ async function joinGame(game_id){
         if (err.code === 'INVALID_ARGUMENT')        alert("Invalid Game ID.");
         if (err.code === 'UNPREDICTABLE_GAS_LIMIT') alert(err.error.message.substring(20));
         console.log("Catched: ", err.message);
+
+        contract.off(joinGameFilter);
     }
 }
 
 export default function NewGame(){ 
+
     return (
         <div className="App">
             <header className="App-header">
