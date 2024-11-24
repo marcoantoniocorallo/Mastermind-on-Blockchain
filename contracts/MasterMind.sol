@@ -102,6 +102,7 @@ contract MasterMind {
             "You're not allowed to play this game."
         );
 
+        games[id].setCodeBreaker(payable(msg.sender)); // just increase the game phase
         playing[msg.sender] = true;
         emit GameJoined(msg.sender, id);
     }
