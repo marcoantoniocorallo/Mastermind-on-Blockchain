@@ -59,7 +59,7 @@ export function getRole(){
 }
 
 export function getGame() { 
-    return window.localStorage.getItem(getAccount()+"_game"); 
+    return Number(window.localStorage.getItem(getAccount()+"_game")); 
 }
 
 export function setGame(game){

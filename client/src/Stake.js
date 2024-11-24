@@ -108,7 +108,6 @@ const ShuffledHandler = (id, cm, cb) => {
     console.debug("Shuffled event occurred:", id, cm, cb);
 
     setRole(cm.toLowerCase() === getAccount() ? "codemaker" : "codebreaker");
-    removeSentStake();
     //setPhase("secretcode");
     //window.location="/";
 };
@@ -134,10 +133,10 @@ export default function Stake(){
                     <InputGroup style={{zIndex:"0"}}>
                         <Form.Control type='number' id="stake" 
                             placeholder={getPhase()==="declaration" ? 'Stake in gwei' : getStake()}
-                            disabled={(getPhase() === "preparation" ? true : false)}/>
+                            disabled={getStake() ? true : false}/>
                         <Button variant="primary" id="dec_button"
                             onClick={() => declareStake(document.getElementById('stake').value)} 
-                            disabled={(getPhase() === "preparation" ? true : false)}>
+                            disabled={getStake() ? true : false}>
                             Declare
                         </Button>
                     </InputGroup>

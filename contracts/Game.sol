@@ -180,7 +180,7 @@ library GameLib {
      * @notice get player' stakes; 
      *         if a player put a different stake from what was declared, revert.
      * @custom:revert if _stake == 0 or 
-     *                if more than 1 player already put money or 
+     *                if more than 2 player already put money or 
      *                if a player attempts to put money more than one time or 
      *                if invoked while in another phase or 
      *                if invoked with a stake different frmo what was declared

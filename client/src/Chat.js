@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ethers } from "ethers";
 import { getGame } from "./utils";
+import { FaRegPaperPlane } from "react-icons/fa"; 
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -238,7 +239,7 @@ const Chat = () => {
               style={styles.button}
               disabled={!connected || !currentAccount}
             >
-              Send
+              <FaRegPaperPlane/>
             </button>
           </div>
         </>
