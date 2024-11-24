@@ -164,3 +164,9 @@ Design choices:
   nota: questa scelta permette anche sviluppo e manutenzione più semplice
 - le variabili del FE sono scritte in localstorage nella forma account_var; in questo modo si può 
   gestire il multi-wallet (?); questo naturalmente potrebbe dare problemi con l'event listener
+
+Secret code and Salt: 
+  - The secret code is composed by 4 colors/numbers chosen in a range of 6 colors/numbers, 
+    that are 6^4 combinations ~ 1296.
+  - The salt are 5 uint8 numbers, that are 256^5 ~ 1099511627776
+  - The possible combinations to hash are thus 1296 * 1099511627776 and it's uncrackable

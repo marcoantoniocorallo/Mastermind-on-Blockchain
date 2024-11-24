@@ -1,5 +1,5 @@
 import logo from './logo.png';
-import { Closebutton } from './Closebutton';
+import Closebutton from './Closebutton';
 import { 
     getAccount, getGame, contract, init, readEvent, provider, setPhase, 
     leaveGame, waitEvent, listenLeft

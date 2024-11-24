@@ -7,6 +7,7 @@ import './index.css';
 import NewGame from './NewGame';
 import Wait from './Wait';
 import Stake from './Stake';
+import Game from "./Game";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { getPhase, provider, init, setAccount, authenticate, deauthenticate, isAuthenticated, contract 
 
@@ -37,7 +38,7 @@ const pageOf = {
   "creation" : isAuthenticated() ? <Wait/> : <Login/>,
   "declaration" : isAuthenticated() ? <Stake/> : <Login/>,
   "preparation" : isAuthenticated() ? <Stake/> : <Login/>,
-  //"secretcode" : isAuthenticated() ? <SecretCode/> : <Login/>,
+  "secretcode"  : isAuthenticated() ? <Game/> : <Login/>,
 }
 
 root.render(
@@ -46,6 +47,10 @@ root.render(
         <Route
           path='/'
           element={pageOf[getPhase()]}
+        />
+        <Route
+          path="/test"
+          element={<SecretCode/>}
         />
       </Routes>
     </BrowserRouter>

@@ -18,7 +18,7 @@ async function leaveGame(game_id){
     }
 }
 
-export function Closebutton(){
+export default function Closebutton(){
 
     contract.once(
         leftGameFilter,

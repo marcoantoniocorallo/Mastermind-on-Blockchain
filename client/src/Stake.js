@@ -1,6 +1,4 @@
 import logo from './logo.png';
-import { ABI } from './ABI';
-import CloseButton from 'react-bootstrap/CloseButton';
 import { FaRegPaperPlane } from "react-icons/fa";
 import { 
     getAccount, getGame, contract, init, readEvent, provider, setPhase, 
@@ -20,12 +18,11 @@ import {
     removeFirstStake
 } from './utils';
 import { ethers } from "ethers";
-import { useEffect } from 'react';
 import Chat from "./Chat";
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
-import { Closebutton } from './Closebutton';
+import Closebutton from './Closebutton';
 import AFKButton from './AFKButton';
 
 async function declareStake(stake){
@@ -107,9 +104,9 @@ const declarationHandler = (id, who, stake) => {
 const ShuffledHandler = (id, cm, cb) => {
     console.debug("Shuffled event occurred:", id, cm, cb);
 
-    setRole(cm.toLowerCase() === getAccount() ? "codemaker" : "codebreaker");
-    //setPhase("secretcode");
-    //window.location="/";
+    setRole(cm.toLowerCase() === getAccount() ? "CodeMaker" : "CodeBreaker");
+    setPhase("secretcode");
+    window.location="/";
 };
 
 export default function Stake(){
