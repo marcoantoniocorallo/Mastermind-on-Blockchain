@@ -158,6 +158,52 @@ export function getSalt(){
     return salt.split(",").map((item) => Number(item));
 }
 
+export function setTurn(turn){
+    window.localStorage.setItem(getAccount()+"_turn",turn);
+}
+
+export function getTurn(){
+    return window.localStorage.getItem(getAccount()+"_turn");
+}
+
+export function increaseTurn(){
+    if (getTurn()) 
+        setTurn(Number(getTurn())+1);
+    else setTurn(0);
+}
+
+export function setGuess(guess){
+    window.localStorage.setItem(getAccount()+"_guess"+getTurn(), guess);
+}
+
+export function getGuess(){
+    return window.localStorage.getItem(getAccount()+"_guess"+getTurn());
+}
+
+export function setGuessHistory(h){
+    window.localStorage.setItem(getAccount()+"_guesses", h);
+}
+
+export function getGuessHistory(){
+    return window.localStorage.getItem(getAccount()+"_guesses");
+}
+
+export function setFeedback(cc, nc){
+    window.localStorage.setItem(getAccount()+"_feedback"+getTurn(), cc+","+nc);
+}
+
+export function getFeedback(){
+    return window.localStorage.getItem(getAccount()+"_feedback"+getTurn());
+}
+
+export function setFeedbackHistory(h){
+    window.localStorage.setItem(getAccount()+"_feedbacks", h);
+}
+
+export function getFeedbackHistory(){
+    return window.localStorage.getItem(getAccount()+"_feedbacks");
+}
+
 export async function connectToMastermind(){
     provider = PROVIDER;
 

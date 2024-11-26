@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ethers } from "ethers";
-import { contract, getCode, getGame, getRole, getSalt, setCode, setPhase, setSalt, hash } from "./utils";
+import { contract, getCode, getGame, getRole, setTurn, setCode, setPhase, setSalt, hash } from "./utils";
 import red from "./red.png";
 import white from "./white.png";
 import black from "./black.png";
@@ -31,7 +31,8 @@ async function submitCode(code){
         const tx = await contract.sendCode(hash(code,salt), getGame());
         const receipt = await tx.wait();
         console.debug(receipt);
-        setPhase("game");
+        setPhase("guess");
+        setTurn();
         window.location="/";
         
     } catch(err){
@@ -46,23 +47,21 @@ export default function SecretCode(){
     const [selectedIndexes, setSelectedIndexes] = useState([]);
 
     function submit(){
-        if (selectedImages.length == 4) {
-            return (
-                <ButtonGroup size='sm' style={{padding: "30px"}}>
-                    <Button variant="secondary" onClick={() => { submitCode(selectedIndexes) }}>
-                        <label style={{padding:10, cursor: 'pointer', fontSize:20 }} >
-                            Submit
-                        </label>
-                    </Button>
-                    <Button variant="secondary" onClick={() => {window.location="/";}}>
-                        <label style={{padding:10, cursor: 'pointer', fontSize:20 }} >
-                            Clear
-                        </label>
-                    </Button>
+        return (
+            <ButtonGroup size='sm' style={{padding: "30px"}}>
+                <Button variant="secondary" onClick={() => { submitCode(selectedIndexes) }} disabled={selectedImages.length != 4}>
+                    <label style={{padding:10, cursor: 'pointer', fontSize:20 }} >
+                        Submit
+                    </label>
+                </Button>
+                <Button variant="secondary" onClick={() => {window.location="/";}}>
+                    <label style={{padding:10, cursor: 'pointer', fontSize:20 }} >
+                        Clear
+                    </label>
+                </Button>
 
-                </ButtonGroup>
-            );
-        }
+            </ButtonGroup>
+        );
     }
 
   // List of available images (use URLs or import local assets)
@@ -84,7 +83,7 @@ export default function SecretCode(){
   };
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: "20px", position:"absolute", top:"30%", left:"5%" }}>
       {/* Selected Images Section */}
       <div style={{ marginBottom: "20px" }}>
         <div style={{ display: "flex", justifyContent:'center', alignItems:'center', }}>

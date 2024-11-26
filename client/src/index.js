@@ -41,7 +41,8 @@ const pageOf = {
   "declaration" : isAuthenticated() ? <Stake/> : <Login/>,
   "preparation" : isAuthenticated() ? <Stake/> : <Login/>,
   "secretcode"  : isAuthenticated() ? <Game/> : <Login/>,
-  "game"        : isAuthenticated() ? <Game/> : <Login/>,
+  "guess"       : isAuthenticated() ? <Game/> : <Login/>,
+  "feedback"    : isAuthenticated() ? <Game/> : <Login/>,
 }
 
 root.render(
