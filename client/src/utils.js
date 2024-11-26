@@ -1,6 +1,10 @@
 import { ethers, EtherscanProvider, signer } from "ethers";
-import { ABI, CONTRACT_ADDRESS } from "./ABI";
+import { ABI, CONTRACT_ADDRESS, LOCAL_ADDRESS } from "./ABI";
 import { hexlify, hexZeroPad } from '@ethersproject/bytes';
+
+// comment and uncomment the latter when switch on sepolia
+const CONTRACT = LOCAL_ADDRESS; // const CONTRACT = CONTRACT_ADDRESS;
+const PROVIDER = new ethers.providers.Web3Provider(window.ethereum);
 
 export var contract, provider;
 
@@ -124,26 +128,38 @@ export function afkButtonStatus(){
     return window.localStorage.getItem(getAccount()+"_afkbutton");
 }
 
-export function getOldTimer(){
-    return window.localStorage.getItem(getAccount()+"_afktimer");
+export function setCode(code){
+    window.localStorage.setItem(getAccount()+"_code",code);
 }
 
-export async function setNewTimer(time, on_timeout, tim){
-    window.localStorage.setItem(getAccount()+"_afktimer", time);
-    return setTimeout(on_timeout, tim);
+export function getCode(){
+    const code = window.localStorage.getItem(getAccount()+"_code");
+    
+    if (!code) {
+        return [];
+    }
+    
+    // Split the string by commas, then map each item to a number
+    return code.split(",").map((item) => Number(item));
 }
 
-export function removeTimer(timeout){
-    clearTimeout(timeout);
-    window.localStorage.removeItem(getAccount()+"_afktimer");
+export function setSalt(salt){
+    window.localStorage.setItem(getAccount()+"_salt",salt);
 }
 
-export function getAfkBlock(){
-    return Number(window.localStorage.getItem(getAccount()+"_afkblock"));
+export function getSalt(){
+    const salt = window.localStorage.getItem(getAccount()+"_salt");
+    
+    if (!salt) {
+        return [];
+    }
+    
+    // Split the string by commas, then map each item to a number
+    return salt.split(",").map((item) => Number(item));
 }
 
 export async function connectToMastermind(){
-    provider = new ethers.providers.Web3Provider(window.ethereum, 'sepolia');
+    provider = PROVIDER;
 
     //scan from the first block for events
     provider.resetEventsBlock(0);    
@@ -153,14 +169,15 @@ export async function connectToMastermind(){
     const signer = provider.getSigner();
 
     // Create a contract instance
-    contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+    contract = new ethers.Contract(CONTRACT, ABI, signer);
+
     return contract;
 }
 
 export async function readLastEvent(topics, fromblock = provider.getBlockNumber() - 10000){
     const iface = new ethers.utils.Interface(ABI);
     const logs = await provider.getLogs({
-        address: CONTRACT_ADDRESS,
+        address: CONTRACT,
         topics: topics,
         fromBlock: fromblock, 
     });
@@ -169,7 +186,7 @@ export async function readLastEvent(topics, fromblock = provider.getBlockNumber(
 
 export async function waitEvent(topics, callback, fromblock = provider.getBlockNumber() - 10000){
     const logs = await provider.getLogs({
-        address: CONTRACT_ADDRESS,
+        address: CONTRACT,
         topics: topics,
         fromBlock: fromblock, 
     });
@@ -185,7 +202,7 @@ export async function waitEvent(topics, callback, fromblock = provider.getBlockN
 
 export async function wait2Events(topics, callback){
     const logs = await provider.getLogs({
-        address: CONTRACT_ADDRESS,
+        address: CONTRACT,
         topics: topics,
         fromBlock: provider.getBlockNumber() - 10000, 
     });
@@ -216,4 +233,12 @@ export function clearGame(){
     window.localStorage.clear();
     authenticate(account);
     window.location="/";
+}
+
+export function hash(code, salt) {
+    // Concatenate enums and salt as bytes
+    const data = Uint8Array.from([...code, ...salt]);
+
+    // Hash the raw byte data
+    return ethers.utils.keccak256(data);
 }

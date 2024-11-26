@@ -1,21 +1,8 @@
 import logo from './logo.png';
 import { FaRegPaperPlane } from "react-icons/fa";
 import { 
-    getAccount, getGame, contract, init, readEvent, provider, setPhase, 
-    leaveGame, waitEvent, clearChat, wait2Declarations, getPhase,
-    decimalToHex,
-    wait2Events,
-    readLastEvent,
-    setRole,
-    listenLeft,
-    clearStake,
-    getStake,
-    setStake,
-    clearGame,
-    getFirstStake,
-    setFirstStake, setSentStake, removeSentStake,
-    getSentStake,
-    removeFirstStake
+    getAccount, getGame, contract, setPhase,  getPhase, setRole, getStake, setStake, clearGame,
+    setFirstStake, setSentStake, getSentStake,  getFirstStake,
 } from './utils';
 import { ethers } from "ethers";
 import Chat from "./Chat";

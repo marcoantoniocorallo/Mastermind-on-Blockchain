@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { ethers } from "ethers";
 import { getGame } from "./utils";
 import { FaRegPaperPlane } from "react-icons/fa"; 
+import "./App.css";
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -86,7 +87,7 @@ const Chat = () => {
 
   // WebSocket connection logic
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8080"); // Adjust to your server URL
+    const ws = new WebSocket("ws://localhost:8181");
     wsRef.current = ws;
 
     ws.onopen = () => {
@@ -176,29 +177,29 @@ const Chat = () => {
 
   return (
     <div
+      className="chat-container"
       style={{
-        ...styles.container,
         width: minimized ? "50px" : `${chatSize.width}px`,
         height: minimized ? "50px" : `${chatSize.height}px`,
       }}
     >
       {!minimized && (
         <>
-          <div style={styles.header}>
+          <div className="chat-header">
             <p>Chat</p>
             <button
               onClick={() => setMinimized(true)}
-              style={styles.minimizeButton}
+              className="chat-minimizeButton"
             >
               −
             </button>
           </div>
-          <div style={styles.chatWindow} ref={chatWindowRef}>
+          <div className="chat-window" ref={chatWindowRef}>
             {messages.map((message, index) => (
               <div
                 key={index}
+                className="chat-message"
                 style={{
-                  ...styles.message,
                   alignSelf:
                     message.user === currentAccount ? "flex-end" : "flex-start",
                   backgroundColor:
@@ -210,24 +211,24 @@ const Chat = () => {
               </div>
             ))}
           </div>
-          <div style={styles.suggestionsContainer}>
+          <div className="chat-suggestionsContainer">
             {suggestions.map((suggestion, index) => (
               <button
                 key={index}
-                style={styles.suggestionButton}
+                className="chat-suggestionButton"
                 onClick={() => handleSend(suggestion)}
               >
                 {suggestion}
               </button>
             ))}
           </div>
-          <div style={styles.inputContainer}>
+          <div className="chat-inputContainer">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Write a stake proposal..."
-              style={styles.input}
+              className="chat-input"
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   handleSend();
@@ -236,7 +237,7 @@ const Chat = () => {
             />
             <button
               onClick={() => handleSend()}
-              style={styles.button}
+              className="chat-button"
               disabled={!connected || !currentAccount}
             >
               <FaRegPaperPlane/>
@@ -247,122 +248,17 @@ const Chat = () => {
       {minimized && (
         <button
           onClick={() => setMinimized(false)}
-          style={styles.expandButton}
+          className="chat-expandButton"
         >
           💬
         </button>
       )}
       <div
-        style={styles.resizer}
+        className="chat-resizer"
         onMouseDown={handleResizeStart}
       />
     </div>
   );
-};
-
-const styles = {
-  container: {
-    position: "fixed",
-    bottom: "10px",
-    right: "10px",
-    border: "1px solid #ccc",
-    borderRadius: "8px",
-    backgroundColor: "#fff",
-    display: "flex",
-    flexDirection: "column",
-    overflow: "hidden",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-  },
-  header: {
-    padding: "8px",
-    backgroundColor: "#f1f0f0",
-    textAlign: "center",
-    color: "#282c34",
-    borderBottom: "1px solid #ccc",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  minimizeButton: {
-    border: "none",
-    backgroundColor: "transparent",
-    cursor: "pointer",
-    fontSize: "16px",
-    color: "#888",
-  },
-  expandButton: {
-    width: "100%",
-    height: "100%",
-    border: "none",
-    backgroundColor: "#d7e2d8",
-    color: "#fff",
-    fontSize: "18px",
-    cursor: "pointer",
-  },
-  chatWindow: {
-    flex: 1,
-    overflowY: "scroll",
-    padding: "5px",
-    display: "flex",
-    flexDirection: "column",
-    gap: "5px",
-    fontSize: "15px",
-    backgroundColor: "#f9f9f9",
-  },
-  message: {
-    maxWidth: "70%",
-    padding: "5px",
-    borderRadius: "10px",
-    color: "#333",
-  },
-  inputContainer: {
-    display: "flex",
-    borderTop: "1px solid #ccc",
-    padding: "10px",
-    backgroundColor: "#fff",
-  },
-  input: {
-    flex: 1,
-    padding: "5px",
-    fontSize: "13px",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-  },
-  button: {
-    marginLeft: "5px",
-    padding: "5px 10px",
-    fontSize: "10px",
-    color: "#fff",
-    backgroundColor: "#007bff",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
-  resizer: {
-    width: "10px",
-    height: "10px",
-    backgroundColor: "#ccc",
-    position: "absolute",
-    top: "0",
-    left: "0",
-    cursor: "nwse-resize",
-  },
-  suggestionsContainer: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "5px",
-    padding: "5px",
-    backgroundColor: "#f1f1f1",
-    borderBottom: "1px solid #ccc",
-  },
-  suggestionButton: {
-    padding: "5px 10px",
-    backgroundColor: "#c9eae3",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-    fontSize: "12px",
-    cursor: "pointer",
-  },
 };
 
 export default Chat;

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ethers } from "ethers";
-import { getRole } from "./utils";
+import { contract, getCode, getGame, getRole, getSalt, setCode, setPhase, setSalt, hash } from "./utils";
 import red from "./red.png";
 import white from "./white.png";
 import black from "./black.png";
@@ -18,12 +18,27 @@ function generateSalt(){
     return randomNumbers;
 }
 
-function hash(code, salt) {
-    // Concatenate enums and salt as bytes
-    const data = Uint8Array.from([...code, ...salt]);
+async function submitCode(code){
+    const salt = generateSalt();
+    console.debug("Selected colors:",code); 
+    console.debug("Random Salt:", salt);
+    console.debug("Hash:",hash(code, salt));
 
-    // Hash the raw byte data
-    return ethers.utils.keccak256(data);
+    setSalt(salt);
+    setCode(code);
+    
+    try{
+        const tx = await contract.sendCode(hash(code,salt), getGame());
+        const receipt = await tx.wait();
+        console.debug(receipt);
+        setPhase("game");
+        window.location="/";
+        
+    } catch(err){
+        if (err.code === 'INVALID_ARGUMENT')             alert("Invalid Code.");
+        else if (err.code === 'UNPREDICTABLE_GAS_LIMIT') alert(err.error.message.substring(20));
+        console.log("Catched: ", err);
+    }
 }
 
 export default function SecretCode(){
@@ -33,24 +48,14 @@ export default function SecretCode(){
     function submit(){
         if (selectedImages.length == 4) {
             return (
-                <ButtonGroup size='sm'>
-                    <Button variant="primary">
-                        <label 
-                            style={{padding:10, cursor: 'pointer' }} 
-                            onClick={() => {
-                                const salt = generateSalt();
-                                console.debug("Selected colors:",selectedIndexes); 
-                                console.debug("Random Salt:", salt);
-                                console.debug("Hash:",hash(selectedIndexes, [0, 0, 0, 0, 0]));
-                                // contract.submitcode
-                            }}>
+                <ButtonGroup size='sm' style={{padding: "30px"}}>
+                    <Button variant="secondary" onClick={() => { submitCode(selectedIndexes) }}>
+                        <label style={{padding:10, cursor: 'pointer', fontSize:20 }} >
                             Submit
                         </label>
                     </Button>
-                    <Button variant="primary">
-                        <label 
-                            style={{padding:10, cursor: 'pointer' }} 
-                            onClick={() => {window.location="/test";}}>
+                    <Button variant="secondary" onClick={() => {window.location="/";}}>
+                        <label style={{padding:10, cursor: 'pointer', fontSize:20 }} >
                             Clear
                         </label>
                     </Button>
@@ -82,17 +87,17 @@ export default function SecretCode(){
     <div style={{ padding: "20px" }}>
       {/* Selected Images Section */}
       <div style={{ marginBottom: "20px" }}>
-        <h3>Secret Code:</h3>
-        <div style={{ display: "flex" }}>
+        <div style={{ display: "flex", justifyContent:'center', alignItems:'center', }}>
+        <h3>Secret Code:
           {selectedImages.map((img, index) => (
             <img 
               key={index} 
               src={img} 
               alt={`Selected ${index}`} 
-              style={{ width: "50px", height: "50px", borderRadius: "5px", border: "1px solid #ccc" }}
+              style={{ width: "40px", height: "40px", borderRadius: "5px" }}
             />
           ))}
-          {submit()}
+        </h3>
         </div>
       </div>
 
@@ -106,11 +111,12 @@ export default function SecretCode(){
           >
             <img 
               src={img} 
-              style={{ width: "50px", height: "50px", borderRadius: "5px", border: "1px solid #ccc" }}
+              style={{ width: "50px", height: "50px", borderRadius: "15px", border: "1px solid #ccc" }}
             />
           </div>
         ))}
       </div>
+      {submit()}
     </div>
   );
 }

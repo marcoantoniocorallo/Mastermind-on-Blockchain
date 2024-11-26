@@ -1,18 +1,11 @@
 import Button from 'react-bootstrap/Button';
 import { getGame, contract, afk_time, waitEvent, afkPressed, pressedAfk, removeAfk, isClaim,
-    claimButton, removeClaim, provider, decimalToHex, getOldTimer, setNewTimer, readLastEvent,
-    getAccount, afkButtonStatus, init,
-    removeTimer,
-    getAfkBlock,
-    setFromBlock,
-    getFromBlock,
-    clearGame
+    claimButton,getAccount, afkButtonStatus, init, clearGame
 } from './utils';
-import { hexZeroPad } from '@ethersproject/bytes';
-import { ethers } from "ethers";
 import { useEffect } from 'react';
 
 let timeout;
+let winningAlert = false;
 
 function on_timeout(){
     console.debug("AFK Time out reached");
@@ -35,25 +28,33 @@ const winningFilter = contract.filters.Winning(getGame());
 const winningListener = (id, who) => {
     console.debug("Winning event occurred:", who, id.toNumber());
     if (who.toLowerCase() === getAccount()) alert("You won this game.");
-    else                                    alert("You lost this game.");         
+    else                                    alert("You lost this game.");
+    winningAlert = true;       
 };
 
 const closeGameFilter = contract.filters.GameClosed(getGame());
 
 const closeGameListener = () => {
-    console.debug("GameClosed event occurred:", getGame());
-    clearGame();
-    window.location="/";
+    if (winningAlert){
+        console.debug("GameClosed event occurred:", getGame());
+        clearGame();
+        window.location="/";
+    } else{
+        console.debug("winning alert not arrived yet.");
+        setTimeout(closeGameListener, 2000);
+    }
 };
 
 async function send_afk(){
     try{
         contract.once(contract.filters.AFKStop(Number(getGame())), on_opponentMove);
 
+        afkPressed(); // disable AFK button and store button label on localstorage
+
         const tx = await contract.AFK(getGame());
         const receipt = await tx.wait();
         console.debug(receipt);
-        afkPressed(); // disable AFK button and store button label on localstorage
+        
         timeout = setTimeout(on_timeout, afk_time+5000);
 
     } catch(err){
@@ -71,6 +72,8 @@ async function send_claim(){
         contract.once(winningFilter, winningListener);
         contract.once(closeGameFilter, closeGameListener);
 
+        document.getElementById("afkbutton").disabled=true;
+
         const tx =  await contract.claimStakeByAFK(getGame());
         const receipt = await tx.wait();
         console.debug(receipt);
@@ -81,6 +84,7 @@ async function send_claim(){
         console.log("Catched: ", err.message);
         contract.off(winningFilter, winningListener);
         contract.off(closeGameFilter, closeGameListener);
+        document.getElementById("afkbutton").disabled=false;
     }
 }
 

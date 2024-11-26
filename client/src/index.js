@@ -9,7 +9,7 @@ import Wait from './Wait';
 import Stake from './Stake';
 import Game from "./Game";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { getPhase, provider, init, setAccount, authenticate, deauthenticate, isAuthenticated, contract 
+import { getPhase, provider, init, authenticate, deauthenticate, isAuthenticated, connectToMastermind 
 
 } from './utils';
 import Chat from './Chat';
@@ -30,6 +30,8 @@ if (window.ethereum){
       authenticate(accounts[0]);
     window.location="/";
   });
+
+  window.ethereum.on('chainChanged', () => window.location.reload());
 }
 
 const pageOf = {
@@ -39,6 +41,7 @@ const pageOf = {
   "declaration" : isAuthenticated() ? <Stake/> : <Login/>,
   "preparation" : isAuthenticated() ? <Stake/> : <Login/>,
   "secretcode"  : isAuthenticated() ? <Game/> : <Login/>,
+  "game"        : isAuthenticated() ? <Game/> : <Login/>,
 }
 
 root.render(
@@ -50,7 +53,7 @@ root.render(
         />
         <Route
           path="/test"
-          element={<SecretCode/>}
+          element={<Game/>}
         />
       </Routes>
     </BrowserRouter>

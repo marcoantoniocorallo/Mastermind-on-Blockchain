@@ -1,5 +1,7 @@
 export const CONTRACT_ADDRESS = "0x36B23D1D0C1421c4E104569C25D620876a5e01d9";
 
+export const LOCAL_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+
 export const ABI = [
   {
     "anonymous": false,

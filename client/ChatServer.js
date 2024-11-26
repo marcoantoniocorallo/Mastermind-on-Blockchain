@@ -1,8 +1,8 @@
 const WebSocket = require('ws');
 
 // Create a WebSocket server
-const server = new WebSocket.Server({ port: 8080 });
-console.debug("WebSocket server running on ws://localhost:8080");
+const server = new WebSocket.Server({ port: 8181 });
+console.debug("WebSocket server running on ws://localhost:8181");
 
 // Map to keep track of clients by channel ID
 const channels = new Map();
