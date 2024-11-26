@@ -228,7 +228,7 @@ contract MasterMind {
     function sendGuess(Color[N_HOLES] calldata code, uint256 id) external 
         userAllowed(id) handleAFK(id) {
         games[id].pushGuess(code);
-        emit GuessSent(id, msg.sender);
+        emit GuessSent(id, msg.sender, code);
     }
 
     /**
@@ -246,7 +246,7 @@ contract MasterMind {
         userAllowed(id) handleAFK(id){
         require(CC <= N_HOLES && NC <= N_HOLES && CC + NC <= N_HOLES, "Invalid feedback.");
         games[id].pushFeedback(CC, NC);
-        emit FeedbackSent(id, msg.sender);
+        emit FeedbackSent(id, msg.sender, CC, NC);
     }
 
     /**
