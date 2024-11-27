@@ -249,7 +249,7 @@ describe("Play Game Tests", function () {
         await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
             .to.emit(contract, "SecretCodeSent");
 
-        for (let index = 0; index < 7; index++) {
+        for (let index = 0; index < 8; index++) {
             await expect(contract.connect(codebreaker).sendGuess(code, 0))
                 .to.emit(contract, "GuessSent")
                 .withArgs(0, codebreaker.address, code);
@@ -257,13 +257,6 @@ describe("Play Game Tests", function () {
             await expect(contract.connect(codemaker).sendFeedback(3, 1, 0))
                 .to.emit(contract, "FeedbackSent");
         };
-
-        await expect(contract.connect(codebreaker).sendGuess(code, 0))
-                .to.emit(contract, "GuessSent")
-                .withArgs(0, codebreaker.address, code);
-
-        await expect(contract.connect(codemaker).sendFeedback(3, 1, 0))
-                .to.be.revertedWith("Operation not allowed now.");
 
     });
 
@@ -310,7 +303,7 @@ describe("Play Game Tests", function () {
         await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
             .to.emit(contract, "SecretCodeSent");
 
-        for (let index = 0; index < 7; index++) {
+        for (let index = 0; index < 8; index++) {
             await expect(contract.connect(codebreaker).sendGuess(code, 0))
                 .to.emit(contract, "GuessSent")
                 .withArgs(0, codebreaker.address, code);
@@ -319,10 +312,6 @@ describe("Play Game Tests", function () {
                 .to.emit(contract, "FeedbackSent");
         };
 
-        await expect(contract.connect(codebreaker).sendGuess(code, 0))
-                .to.emit(contract, "GuessSent")
-                .withArgs(0, codebreaker.address, code);
-        
         // submit solution
         await expect(contract.connect(codemaker).submitSolution(0, code, salt))
             .to.emit(contract, "SolutionSubmitted")
@@ -372,7 +361,7 @@ describe("Play Game Tests", function () {
         await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
             .to.emit(contract, "SecretCodeSent");
 
-        for (let index = 0; index < 7; index++) {
+        for (let index = 0; index < 8; index++) {
             await expect(contract.connect(codebreaker).sendGuess(code, 0))
                 .to.emit(contract, "GuessSent")
                 .withArgs(0, codebreaker.address, code);
@@ -380,10 +369,6 @@ describe("Play Game Tests", function () {
             await expect(contract.connect(codemaker).sendFeedback(3, 1, 0))
                 .to.emit(contract, "FeedbackSent");
         };
-
-        await expect(contract.connect(codebreaker).sendGuess(code, 0))
-                .to.emit(contract, "GuessSent")
-                .withArgs(0, codebreaker.address, code);
         
         // submit solution
         await expect(contract.connect(codemaker).submitSolution(0, code, [1,1,1,1,1]))
@@ -433,7 +418,7 @@ describe("Play Game Tests", function () {
         await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
             .to.emit(contract, "SecretCodeSent");
 
-        for (let index = 0; index < 7; index++) {
+        for (let index = 0; index < 8; index++) {
             await expect(contract.connect(codebreaker).sendGuess(code, 0))
                 .to.emit(contract, "GuessSent")
                 .withArgs(0, codebreaker.address, code);
@@ -441,10 +426,6 @@ describe("Play Game Tests", function () {
             await expect(contract.connect(codemaker).sendFeedback(3, 1, 0))
                 .to.emit(contract, "FeedbackSent");
         };
-
-        await expect(contract.connect(codebreaker).sendGuess(code, 0))
-                .to.emit(contract, "GuessSent")
-                .withArgs(0, codebreaker.address, code);
         
         // submit solution
         await expect(contract.connect(codebreaker).submitSolution(0, code, [1,1,1,1,1]))
@@ -494,7 +475,7 @@ describe("Play Game Tests", function () {
         await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
             .to.emit(contract, "SecretCodeSent");
 
-        for (let index = 0; index < 7; index++) {
+        for (let index = 0; index < 8; index++) {
             await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Black], 0))
                 .to.emit(contract, "GuessSent")
                 .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Black]);
@@ -503,10 +484,6 @@ describe("Play Game Tests", function () {
                 .to.emit(contract, "FeedbackSent");
         };
 
-        await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Black], 0))
-                .to.emit(contract, "GuessSent")
-                .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Black]);
-        
         // submit solution
         await expect(contract.connect(codemaker).submitSolution(0, code, salt))
             .to.emit(contract, "SolutionSubmitted")
@@ -565,7 +542,7 @@ describe("Play Game Tests", function () {
         await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
             .to.emit(contract, "SecretCodeSent");
 
-        for (let index = 0; index < 7; index++) {
+        for (let index = 0; index < 8; index++) {
             await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Black], 0))
                 .to.emit(contract, "GuessSent")
                 .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Black]);
@@ -574,10 +551,6 @@ describe("Play Game Tests", function () {
                 .to.emit(contract, "FeedbackSent");
         };
 
-        await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Black], 0))
-                .to.emit(contract, "GuessSent")
-                .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Black]);
-        
         // submit solution
         await expect(contract.connect(codemaker).submitSolution(0, code, salt))
             .to.emit(contract, "SolutionSubmitted")
@@ -636,7 +609,7 @@ describe("Play Game Tests", function () {
         await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
             .to.emit(contract, "SecretCodeSent");
 
-        for (let index = 0; index < 7; index++) {
+        for (let index = 0; index < 8; index++) {
             await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Black], 0))
                 .to.emit(contract, "GuessSent")
                 .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Black]);
@@ -645,10 +618,6 @@ describe("Play Game Tests", function () {
                 .to.emit(contract, "FeedbackSent");
         };
 
-        await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Black], 0))
-                .to.emit(contract, "GuessSent")
-                .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Black]);
-        
         // submit solution
         await expect(contract.connect(codemaker).submitSolution(0, code, salt))
             .to.emit(contract, "SolutionSubmitted")
@@ -719,7 +688,7 @@ describe("Play Game Tests", function () {
         let cm_receipt_sendcode = await (await contract.connect(codemaker).sendCode(hash(code, salt), 0)).wait();
         cm_gas.push(cm_receipt_sendcode!.gasUsed * cm_receipt_sendcode!.gasPrice);
 
-        for (let index = 0; index < 7; index++) {
+        for (let index = 0; index < 8; index++) {
         let cb_receipt_guess = await (await contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Black], 0)).wait();
         cb_gas.push(cb_receipt_guess!.gasUsed * cb_receipt_guess!.gasPrice);
 
@@ -727,9 +696,6 @@ describe("Play Game Tests", function () {
         cm_gas.push(cm_receipt_feedback!.gasUsed * cm_receipt_feedback!.gasPrice);
         };
 
-        let cb_receipt_guess = await (await contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Black], 0)).wait();
-        cb_gas.push(cb_receipt_guess!.gasUsed * cb_receipt_guess!.gasPrice);
-        
         // submit solution
         let cm_receipt_sol = await (await contract.connect(codemaker).submitSolution(0, code, salt)).wait();
         cm_gas.push(cm_receipt_sol!.gasUsed * cm_receipt_sol!.gasPrice);
@@ -797,7 +763,7 @@ describe("Play Game Tests", function () {
         await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
             .to.emit(contract, "SecretCodeSent");
 
-        for (let index = 0; index < 7; index++) {
+        for (let index = 0; index < 8; index++) {
             await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Black], 0))
                 .to.emit(contract, "GuessSent")
                 .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Black]);
@@ -805,11 +771,7 @@ describe("Play Game Tests", function () {
             await expect(contract.connect(codemaker).sendFeedback(3, 1, 0))
                 .to.emit(contract, "FeedbackSent");
         };
-
-        await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Black], 0))
-                .to.emit(contract, "GuessSent")
-                .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Black]);
-        
+ 
         // submit solution
         await expect(contract.connect(codemaker).submitSolution(0, code, salt))
             .to.emit(contract, "SolutionSubmitted")
@@ -913,7 +875,7 @@ describe("Play Game Tests", function () {
         await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
             .to.emit(contract, "SecretCodeSent");
 
-        for (let index = 0; index < 7; index++) {
+        for (let index = 0; index < 8; index++) {
             await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
                 .to.emit(contract, "GuessSent")
                 .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Red]);
@@ -922,10 +884,6 @@ describe("Play Game Tests", function () {
                 .to.emit(contract, "FeedbackSent");
         };
 
-        await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
-                .to.emit(contract, "GuessSent")
-                .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Red]);
-        
         // submit solution
         await expect(contract.connect(codemaker).submitSolution(0, code, salt))
             .to.emit(contract, "SolutionSubmitted")
@@ -987,7 +945,7 @@ describe("Play Game Tests", function () {
             await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
                 .to.emit(contract, "SecretCodeSent");
 
-            for (let index = 0; index < 7; index++) {
+            for (let index = 0; index < 8; index++) {
                 await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
                     .to.emit(contract, "GuessSent")
                     .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Red]);
@@ -995,10 +953,6 @@ describe("Play Game Tests", function () {
                 await expect(contract.connect(codemaker).sendFeedback(1, 2, 0))
                     .to.emit(contract, "FeedbackSent");
             };
-
-            await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
-                    .to.emit(contract, "GuessSent")
-                    .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Red]);
 
             // submit solution
             await expect(contract.connect(codemaker).submitSolution(0, code, salt))
@@ -1081,7 +1035,7 @@ describe("Play Game Tests", function () {
                 await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
                     .to.emit(contract, "SecretCodeSent");
 
-                for (let index = 0; index < 7; index++) {
+                for (let index = 0; index < 8; index++) {
                     await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
                         .to.emit(contract, "GuessSent")
                         .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Red]);
@@ -1089,11 +1043,6 @@ describe("Play Game Tests", function () {
                     await expect(contract.connect(codemaker).sendFeedback(1, 2, 0))
                         .to.emit(contract, "FeedbackSent");
                 };
-                
-                await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
-                    .to.emit(contract, "GuessSent")
-                    .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Red]);
-   
             }
 
             // submit solution
@@ -1178,7 +1127,7 @@ describe("Play Game Tests", function () {
             let cm_receipt_sendcode = await (await contract.connect(codemaker).sendCode(hash(code, salt), 0)).wait();
             cm_gas.push(cm_receipt_sendcode!.gasUsed * cm_receipt_sendcode!.gasPrice);
 
-            for (let index = 0; index < 7; index++) {
+            for (let index = 0; index < 8; index++) {
                 let cb_receipt_guess = await (await contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Black], 0)).wait();
                 cb_gas.push(cb_receipt_guess!.gasUsed * cb_receipt_guess!.gasPrice);
 
@@ -1186,9 +1135,6 @@ describe("Play Game Tests", function () {
                 cm_gas.push(cm_receipt_feedback!.gasUsed * cm_receipt_feedback!.gasPrice);
             };
 
-            let cb_receipt_guess = await (await contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Black], 0)).wait();
-                cb_gas.push(cb_receipt_guess!.gasUsed * cb_receipt_guess!.gasPrice);
-        
             // submit solution
             let cm_receipt_sol = await (await contract.connect(codemaker).submitSolution(0, code, salt)).wait();
             cm_gas.push(cm_receipt_sol!.gasUsed * cm_receipt_sol!.gasPrice);
@@ -1267,7 +1213,7 @@ describe("Play Game Tests", function () {
             await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
                 .to.emit(contract, "SecretCodeSent");
 
-            for (let index = 0; index < 7; index++) {
+            for (let index = 0; index < 8; index++) {
                 await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
                     .to.emit(contract, "GuessSent")
                     .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Red]);
@@ -1279,19 +1225,11 @@ describe("Play Game Tests", function () {
                 await expect(contract.connect(codemaker).sendFeedback(1, 2, 0))
                     .to.emit(contract, "FeedbackSent")
                     .and.to.emit(contract,"AFKStop");
-
-                // codemaker send AFK
-                await expect(contract.connect(codemaker).AFK(0))
-                    .to.emit(contract, "AFKStart")
             };
 
-            await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
-                    .to.emit(contract, "GuessSent")
-                    .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Red])
-                    .and.to.emit(contract,"AFKStop");
-
+            // codemaker send AFK
             await expect(contract.connect(codebreaker).AFK(0))
-                .to.emit(contract, "AFKStart");
+            .to.emit(contract, "AFKStart")
 
             // submit solution
             await expect(contract.connect(codemaker).submitSolution(0, code, salt))
@@ -1377,7 +1315,7 @@ describe("Play Game Tests", function () {
             await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
                 .to.emit(contract, "SecretCodeSent");
 
-            for (let index = 0; index < 7; index++) {
+            for (let index = 0; index < 8; index++) {
                 await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
                     .to.emit(contract, "GuessSent")
                     .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Red]);
@@ -1386,10 +1324,6 @@ describe("Play Game Tests", function () {
                     .to.emit(contract, "FeedbackSent");
 
             };
-
-            await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
-                    .to.emit(contract, "GuessSent")
-                    .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Red]);
 
             // submit solution
             await expect(contract.connect(codemaker).submitSolution(0, code, salt))

@@ -26,7 +26,7 @@ struct Game{
     mapping (address => uint8) points;
     Color[N_HOLES] solution;
     Color[N_HOLES][N_GUESSES][N_TURNS] guesses;
-    uint8[2][N_FEEDBACKS][N_TURNS] feedbacks;
+    uint8[2][N_GUESSES][N_TURNS] feedbacks;
 }
 
 /**
@@ -219,7 +219,7 @@ library GameLib {
         codeBreakerTurn(self) checkPhase(self, Phase.Guess) checkAFK(self) {
         require(self.n_guess < N_GUESSES, "Max number of guesses reached.");
         self.guesses[self.turn][self.n_guess++] = _guess;
-        self.phase = self.n_guess < N_GUESSES ? Phase.Feedback : Phase.Solution;
+        self.phase = Phase.Feedback;
     }
 
     /**
@@ -234,8 +234,8 @@ library GameLib {
         codeMakerTurn(self) checkPhase(self, Phase.Feedback) checkAFK(self) {
         self.feedbacks[self.turn][self.n_guess-1][0] = CC;
         self.feedbacks[self.turn][self.n_guess-1][1] = NC;
-        self.phase = CC < N_HOLES ? Phase.Guess : Phase.Solution;
-    }
+        self.phase = CC == N_HOLES || self.n_guess == N_GUESSES ? Phase.Solution : Phase.Guess;
+    } // TODO: change update phase both here and here above
 
     /**
      * @notice codemaker submit solution <code, salt>. 

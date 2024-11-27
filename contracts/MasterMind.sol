@@ -279,7 +279,7 @@ contract MasterMind {
      */
     function startDispute(uint256 id, uint8 feedback_id) external 
         userAllowed(id) {
-        require(feedback_id < N_FEEDBACKS, "Feedback ID not valid.");
+        require(feedback_id < N_GUESSES, "Feedback ID not valid.");
         
         emit Dispute(id, feedback_id);
         uint256 stake = games[id].popStake();
