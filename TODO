@@ -1,5 +1,6 @@
 
 Todo:
+  ☐ bottoni non premibili nella fase dell'avversario
   ✔ fix guess and feedback events in loop @done(24-11-27 12:09)
   ✔ fix increaseTurn utility @done(24-11-27 12:09)
   ✔ remove "waiting for..." in guess and feedback phases (==> enable/disable buttons) @done(24-11-27 12:10)

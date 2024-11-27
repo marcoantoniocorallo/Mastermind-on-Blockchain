@@ -73,7 +73,7 @@ export default function Guess(){
       {/* Selected Images Section */}
       <div style={{ marginBottom: "20px" }}>
         <div style={{ display: "flex", justifyContent:'center', alignItems:'center', }}>
-        <h3>Guess {getTurn()}:
+        <h3>Guess:
           {selectedImages.map((img, index) => (
             <img 
               key={index} 

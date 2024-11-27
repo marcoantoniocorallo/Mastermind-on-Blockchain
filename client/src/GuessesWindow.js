@@ -78,12 +78,11 @@ const GuessesWindow = () => {
           overflowY: "auto",
         }}
       >
-        {stack.length === 0 ? (
-          <p style={{ textAlign: "center", color: "#888" }}>No codes sent yet</p>
-        ) : (
+        {stack.length === 0 ? ("") : 
+        (
           stack.map((code, index) => (
             <div key={index}>
-              <div style={{ display: "flex",  gap:"5px", marginTop: "2.2%", fontSize:22}}>
+              <div style={{ display: "flex", marginTop: "2%", fontSize:22, paddingTop:"1.5%"}}>
                 <p>{index}</p>
               </div>
             </div>

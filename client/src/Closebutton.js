@@ -33,7 +33,7 @@ export default function Closebutton(){
         <CloseButton 
             aria-label='Leave Game' 
             onClick={() => leaveGame(getGame())}
-            style={{ width:50, height:50, position: 'absolute', left: '90%', top: '10%' }} 
+            style={{ width:50, height:50, position: 'absolute', left: '92%', top: '5%' }} 
             variant='white'>
             <p style={{position:'absolute', fontSize:13, top:0, right:15}}>Leave</p>
         </CloseButton>

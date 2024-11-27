@@ -2,14 +2,23 @@ import SecretCode from "./SecretCode";
 import Closebutton from "./Closebutton";
 import AFKButton from './AFKButton';
 import logo from './logo.png';
-import { contract, getGame, getPhase, getRole, setPhase, setTurn } from "./utils";
+import { contract, getFeedback, getGame, getPhase, getRole, getTurn, setPhase, setTurn } from "./utils";
 import Solution from "./Solution";
 import GuessesWindow from "./GuessesWindow";
 import Feedback from "./Feedback";
 import Guess from "./Guess";
 import FeedbacksWindow from "./FeedbacksWindow";
+import { useEffect } from "react";
 
 const secretCodeFilter = contract.filters.SecretCodeSent(getGame());
+
+const fbFilter = contract.filters.FeedbackSent(getGame());
+const fbListener = (id, who, CC, NC) =>{
+    console.debug("FeedbackSent event occurred:", id, who, CC, NC);
+    
+    if (CC == 4 || getTurn() == 8)
+        <Solution/>
+};
 
 export default function Game(){
     if(getPhase() === "secretcode" && getRole() === "CodeBreaker") 
@@ -20,8 +29,13 @@ export default function Game(){
             window.location="/";
         });
 
+    useEffect(() => {
+        contract.on(fbFilter, fbListener);
+    
+        return () => { contract.off(fbFilter, fbListener); }
+    }, []);
+
     return(
-        <>
         <div className="App">
             <header className="App-header">
                 <img src={logo} className="App-logo" alt="logo" />
@@ -35,19 +49,17 @@ export default function Game(){
                 ) :  
                 getPhase() === "guess" || getPhase() === "feedback" ? (
                     getRole() === "CodeBreaker" ? 
-                    <Guess/> : <Feedback/>
+                    <Guess/> : <><Feedback/><SecretCode/></>
                 ) : ""
-                /* getPhase() === "feedback" ? (
-                    getRole() === "CodeMaker" ? 
-                    <Feedback/> : <h2 className="loading" style={{position:"absolute", top:"30%", left:"5%"}}>CodeMaker is sending a feedback</h2>
-                ) "" */
+            }
+            {
+                getRole() === "CodeMaker" ? 
+                "" : ""
             }
             <GuessesWindow/>
             <FeedbacksWindow/>
             <Closebutton/>
             <AFKButton/>
         </div>
-        { /* <Solution/> */ }
-        </>
     );
 }

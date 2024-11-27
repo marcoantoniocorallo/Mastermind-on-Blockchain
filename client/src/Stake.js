@@ -118,7 +118,7 @@ export default function Stake(){
                         <Form.Control type='number' id="stake" 
                             placeholder={getPhase()==="declaration" ? 'Stake in gwei' : getStake()}
                             disabled={getStake() ? true : false}/>
-                        <Button variant="primary" id="dec_button"
+                        <Button variant="secondary" id="dec_button"
                             onClick={() => declareStake(document.getElementById('stake').value)} 
                             disabled={getStake() ? true : false}>
                             Declare
@@ -130,7 +130,7 @@ export default function Stake(){
             <Chat/>
             {
                 getPhase()==="preparation" ? 
-                <Button style={{margin:10, position:'relative'}} id='sendstake' 
+                <Button variant="secondary" style={{margin:10, position:'relative'}} id='sendstake' 
                     onClick={()=>sendStake(getStake())}
                     disabled={(getSentStake() ? true : false)}>
                     Send stake &nbsp;

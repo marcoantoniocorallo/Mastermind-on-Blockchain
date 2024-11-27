@@ -11,9 +11,6 @@ async function submitFeedback(CC, NC){
         const tx = await contract.sendFeedback(CC, NC, getGame());
         const receipt = await tx.wait();
         console.debug(receipt);
-        
-        document.getElementById('CC_text').reset();
-        document.getElementById('NC_text').reset();
     } catch(err){
         if (err.code === 'INVALID_ARGUMENT')             alert("Invalid Feedback.");
         else if (err.code === 'UNPREDICTABLE_GAS_LIMIT') alert(err.error.message.substring(20));
@@ -23,7 +20,7 @@ async function submitFeedback(CC, NC){
 
 export default function Feedback(){
     return (
-    <Form style={{ padding: "20px", position:"absolute", top:"30%", left:"5%" }}>
+    <Form style={{ padding: "20px", position:"absolute", top:"50%", left:"5%" }}>
       <Row className="mb-3">
         <Form.Group as={Col} controlId="formGridCC">
           <Form.Label>CC</Form.Label>
@@ -35,7 +32,7 @@ export default function Feedback(){
           <Form.Control type="number" required style={{width: 100 }} id="NC_text"/>
         </Form.Group>
       </Row>
-      <Button variant="primary" id="fbbutton"
+      <Button variant="secondary" id="fbbutton"
       onClick={
         () => submitFeedback(
           document.getElementById('CC_text').value, 

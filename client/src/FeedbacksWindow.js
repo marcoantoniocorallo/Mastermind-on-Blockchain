@@ -67,7 +67,7 @@ const FeedbacksWindow = () => {
         ) : (
           stack.map((entry, index) => (
             <div key={index}>
-              <div style={{ display: "flex", gap:"20px", marginTop: "18px"}}>
+              <div style={{ display: "flex", gap:"20px", marginTop: "10%"}}>
                 <h6 style={{gap:"10px", color:"#78e878", fontSize:22}}> CC: {entry.cc}</h6>
                 <h6 style={{gap:"10px", color:"#fa685d", fontSize:22}}> NC: {entry.nc}</h6>
               </div>

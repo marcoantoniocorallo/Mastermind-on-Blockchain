@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
-import { contract, getCode, getGame, getRole, setTurn, setCode, setPhase, setSalt, hash } from "./utils";
+import { contract, getCode, getGame, setTurn, setCode, setPhase, setSalt, hash, getPhase } from "./utils";
 import red from "./red.png";
 import white from "./white.png";
 import black from "./black.png";
@@ -45,6 +45,20 @@ async function submitCode(code){
 export default function SecretCode(){
     const [selectedImages, setSelectedImages] = useState([]);
     const [selectedIndexes, setSelectedIndexes] = useState([]);
+    const [secretCode, setSecretCode] = useState([]);
+
+    // Load data from localStorage when the component mounts
+    useEffect(() => {
+      const savedCode = getCode();
+      if (savedCode) {
+        setSecretCode(savedCode);
+      }
+    }, []);
+
+    // Save the stack to localStorage whenever it changes
+    useEffect(() => {
+      setCode(secretCode);
+    }, [secretCode]);
 
     function submit(){
         return (
@@ -83,39 +97,63 @@ export default function SecretCode(){
   };
 
   return (
-    <div style={{ padding: "20px", position:"absolute", top:"30%", left:"5%" }}>
-      {/* Selected Images Section */}
-      <div style={{ marginBottom: "20px" }}>
-        <div style={{ display: "flex", justifyContent:'center', alignItems:'center', }}>
-        <h3>Secret Code:
-          {selectedImages.map((img, index) => (
-            <img 
-              key={index} 
-              src={img} 
-              alt={`Selected ${index}`} 
-              style={{ width: "40px", height: "40px", borderRadius: "5px" }}
-            />
-          ))}
-        </h3>
-        </div>
-      </div>
-
-      {/* Images to Choose From */}
-      <div style={{ display: "flex", gap: "5px", justifyContent:'center', alignItems:'center',}}>
-        {images.map((img, index) => (
-          <div
-            key={index} 
-            onClick={() => handleSelectImage(img, index)} 
-            style={{ cursor: "pointer", textAlign: "center" }}
-          >
-            <img 
-              src={img} 
-              style={{ width: "50px", height: "50px", borderRadius: "15px", border: "1px solid #ccc" }}
-            />
+    getPhase() === "secretcode" ? 
+    (// Choose secret Code
+      <div style={{ padding: "20px", position:"absolute", top:"30%", left:"5%" }}>
+        
+        {/* Selected Images Section */}
+        <div style={{ marginBottom: "20px" }}>
+          <div style={{ display: "flex", justifyContent:'center', alignItems:'center', }}>
+          <h3>Secret Code:
+            {selectedImages.map((img, index) => (
+              <img 
+                key={index} 
+                src={img} 
+                alt={`Selected ${index}`} 
+                style={{ width: "40px", height: "40px", borderRadius: "5px" }}
+              />
+            ))}
+          </h3>
           </div>
-        ))}
+        </div>
+
+        {/* Images to Choose From */}
+        <div style={{ display: "flex", gap: "5px", justifyContent:'center', alignItems:'center',}}>
+          {images.map((img, index) => (
+            <div
+              key={index} 
+              onClick={() => handleSelectImage(img, index)} 
+              style={{ cursor: "pointer", textAlign: "center" }}
+            >
+              <img 
+                src={img} 
+                style={{ width: "50px", height: "50px", borderRadius: "15px", border: "1px solid #ccc" }}
+              />
+            </div>
+          ))}
+        </div>
+        {submit()} 
       </div>
-      {submit()}
-    </div>
+    ) : 
+    
+    (// Show secret Code to codemaker
+      <div style={{ padding: "20px", position:"absolute", top:"30%", left:"7%" ,
+        border: "2px solid #ccc",
+        borderRadius: "5px",
+      }}>
+
+        <h3>Secret Code:</h3>
+          <div style={{ display: "flex", justifyContent:'center', alignItems:'center', }}>
+            {secretCode.map(index => (
+              <img 
+                key={index} 
+                src={images[index]} 
+                style={{ width: "40px", height: "40px", borderRadius: "5px" }}
+              />
+            ))}
+          
+          </div>
+        </div>
+    )
   );
 }
