@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { contract, getGame, getFeedbackHistory, setFeedback, setFeedbackHistory, setPhase, increaseTurn } from "./utils";
+import { contract, getGame, getFeedbackHistory, setFeedback, setFeedbackHistory, setPhase, increaseTurn, getRole } from "./utils";
 
 const FeedbacksWindow = () => {
   const [stack, setStack] = useState([]); // Stack of sent codes
 
   const fbFilter = contract.filters.FeedbackSent(getGame());
-  const fbListener = (id, who, CC, NC, event) =>{
+  const fbListener = (id, who, CC, NC) =>{
     console.debug("FeedbackSent event occurred:", id, who, CC, NC);
-    console.debug(event);
+
     setFeedback(CC,NC);
 
     // Map colors to image paths
@@ -19,8 +19,12 @@ const FeedbacksWindow = () => {
     // update phase
     setPhase("guess");
     increaseTurn();
-    window.location="/";
-  }
+    if (getRole()==="CodeMaker"){
+        document.getElementById('CC_text').disabled=true;
+        document.getElementById('NC_text').disabled=true;
+    } else
+        document.getElementById('gbutton').disabled=false;
+  };
 
   useEffect(() => {
     contract.on(fbFilter, fbListener);
@@ -53,7 +57,7 @@ const FeedbacksWindow = () => {
           border: "2px solid #ccc",
           borderRadius: "5px",
           padding: "10px",
-          height: "400px",
+          height: "500px",
           width: "180px",
           overflowY: "auto",
         }}

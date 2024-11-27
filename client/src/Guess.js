@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ethers } from "ethers";
-import { contract, getCode, getGame, getRole, getSalt, setCode, setPhase, setSalt, hash, setGuess, getTurn } from "./utils";
+import { contract, getCode, getGame, getRole, getSalt, setCode, setPhase, setSalt, hash, setGuess, getTurn, getPhase } from "./utils";
 import red from "./red.png";
 import white from "./white.png";
 import black from "./black.png";
@@ -10,37 +10,37 @@ import blue from "./blue.png";
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
-async function submitCode(code){
-    console.debug("Selected colors:",code); 
-    setGuess(code);
-    
-    try{
-        const tx = await contract.sendGuess(code, getGame());
-        const receipt = await tx.wait();
-        console.debug(receipt);
-        setPhase("feedback");
-        window.location="/";
-        
-    } catch(err){
-        if (err.code === 'INVALID_ARGUMENT')             alert("Invalid Guess.");
-        else if (err.code === 'UNPREDICTABLE_GAS_LIMIT') alert(err.error.message.substring(20));
-        console.log("Catched: ", err);
-    }
-}
-
 export default function Guess(){
     const [selectedImages, setSelectedImages] = useState([]);
     const [selectedIndexes, setSelectedIndexes] = useState([]);
 
+    async function submitCode(code){
+      console.debug("Selected colors:",code); 
+      setGuess(code);
+      
+      try{
+          const tx = await contract.sendGuess(code, getGame());
+          const receipt = await tx.wait();
+          console.debug(receipt);       
+          setSelectedImages([]);
+          setSelectedIndexes([]);
+      } catch(err){
+          if (err.code === 'INVALID_ARGUMENT')             alert("Invalid Guess.");
+          else if (err.code === 'UNPREDICTABLE_GAS_LIMIT') alert(err.error.message.substring(20));
+          console.log("Catched: ", err);
+      }
+    }
+
     function submit(){
         return (
-            <ButtonGroup size='sm' style={{padding: "30px"}}>
-                <Button variant="secondary" onClick={() => { submitCode(selectedIndexes) }} disabled={selectedImages.length != 4}>
+            <ButtonGroup size='sm' style={{padding: "30px"}} id="gbutton" >
+                <Button variant="secondary" onClick={() => { submitCode(selectedIndexes) }} 
+                  disabled={selectedImages.length != 4}>
                     <label style={{padding:10, cursor: 'pointer', fontSize:20 }} >
                         Submit
                     </label>
                 </Button>
-                <Button variant="secondary" onClick={() => {window.location="/";}}>
+                <Button variant="secondary" onClick={() => {window.location="/";}}>        
                     <label style={{padding:10, cursor: 'pointer', fontSize:20 }} >
                         Clear
                     </label>

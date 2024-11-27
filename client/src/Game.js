@@ -33,14 +33,14 @@ export default function Game(){
                     <SecretCode/> : 
                     <h2 className="loading" style={{position:"absolute", top:"30%", left:"5%"}} >CodeMaker is choosing the secret code</h2>
                 ) :  
-                getPhase() === "guess" ? (
+                getPhase() === "guess" || getPhase() === "feedback" ? (
                     getRole() === "CodeBreaker" ? 
-                    <Guess/> : <h2 className="loading" style={{position:"absolute", top:"30%", left:"5%"}}>CodeBreaker is guessing</h2>
-                ) :
-                getPhase() === "feedback" ? (
+                    <Guess/> : <Feedback/>
+                ) : ""
+                /* getPhase() === "feedback" ? (
                     getRole() === "CodeMaker" ? 
                     <Feedback/> : <h2 className="loading" style={{position:"absolute", top:"30%", left:"5%"}}>CodeMaker is sending a feedback</h2>
-                ) : ""
+                ) "" */
             }
             <GuessesWindow/>
             <FeedbacksWindow/>

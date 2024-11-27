@@ -5,7 +5,8 @@ Future Works:
   senza vincere nulla.
 - minimizzare ulteriormente il gas 
 - Feature che permette di trovare partite già create e designate a te
-- items on localstorage cifrati 
+- items on localstorage cifrati
+- polling on page load per recuperare eventi già processati
 
 TODO: 
 - Vulnerability Analysis

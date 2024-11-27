@@ -1,6 +1,10 @@
 
 Todo:
-  ☐ test closebutton while in AFK
+  ☐ fix guess and feedback events in loop
+  ☐ fix increaseTurn utility
+  ☐ remove "waiting for..." in guess and feedback phases (==> enable/disable buttons)
+  ✔ test closebutton while in AFK @done(24-11-26 19:43) 
+    note: it is ok since who is in AFK should lose his funds both via AFK and Close ==> is not a problem
   ✔ test stake events - both declaration and preparation @done(24-11-22 11:01)
   ✔ add contract.off for already occurred events @done(24-11-22 11:01)
   ✔ check localstorage utility and correspondent utils @done(24-11-22 11:01)

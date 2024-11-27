@@ -32,7 +32,7 @@ async function submitCode(code){
         const receipt = await tx.wait();
         console.debug(receipt);
         setPhase("guess");
-        setTurn();
+        setTurn(0);
         window.location="/";
         
     } catch(err){

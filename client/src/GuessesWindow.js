@@ -5,7 +5,7 @@ import black from "./black.png";
 import yellow from "./yellow.png";
 import green from "./green.png";
 import blue from "./blue.png";
-import { contract, getGame, getGuessHistory, setGuess, setGuessHistory, setPhase } from "./utils";
+import { contract, getGame, getGuessHistory, setGuess, setGuessHistory, setPhase, getRole } from "./utils";
 
 const GuessesWindow = () => {
   const [stack, setStack] = useState([]); // Stack of sent codes
@@ -21,9 +21,8 @@ const GuessesWindow = () => {
   ];
 
   const guessFilter = contract.filters.GuessSent(getGame());
-  const guessListener = (id, who, colors, event) =>{
+  const guessListener = (id, who, colors) =>{
     console.debug("GuessSent event occurred:", id, who, colors);
-    console.debug(event);
     setGuess(colors);
 
     // Map colors to image paths
@@ -37,7 +36,11 @@ const GuessesWindow = () => {
 
     // update phase
     setPhase("feedback");
-    window.location="/";
+    if (getRole()==="CodeMaker"){
+        document.getElementById('CC_text').disabled=false;
+        document.getElementById('NC_text').disabled=false;
+    } else 
+        document.getElementById('gbutton').disabled=true;
   }
 
   useEffect(() => {
@@ -62,6 +65,32 @@ const GuessesWindow = () => {
   return (
     <div style={{ padding: "10px", maxWidth: "800px", margin: "0 auto", fontFamily: "Arial, sans-serif" }}>
 
+      {/* Stack of Indexes */}
+      <div
+        style={{
+          position: "absolute",
+          right: "340px",
+          top: "100px",
+          borderRadius: "5px",
+          padding: "10px",
+          height: "500px",
+          width: "190px",
+          overflowY: "auto",
+        }}
+      >
+        {stack.length === 0 ? (
+          <p style={{ textAlign: "center", color: "#888" }}>No codes sent yet</p>
+        ) : (
+          stack.map((code, index) => (
+            <div key={index}>
+              <div style={{ display: "flex",  gap:"5px", marginTop: "2.2%", fontSize:22}}>
+                <p>{index}</p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
       {/* Stack of Sent Codes */}
       <div
         style={{
@@ -71,7 +100,7 @@ const GuessesWindow = () => {
           border: "2px solid #ccc",
           borderRadius: "5px",
           padding: "10px",
-          height: "400px",
+          height: "500px",
           width: "190px",
           overflowY: "auto",
         }}

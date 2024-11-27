@@ -2,7 +2,7 @@ import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row'; 
-import { contract, getCode, getGame, setPhase, setSalt, hash, setGuess, getTurn, increaseTurn } from "./utils";
+import { contract, getCode, getGame } from "./utils";
 
 async function submitFeedback(CC, NC){
     console.debug("Submitting feedback:",CC,NC);
@@ -11,9 +11,9 @@ async function submitFeedback(CC, NC){
         const tx = await contract.sendFeedback(CC, NC, getGame());
         const receipt = await tx.wait();
         console.debug(receipt);
-        setPhase("guess");
-        window.location="/";
         
+        document.getElementById('CC_text').reset();
+        document.getElementById('NC_text').reset();
     } catch(err){
         if (err.code === 'INVALID_ARGUMENT')             alert("Invalid Feedback.");
         else if (err.code === 'UNPREDICTABLE_GAS_LIMIT') alert(err.error.message.substring(20));
@@ -35,7 +35,7 @@ export default function Feedback(){
           <Form.Control type="number" required style={{width: 100 }} id="NC_text"/>
         </Form.Group>
       </Row>
-      <Button variant="primary"
+      <Button variant="primary" id="fbbutton"
       onClick={
         () => submitFeedback(
           document.getElementById('CC_text').value, 
