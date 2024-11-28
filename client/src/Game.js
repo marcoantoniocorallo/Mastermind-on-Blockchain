@@ -8,19 +8,13 @@ import GuessesWindow from "./GuessesWindow";
 import Feedback from "./Feedback";
 import Guess from "./Guess";
 import FeedbacksWindow from "./FeedbacksWindow";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const secretCodeFilter = contract.filters.SecretCodeSent(getGame());
 
-const fbFilter = contract.filters.FeedbackSent(getGame());
-const fbListener = (id, who, CC, NC) =>{
-    console.debug("FeedbackSent event occurred:", id, who, CC, NC);
-    
-    if (CC == 4 || getTurn() == 8)
-        <Solution/>
-};
-
 export default function Game(){
+    const [sol, setSol] = useState(false);
+
     if(getPhase() === "secretcode" && getRole() === "CodeBreaker") 
         contract.once(secretCodeFilter, () => {
             console.debug("SecretCodeSent event occurred");
@@ -28,6 +22,14 @@ export default function Game(){
             setTurn(0);
             window.location="/";
         });
+
+    const fbFilter = contract.filters.FeedbackSent(getGame());
+    const fbListener = (id, who, CC, NC) =>{
+        if (CC == 4 || getTurn() == 8){
+            console.debug("Last Feedback: CC=", CC, " Turn=", getTurn());
+            setSol(true);
+        }
+    };
 
     useEffect(() => {
         contract.on(fbFilter, fbListener);
@@ -52,14 +54,11 @@ export default function Game(){
                     <Guess/> : <><Feedback/><SecretCode/></>
                 ) : ""
             }
-            {
-                getRole() === "CodeMaker" ? 
-                "" : ""
-            }
             <GuessesWindow/>
             <FeedbacksWindow/>
             <Closebutton/>
             <AFKButton/>
+            { sol || getTurn()==8 || (getFeedback() && getFeedback()[0]==4) ? <Solution/> : ""}
         </div>
     );
 }

@@ -11,6 +11,7 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Closebutton from './Closebutton';
 import AFKButton from './AFKButton';
+import { useState } from 'react';
 
 async function declareStake(stake){
     if (stake===undefined || stake===null || stake===NaN || stake===""){
@@ -71,23 +72,6 @@ async function sendStake(stake){
 const declarationFilter = contract.filters.StakeDeclared(getGame());
 const shuffledFilter = contract.filters.Shuffled(getGame());
 
-const declarationHandler = (id, who, stake) => {
-    console.debug("StakeDeclared event occurred:", id, who, stake);
-
-    if(getFirstStake()){
-        if (stake != getFirstStake()){
-            alert("A player declared a non-lecit stake.");
-            contract.off(declarationFilter);
-            clearGame();
-        } else{
-            contract.off(declarationFilter);
-            setPhase("preparation");
-            window.location="/";
-        }
-    } else setFirstStake(stake);
-
-};
-
 const ShuffledHandler = (id, cm, cb) => {
     console.debug("Shuffled event occurred:", id, cm, cb);
 
@@ -97,13 +81,30 @@ const ShuffledHandler = (id, cm, cb) => {
 };
 
 export default function Stake(){
+    const [send_button, setSend_button] = useState(getPhase() === "preparation");
+
+    const declarationHandler = (id, who, stake) => {
+        console.debug("StakeDeclared event occurred:", id, who, stake);
     
+        if(getFirstStake()){
+            if (stake != getFirstStake()){
+                alert("A player declared a non-lecit stake.");
+                contract.off(declarationFilter);
+                clearGame();
+            } else{
+                contract.off(declarationFilter);
+                setPhase("preparation");
+                setSend_button(true);
+            }
+        } else setFirstStake(stake);
+    
+    };    
+
     if(getPhase()==="declaration") 
         contract.on(declarationFilter, declarationHandler);
 
     if(getPhase()==="preparation")
         contract.once(shuffledFilter, ShuffledHandler);
-
 
     return (
         <div className="App">
@@ -129,7 +130,7 @@ export default function Stake(){
             <AFKButton/>
             <Chat/>
             {
-                getPhase()==="preparation" ? 
+                send_button || getPhase()==="preparation" ? 
                 <Button variant="secondary" style={{margin:10, position:'relative'}} id='sendstake' 
                     onClick={()=>sendStake(getStake())}
                     disabled={(getSentStake() ? true : false)}>

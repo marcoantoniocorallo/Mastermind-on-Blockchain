@@ -193,7 +193,8 @@ export function setFeedback(cc, nc){
 }
 
 export function getFeedback(){
-    return window.localStorage.getItem(getAccount()+"_feedback"+getTurn());
+    const tmp = window.localStorage.getItem(getAccount()+"_feedback"+getTurn());
+    return tmp? tmp : window.localStorage.getItem(getAccount()+"_feedback"+(Number(getTurn())-1));
 }
 
 export function setFeedbackHistory(h){
@@ -202,6 +203,14 @@ export function setFeedbackHistory(h){
 
 export function getFeedbackHistory(){
     return window.localStorage.getItem(getAccount()+"_feedbacks");
+}
+
+export function getSolution(){
+    return window.localStorage.getItem(getAccount()+"_solution");
+}
+
+export function setSolution(s){
+    window.localStorage.setItem(getAccount()+"_solution", s);
 }
 
 export async function connectToMastermind(){

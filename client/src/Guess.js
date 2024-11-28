@@ -40,7 +40,7 @@ export default function Guess(){
                         Submit
                     </label>
                 </Button>
-                <Button variant="secondary" onClick={() => {window.location="/";}}>        
+                <Button variant="secondary" onClick={() => {setSelectedImages([]); setSelectedIndexes([]);}}>        
                     <label style={{padding:10, cursor: 'pointer', fontSize:20 }} >
                         Clear
                     </label>

@@ -9,7 +9,6 @@ import { contract, getGame, getGuessHistory, setGuess, setGuessHistory, setPhase
 
 const GuessesWindow = () => {
   const [stack, setStack] = useState([]); // Stack of sent codes
-  const [currentCode, setCurrentCode] = useState([]); // Current 4-image code being created
 
   const images = [
     red,  
@@ -82,7 +81,7 @@ const GuessesWindow = () => {
         (
           stack.map((code, index) => (
             <div key={index}>
-              <div style={{ display: "flex", marginTop: "2%", fontSize:22, paddingTop:"1.5%"}}>
+              <div style={{ display: "flex", marginTop: "1%", fontSize:22, paddingTop:"1.1%"}}>
                 <p>{index}</p>
               </div>
             </div>

@@ -20,14 +20,18 @@ async function leaveGame(game_id){
 
 export default function Closebutton(){
 
-    contract.once(
-        leftGameFilter,
-        (id, who) => { 
-            console.debug("LeftGame event occurred:",id,who);
-            if( who.toLowerCase() != getAccount()) alert("A player left the game.");
-            clearGame();
-        }
-    );
+    useEffect(() =>{
+        contract.once(
+            leftGameFilter,
+            (id, who) => { 
+                console.debug("LeftGame event occurred:",id,who);
+                if( who.toLowerCase() != getAccount()) alert("A player left the game.");
+                clearGame();
+            }
+        );
+
+        return () => contract.off(leftGameFilter);
+    }, []);
 
     return (
         <CloseButton 

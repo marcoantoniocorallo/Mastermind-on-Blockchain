@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { contract, getGame, getFeedbackHistory, setFeedback, setFeedbackHistory, setPhase, increaseTurn, getRole } from "./utils";
+import { contract, getGame, getFeedbackHistory, setFeedback, setFeedbackHistory, setPhase, increaseTurn, getRole, getTurn } from "./utils";
 
 const FeedbacksWindow = () => {
   const [stack, setStack] = useState([]); // Stack of sent codes

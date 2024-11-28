@@ -1,6 +1,10 @@
 
 Todo:
-  ☐ bottoni non premibili nella fase dell'avversario
+  ☐ test solution event listener (also in Sepolia if needed)
+  ☐ implement timeout on dispute 
+  ☐ implement score 
+  ☐ implement updatescore
+  ☐ implement n. set
   ✔ fix guess and feedback events in loop @done(24-11-27 12:09)
   ✔ fix increaseTurn utility @done(24-11-27 12:09)
   ✔ remove "waiting for..." in guess and feedback phases (==> enable/disable buttons) @done(24-11-27 12:10)
@@ -12,3 +16,7 @@ Todo:
   ✔ chat server @done(24-11-25 11:00)
   ✔ afk button @done(24-11-25 11:00)
   ✔ clearGame ==> keep authentication @done(24-11-22 11:00)
+
+Nice-to-have:
+  ☐ Polling for past events on page load
+  ☐ "Match" button that wraps together both the "correct" feedback (4,0) and "reveal"

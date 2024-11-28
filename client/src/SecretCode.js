@@ -143,17 +143,17 @@ export default function SecretCode(){
       }}>
 
         <h3>Secret Code:</h3>
-          <div style={{ display: "flex", justifyContent:'center', alignItems:'center', }}>
-            {secretCode.map(index => (
-              <img 
-                key={index} 
-                src={images[index]} 
-                style={{ width: "40px", height: "40px", borderRadius: "5px" }}
-              />
-            ))}
-          
-          </div>
+        <div style={{ display: "flex", justifyContent:'center', alignItems:'center', }}>
+          {secretCode.map(index => (
+            <img 
+              key={index} 
+              src={images[index]} 
+              style={{ width: "40px", height: "40px", borderRadius: "5px" }}
+            />
+          ))}
+        
         </div>
+      </div>
     )
   );
 }
