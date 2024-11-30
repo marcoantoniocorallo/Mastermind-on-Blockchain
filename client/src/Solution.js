@@ -2,19 +2,16 @@ import React, { useState, useEffect } from "react";
 import Button from "react-bootstrap/esm/Button";
 import Form from 'react-bootstrap/Form'; 
 import { contract, getCode, getSalt, hash, getGame, getRole, setSolution, getSolution, getAccount, 
-    clearGame, getGuessHistory, getFeedbackHistory
+    clearGame, getGuessHistory, getFeedbackHistory, images,
+    dispute_time,
+    setPhase,
+    setRole,
+    setPoints
 } from "./utils";
-import red from "./red.png";
-import white from "./white.png";
-import black from "./black.png";
-import yellow from "./yellow.png";
-import green from "./green.png";
-import blue from "./blue.png";
 import AFKButton from "./AFKButton";
-import FeedbacksWindow from "./FeedbacksWindow";
-import GuessesWindow from "./GuessesWindow";
 import logo from './logo.png';
 import Closebutton from "./Closebutton";
+import Score from "./Score";
 
 async function onDispute(feedback_n){
     try{
@@ -28,17 +25,9 @@ async function onDispute(feedback_n){
     }
 }
 
-// List of available images (use URLs or import local assets)
-const images = [
-    red,  
-    blue, 
-    yellow,
-    green,
-    black,
-    white,
-  ];
-
 export default function Solution(){
+    let timeout;
+
     const [solution, setSol] = useState([]);
 
     async function submitSolution(){
@@ -58,6 +47,34 @@ export default function Solution(){
         }
     }
 
+    async function updateScore(){
+        try{
+            const tx = await contract.updateScore(getGame());
+            const receipt = await tx.wait();
+            console.debug(receipt);
+
+        } catch(err){
+            if (err.code === 'UNPREDICTABLE_GAS_LIMIT') alert(err.error.message.substring(20));
+            console.log("Catched: ", err);
+            contract.off(scoreFilter);
+        }
+    }
+
+    const scoreFilter = contract.filters.PointsUpdated(getGame());
+    function on_timeout(){
+        console.debug("Dispute Time-out reached");
+        contract.off(punishedFilter);
+        contract.once(scoreFilter, (id, score) => {
+            console.debug("PointsUpdated event occurred:",id,score);
+            if (getRole()==="CodeMaker") setPoints(score);
+            setPhase("secretcode");
+            setRole(getRole() === "CodeMaker" ? "CodeBreaker" : "CodeMaker");
+            window.location="/";
+        });
+        if (getRole()==="CodeMaker") updateScore();
+    }
+
+    const punishedFilter = contract.filters.Punished(getGame());
     const solutionFilter = contract.filters.SolutionSubmitted(getGame());
     const solutionHandler = (id, code, salt) => {
         console.debug("SolutionSubmitted event occurred:", id, code, salt);
@@ -65,7 +82,8 @@ export default function Solution(){
         setSol(code);
         setSolution(code);
 
-        contract.once(contract.filters.Punished(getGame()),(id, who) => {
+        contract.once(punishedFilter,(id, who) => {
+            clearTimeout(timeout);
             if (who.toLowerCase() === getAccount()) alert("You were punished for cheating.");
             else                                    alert("You won this game.");
             clearGame();
@@ -74,7 +92,8 @@ export default function Solution(){
         if (getRole()==="CodeMaker")
             alert("Dispute Time started");
 
-        // TODO: Timeout ==> button updateScore && contract.off(contract.filters.Punished(Number(getGame())));
+        timeout = setTimeout(on_timeout, dispute_time+5000);
+
     }
 
     // use effect => listen ONCE sentsolution to enable "dispute" (and start timeout)
@@ -105,7 +124,7 @@ export default function Solution(){
                 <img src={logo} className="App-logo" alt="logo" />
             </header>
             <h2 style={{position:"absolute", top:"20%", left:"5%"}}>You are the {getRole()}</h2>
-            
+            <Score/>
             {/* Guesses Window */}
             <div style={{ padding: "10px", maxWidth: "800px", margin: "0 auto", fontFamily: "Arial, sans-serif" }}>
 

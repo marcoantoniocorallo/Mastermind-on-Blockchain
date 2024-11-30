@@ -1,12 +1,6 @@
 import React, { useState } from "react";
 import { ethers } from "ethers";
-import { contract, getCode, getGame, getRole, getSalt, setCode, setPhase, setSalt, hash, setGuess, getTurn, getPhase } from "./utils";
-import red from "./red.png";
-import white from "./white.png";
-import black from "./black.png";
-import yellow from "./yellow.png";
-import green from "./green.png";
-import blue from "./blue.png";
+import { contract, getCode, getGame, images, setGuess, getTurn, getPhase } from "./utils";
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
@@ -48,60 +42,50 @@ export default function Guess(){
 
             </ButtonGroup>
         );
-    }
+    };
 
-  // List of available images (use URLs or import local assets)
-  const images = [
-    red,  
-    blue, 
-    yellow,
-    green,
-    black,
-    white,
-  ];
+    // Handle image selection
+    const handleSelectImage = (image, index) => {
+      if (selectedImages.length < 4) {
+          setSelectedImages([...selectedImages, image]); // Add to selected list
+          setSelectedIndexes([...selectedIndexes, index]);
+      } 
+    };
 
-  // Handle image selection
-  const handleSelectImage = (image, index) => {
-    if (selectedImages.length < 4) {
-        setSelectedImages([...selectedImages, image]); // Add to selected list
-        setSelectedIndexes([...selectedIndexes, index]);
-    } 
-  };
-
-  return (
-    <div style={{ padding: "20px", position:"absolute", top:"30%", left:"5%" }}>
-      {/* Selected Images Section */}
-      <div style={{ marginBottom: "20px" }}>
-        <div style={{ display: "flex", justifyContent:'center', alignItems:'center', }}>
-        <h3>Guess:
-          {selectedImages.map((img, index) => (
-            <img 
-              key={index} 
-              src={img} 
-              alt={`Selected ${index}`} 
-              style={{ width: "40px", height: "40px", borderRadius: "5px" }}
-            />
-          ))}
-        </h3>
-        </div>
-      </div>
-
-      {/* Images to Choose From */}
-      <div style={{ display: "flex", gap: "5px", justifyContent:'center', alignItems:'center',}}>
-        {images.map((img, index) => (
-          <div
-            key={index} 
-            onClick={() => handleSelectImage(img, index)} 
-            style={{ cursor: "pointer", textAlign: "center" }}
-          >
-            <img 
-              src={img} 
-              style={{ width: "50px", height: "50px", borderRadius: "15px", border: "1px solid #ccc" }}
-            />
+    return (
+      <div style={{ padding: "20px", position:"absolute", top:"30%", left:"5%" }}>
+        {/* Selected Images Section */}
+        <div style={{ marginBottom: "20px" }}>
+          <div style={{ display: "flex", justifyContent:'center', alignItems:'center', }}>
+          <h3>Guess:
+            {selectedImages.map((img, index) => (
+              <img 
+                key={index} 
+                src={img} 
+                alt={`Selected ${index}`} 
+                style={{ width: "40px", height: "40px", borderRadius: "5px" }}
+              />
+            ))}
+          </h3>
           </div>
-        ))}
+        </div>
+
+        {/* Images to Choose From */}
+        <div style={{ display: "flex", gap: "5px", justifyContent:'center', alignItems:'center',}}>
+          {images.map((img, index) => (
+            <div
+              key={index} 
+              onClick={() => handleSelectImage(img, index)} 
+              style={{ cursor: "pointer", textAlign: "center" }}
+            >
+              <img 
+                src={img} 
+                style={{ width: "50px", height: "50px", borderRadius: "15px", border: "1px solid #ccc" }}
+              />
+            </div>
+          ))}
+        </div>
+        {submit()}
       </div>
-      {submit()}
-    </div>
-  );
+    );
 }

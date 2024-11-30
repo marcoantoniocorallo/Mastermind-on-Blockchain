@@ -9,6 +9,7 @@ import Feedback from "./Feedback";
 import Guess from "./Guess";
 import FeedbacksWindow from "./FeedbacksWindow";
 import { useEffect, useState } from "react";
+import Score from "./Score";
 
 const secretCodeFilter = contract.filters.SecretCodeSent(getGame());
 
@@ -39,6 +40,7 @@ export default function Game(){
                     <Guess/> : <><Feedback/><SecretCode/></>
                 ) : ""
             }
+            <Score/>
             <GuessesWindow/>
             <FeedbacksWindow/>
             <Closebutton/>

@@ -8,7 +8,7 @@ let timeout;
 let winningAlert = false;
 
 function on_timeout(){
-    console.debug("AFK Time out reached");
+    console.debug("AFK Time-out reached");
     alert("You can now get your prize!");
     removeAfk(); // enable button
     claimButton(); // change behaviour to the button

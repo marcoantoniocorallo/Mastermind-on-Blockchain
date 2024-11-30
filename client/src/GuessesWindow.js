@@ -1,23 +1,8 @@
 import React, { useState, useEffect } from "react";
-import red from "./red.png";
-import white from "./white.png";
-import black from "./black.png";
-import yellow from "./yellow.png";
-import green from "./green.png";
-import blue from "./blue.png";
-import { contract, getGame, getGuessHistory, setGuess, setGuessHistory, setPhase, getRole } from "./utils";
+import { contract, getGame, getGuessHistory, setGuess, setGuessHistory, setPhase, getRole, images } from "./utils";
 
 const GuessesWindow = () => {
   const [stack, setStack] = useState([]); // Stack of sent codes
-
-  const images = [
-    red,  
-    blue, 
-    yellow,
-    green,
-    black,
-    white,
-  ];
 
   const guessFilter = contract.filters.GuessSent(getGame());
   const guessListener = (id, who, colors) =>{

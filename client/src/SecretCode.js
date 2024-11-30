@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
-import { contract, getCode, getGame, setTurn, setCode, setPhase, setSalt, hash, getPhase } from "./utils";
-import red from "./red.png";
-import white from "./white.png";
-import black from "./black.png";
-import yellow from "./yellow.png";
-import green from "./green.png";
-import blue from "./blue.png";
+import { contract, getCode, getGame, setTurn, setCode, setPhase, setSalt, hash, getPhase, images } from "./utils";
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
@@ -77,16 +71,6 @@ export default function SecretCode(){
             </ButtonGroup>
         );
     }
-
-  // List of available images (use URLs or import local assets)
-  const images = [
-    red,  
-    blue, 
-    yellow,
-    green,
-    black,
-    white,
-  ];
 
   // Handle image selection
   const handleSelectImage = (image, index) => {
