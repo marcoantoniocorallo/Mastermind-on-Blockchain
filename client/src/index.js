@@ -8,6 +8,7 @@ import NewGame from './NewGame';
 import Wait from './Wait';
 import Stake from './Stake';
 import Game from "./Game";
+import Solution from './Solution';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { getPhase, provider, init, authenticate, deauthenticate, isAuthenticated, connectToMastermind 
 
@@ -43,6 +44,7 @@ const pageOf = {
   "secretcode"  : isAuthenticated() ? <Game/> : <Login/>,
   "guess"       : isAuthenticated() ? <Game/> : <Login/>,
   "feedback"    : isAuthenticated() ? <Game/> : <Login/>,
+  "solution"    : isAuthenticated() ? <Solution/> : <Login/>,
 }
 
 root.render(

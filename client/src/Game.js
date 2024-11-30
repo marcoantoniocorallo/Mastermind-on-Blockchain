@@ -13,7 +13,6 @@ import { useEffect, useState } from "react";
 const secretCodeFilter = contract.filters.SecretCodeSent(getGame());
 
 export default function Game(){
-    const [sol, setSol] = useState(false);
 
     if(getPhase() === "secretcode" && getRole() === "CodeBreaker") 
         contract.once(secretCodeFilter, () => {
@@ -22,20 +21,6 @@ export default function Game(){
             setTurn(0);
             window.location="/";
         });
-
-    const fbFilter = contract.filters.FeedbackSent(getGame());
-    const fbListener = (id, who, CC, NC) =>{
-        if (CC == 4 || getTurn() == 8){
-            console.debug("Last Feedback: CC=", CC, " Turn=", getTurn());
-            setSol(true);
-        }
-    };
-
-    useEffect(() => {
-        contract.on(fbFilter, fbListener);
-    
-        return () => { contract.off(fbFilter, fbListener); }
-    }, []);
 
     return(
         <div className="App">
@@ -58,7 +43,6 @@ export default function Game(){
             <FeedbacksWindow/>
             <Closebutton/>
             <AFKButton/>
-            { sol || getTurn()==8 || (getFeedback() && getFeedback()[0]==4) ? <Solution/> : ""}
         </div>
     );
 }

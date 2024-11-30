@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { contract, getGame, getFeedbackHistory, setFeedback, setFeedbackHistory, setPhase, increaseTurn, getRole, getTurn } from "./utils";
+import { contract, getGame, getFeedbackHistory, setFeedback, setFeedbackHistory, setPhase, increaseTurn, getRole, getTurn, getPhase } from "./utils";
 
 const FeedbacksWindow = () => {
   const [stack, setStack] = useState([]); // Stack of sent codes
@@ -17,13 +17,19 @@ const FeedbacksWindow = () => {
     setStack((prevStack) => [...prevStack, newFeedback]);
 
     // update phase
-    setPhase("guess");
-    increaseTurn();
-    if (getRole()==="CodeMaker"){
+    if (CC == 4 || getTurn() == 8){
+      console.debug("Last Feedback: CC=", CC, " Turn=", getTurn());
+      setPhase("solution");
+      window.location="/";
+    } else{
+      setPhase("guess");
+      increaseTurn(); 
+      if (getRole()==="CodeMaker"){
         document.getElementById('CC_text').disabled=true;
         document.getElementById('NC_text').disabled=true;
-    } else
+      } else
         document.getElementById('gbutton').disabled=false;
+    }
   };
 
   useEffect(() => {

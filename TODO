@@ -1,6 +1,6 @@
 
 Todo:
-  ☐ test solution event listener (also in Sepolia if needed)
+  ✔ test solution event listener (also in Sepolia if needed) @done(24-11-30 19:40)
   ☐ implement timeout on dispute 
   ☐ implement score 
   ☐ implement updatescore
