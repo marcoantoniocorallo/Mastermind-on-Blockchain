@@ -3,21 +3,26 @@ import Button from "react-bootstrap/esm/Button";
 import Closebutton from "./Closebutton";
 import Score from "./Score";
 import { contract, getGame, setPoints, setPhase, setRole, getRole, setTurn, increaseRound, newRound  } from "./utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const scoreFilter = contract.filters.PointsUpdated(getGame());
 
 export default function UpdateScore(){
     const [buttonPressed, setButtonPressed] = useState(false);
 
-    contract.once(scoreFilter, (id, score) => {
-        console.debug("PointsUpdated event occurred:",id,score);
-        if (getRole()==="CodeMaker") setPoints(score);
-        setPhase("secretcode");
-        setRole(getRole() === "CodeMaker" ? "CodeBreaker" : "CodeMaker");
-        newRound();
-        window.location="/";
-    });
+    useEffect(() => {
+        contract.once(scoreFilter, (id, score) => {
+            console.debug("PointsUpdated event occurred:",id,score);
+            if (getRole()==="CodeMaker") setPoints(score);
+            setPhase("secretcode");
+            setRole(getRole() === "CodeMaker" ? "CodeBreaker" : "CodeMaker");
+            newRound();
+            window.location="/";
+        });
+
+        return () => { contract.off(scoreFilter); }
+
+    }, []);
 
     async function updateScore(){
         try{
@@ -34,7 +39,7 @@ export default function UpdateScore(){
                     alert(err.error.message.substring(20));
                     setButtonPressed(false);
                 }
-            } 
+            } else setButtonPressed(false);
             console.log("Catched: ", err);
         }
     }
