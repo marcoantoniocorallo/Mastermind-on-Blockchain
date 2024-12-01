@@ -170,7 +170,8 @@ export function setTurn(turn){
 }
 
 export function getTurn(){
-    return window.localStorage.getItem(getAccount()+"_turn");
+    const tmp = window.localStorage.getItem(getAccount()+"_turn");
+    return tmp ? tmp : 0;
 }
 
 export function increaseTurn(){

@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { contract, getGame, getFeedbackHistory, setFeedback, setFeedbackHistory, setPhase, increaseTurn, getRole, getTurn, getPhase } from "./utils";
 
 const FeedbacksWindow = () => {
+  let n_feedbacks = getTurn();
   const [stack, setStack] = useState([]); // Stack of sent codes
 
   const fbFilter = contract.filters.FeedbackSent(getGame());
   const fbListener = (id, who, CC, NC) =>{
     console.debug("FeedbackSent event occurred:", id, who, CC, NC);
-
+    n_feedbacks++;
     setFeedback(CC,NC);
 
     // Map colors to image paths
@@ -17,7 +18,7 @@ const FeedbacksWindow = () => {
     setStack((prevStack) => [...prevStack, newFeedback]);
 
     // update phase
-    if (CC == 4 || getTurn() == 8){
+    if (CC == 4 || getTurn() == 8 || n_feedbacks == 8){
       console.debug("Last Feedback: CC=", CC, " Turn=", getTurn());
       setPhase("solution");
       window.location="/";

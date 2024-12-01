@@ -315,7 +315,7 @@ library GameLib {
         self.points[self.codeMaker] += 
             self.n_guess + (
                 equalCodes(self.guesses[self.turn][self.n_guess-1], self.solution) ? 
-                EXTRA_POINTS : 0
+                0 : EXTRA_POINTS
             );
         uint8 score = self.points[self.codeMaker];
         self.n_guess = 0;

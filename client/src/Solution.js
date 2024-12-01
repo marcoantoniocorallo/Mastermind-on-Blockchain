@@ -72,16 +72,12 @@ export default function Solution(){
             clearGame();
         });
 
-        if (getRole()==="CodeMaker")
-            alert("Dispute Time started");
-
         timeout = setTimeout(on_timeout, dispute_time+5000);
 
     }
 
     // use effect => listen ONCE sentsolution to enable "dispute" (and start timeout)
     useEffect(() => {
-        console.debug("Listener activated");
         contract.once(solutionFilter, solutionHandler);
 
         return () => { contract.off(solutionFilter, solutionHandler); }

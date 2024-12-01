@@ -1,10 +1,12 @@
 
 Todo:
+  ✔ test eight turns @done(24-12-01 19:47)
+  ✔ test scoreupdate @done(24-12-01 20:08)
   ✔ test solution event listener (also in Sepolia if needed) @done(24-11-30 19:40)
   ✔ implement timeout on dispute @done(24-12-01 11:28)
   ✔ implement score @done(24-12-01 11:27)
-  ☐ implement updatescore
-  ☐ implement n. set
+  ✔ implement updatescore @done(24-12-01 19:42)
+  ✔ implement n. set @done(24-12-01 19:42)
   ✔ fix guess and feedback events in loop @done(24-11-27 12:09)
   ✔ fix increaseTurn utility @done(24-11-27 12:09)
   ✔ remove "waiting for..." in guess and feedback phases (==> enable/disable buttons) @done(24-11-27 12:10)
@@ -19,4 +21,5 @@ Todo:
 
 Nice-to-have:
   ☐ Polling for past events on page load
+  ☐ permanent chat per game ==> simple syn/ack message protocol via chat per non perdere eventi
   ☐ "Match" button that wraps together both the "correct" feedback (4,0) and "reveal"
