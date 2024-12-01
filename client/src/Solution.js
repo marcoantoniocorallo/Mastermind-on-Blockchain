@@ -12,6 +12,7 @@ import AFKButton from "./AFKButton";
 import logo from './logo.png';
 import Closebutton from "./Closebutton";
 import Score from "./Score";
+import SecretCode from "./SecretCode";
 
 async function onDispute(feedback_n){
     try{
@@ -39,42 +40,24 @@ export default function Solution(){
             const tx = await contract.submitSolution(getGame(), getCode(), getSalt());
             const receipt = await tx.wait();
             console.debug(receipt);
+            document.getElementById("solbut").disabled=true;
             
         } catch(err){
             if (err.code === 'INVALID_ARGUMENT')             alert("Invalid Code.");
             else if (err.code === 'UNPREDICTABLE_GAS_LIMIT') alert(err.error.message.substring(20));
             console.log("Catched: ", err);
+            document.getElementById("solbut").disabled=false;
         }
-    }
-
-    async function updateScore(){
-        try{
-            const tx = await contract.updateScore(getGame());
-            const receipt = await tx.wait();
-            console.debug(receipt);
-
-        } catch(err){
-            if (err.code === 'UNPREDICTABLE_GAS_LIMIT') alert(err.error.message.substring(20));
-            console.log("Catched: ", err);
-            contract.off(scoreFilter);
-        }
-    }
-
-    const scoreFilter = contract.filters.PointsUpdated(getGame());
-    function on_timeout(){
-        console.debug("Dispute Time-out reached");
-        contract.off(punishedFilter);
-        contract.once(scoreFilter, (id, score) => {
-            console.debug("PointsUpdated event occurred:",id,score);
-            if (getRole()==="CodeMaker") setPoints(score);
-            setPhase("secretcode");
-            setRole(getRole() === "CodeMaker" ? "CodeBreaker" : "CodeMaker");
-            window.location="/";
-        });
-        if (getRole()==="CodeMaker") updateScore();
     }
 
     const punishedFilter = contract.filters.Punished(getGame());
+    function on_timeout(){
+        console.debug("Dispute Time-out reached");
+        contract.off(punishedFilter);
+        setPhase("score");
+        window.location="/";
+    }
+
     const solutionFilter = contract.filters.SolutionSubmitted(getGame());
     const solutionHandler = (id, code, salt) => {
         console.debug("SolutionSubmitted event occurred:", id, code, salt);
@@ -125,6 +108,8 @@ export default function Solution(){
             </header>
             <h2 style={{position:"absolute", top:"20%", left:"5%"}}>You are the {getRole()}</h2>
             <Score/>
+            {getRole() === "CodeMaker" ? <SecretCode/> : ""}
+
             {/* Guesses Window */}
             <div style={{ padding: "10px", maxWidth: "800px", margin: "0 auto", fontFamily: "Arial, sans-serif" }}>
 

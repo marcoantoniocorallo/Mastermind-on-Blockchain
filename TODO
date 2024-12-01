@@ -1,8 +1,8 @@
 
 Todo:
   ✔ test solution event listener (also in Sepolia if needed) @done(24-11-30 19:40)
-  ☐ implement timeout on dispute 
-  ☐ implement score 
+  ✔ implement timeout on dispute @done(24-12-01 11:28)
+  ✔ implement score @done(24-12-01 11:27)
   ☐ implement updatescore
   ☐ implement n. set
   ✔ fix guess and feedback events in loop @done(24-11-27 12:09)

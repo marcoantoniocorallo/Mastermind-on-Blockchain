@@ -120,7 +120,12 @@ export default function Stake(){
                             placeholder={getPhase()==="declaration" ? 'Stake in gwei' : getStake()}
                             disabled={getStake() ? true : false}/>
                         <Button variant="secondary" id="dec_button"
-                            onClick={() => declareStake(document.getElementById('stake').value)} 
+                            onClick={() => declareStake(document.getElementById('stake').value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    declareStake(e.target.value);
+                                }
+                            }}
                             disabled={getStake() ? true : false}>
                             Declare
                         </Button>

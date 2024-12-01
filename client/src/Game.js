@@ -23,6 +23,8 @@ export default function Game(){
             window.location="/";
         });
 
+    // TODO: if round > 4 ==> closegame
+
     return(
         <div className="App">
             <header className="App-header">

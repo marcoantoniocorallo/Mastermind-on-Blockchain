@@ -227,6 +227,11 @@ Design choices:
   nota: questa scelta permette anche sviluppo e manutenzione più semplice
 - le variabili del FE sono scritte in localstorage nella forma account_var; in questo modo si può 
   gestire il multi-wallet (?); questo naturalmente potrebbe dare problemi con l'event listener
+- Sebbene il FE sia completo e funzionante, con anche funzionalità aggiuntive perfettamente funzionanti
+  (vedi chat) che vanno ben oltre l'idea di STUB, resta una componente non centrale allo sviluppo del 
+  progetto, con difetti e forzature che potrebbero essere facilmente migliorate. Ad es. Ci sono troppi 
+  bottoni da premere, che potrebbero essere automatizzati, ma la presenza dei bottoni era utile e 
+  quasi necessaria per la fase di sviluppo e debugging.
 
 Secret code and Salt: 
   - The secret code is composed by 4 colors/numbers chosen in a range of 6 colors/numbers, 

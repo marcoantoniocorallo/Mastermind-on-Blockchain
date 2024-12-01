@@ -9,6 +9,7 @@ import Wait from './Wait';
 import Stake from './Stake';
 import Game from "./Game";
 import Solution from './Solution';
+import UpdateScore from './UpdateScore';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { getPhase, provider, init, authenticate, deauthenticate, isAuthenticated, connectToMastermind 
 
@@ -45,6 +46,7 @@ const pageOf = {
   "guess"       : isAuthenticated() ? <Game/> : <Login/>,
   "feedback"    : isAuthenticated() ? <Game/> : <Login/>,
   "solution"    : isAuthenticated() ? <Solution/> : <Login/>,
+  "score"       : isAuthenticated() ? <UpdateScore/> : <Login/>,
 }
 
 root.render(
@@ -56,7 +58,7 @@ root.render(
         />
         <Route
           path="/test"
-          element={<Game/>}
+          element={<UpdateScore/>}
         />
       </Routes>
     </BrowserRouter>

@@ -229,6 +229,32 @@ export function getPoints(){
     return tmp ? tmp : 0;
 }
 
+export function getRound(){
+    const tmp = window.localStorage.getItem(getAccount()+"_round");
+    return tmp ? Number(tmp) : 0;
+}
+
+export function setRound(r){
+    window.localStorage.setItem(getAccount()+"_round", r);
+}
+
+export function increaseRound(){
+    setRound(getRound()+1);
+}
+
+export function newRound(){
+    window.localStorage.removeItem(getAccount()+"_code");
+    window.localStorage.removeItem(getAccount()+"_feedback0");
+    window.localStorage.removeItem(getAccount()+"_feedback1");
+    window.localStorage.removeItem(getAccount()+"_feedbacks");
+    window.localStorage.removeItem(getAccount()+"_guess0");
+    window.localStorage.removeItem(getAccount()+"_guess1");
+    window.localStorage.removeItem(getAccount()+"_guesses");
+    window.localStorage.removeItem(getAccount()+"_solution");
+    window.localStorage.removeItem(getAccount()+"_turn");
+    increaseRound();
+}
+
 export const images = [
     red,  
     blue, 
