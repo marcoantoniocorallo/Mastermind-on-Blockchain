@@ -235,7 +235,7 @@ library GameLib {
         self.feedbacks[self.turn][self.n_guess-1][0] = CC;
         self.feedbacks[self.turn][self.n_guess-1][1] = NC;
         self.phase = CC == N_HOLES || self.n_guess == N_GUESSES ? Phase.Solution : Phase.Guess;
-    } // TODO: change update phase both here and here above
+    }
 
     /**
      * @notice codemaker submit solution <code, salt>. 
@@ -317,13 +317,13 @@ library GameLib {
                 equalCodes(self.guesses[self.turn][self.n_guess-1], self.solution) ? 
                 EXTRA_POINTS : 0
             );
-        
+        uint8 score = self.points[self.codeMaker];
         self.n_guess = 0;
         self.turn++;
         (self.codeMaker, self.codeBreaker) = (self.codeBreaker, self.codeMaker);
         self.phase = self.turn == N_TURNS ? Phase.Closing : Phase.SecretCode;
         
-        return (self.points[self.codeMaker], self.turn);
+        return (score, self.turn);
     }
 
     /**

@@ -939,6 +939,9 @@ describe("Play Game Tests", function () {
         // send secret code
         const code : [Color, Color, Color, Color] = [Color.Red, Color.Yellow, Color.Red, Color.Green];
         const salt : [number, number, number, number, number ] = [0, 0, 0, 0, 0];
+        let score_own = 0;
+        let score_addr1 = 0;
+        let score;
 
         for (let index = 0; index < N_TURNS; index++) {
 
@@ -967,8 +970,14 @@ describe("Play Game Tests", function () {
                     .and.to.emit(contract, "Transfered")
                     .and.to.emit(contract, "Transfered");
             } else{
-                await expect(contract.connect(codemaker).updateScore(0))
-                .to.emit(contract, "PointsUpdated");
+                if (codemaker == owner)
+                    await expect(contract.connect(codemaker).updateScore(0))
+                        .to.emit(contract, "PointsUpdated")
+                        .withArgs(0, score_own += 8);
+                else
+                    await expect(contract.connect(codemaker).updateScore(0))
+                        .to.emit(contract, "PointsUpdated")
+                        .withArgs(0, score_addr1 += 8);
             }
 
             [codemaker, codebreaker] = [codebreaker, codemaker];
