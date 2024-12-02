@@ -29,6 +29,15 @@ server.on('connection', (socket) => {
 
                 // Notify the client of a successful connection
                 socket.send(JSON.stringify({ type: 'info', message: `Connected to channel: ${channelId}` }));
+
+                // if 2 users are connected => send service message
+                if (channels.get(channelId).size == 2)
+                    for (const client of channels.get(channelId)) {
+                        if (client.readyState === WebSocket.OPEN) {
+                            client.send(JSON.stringify({ type: 'service', message: `User connected` }));
+                        }
+                    }
+
                 return;
             }
 
@@ -62,6 +71,12 @@ server.on('connection', (socket) => {
                 // Remove the channel if no clients remain
                 if (clientsInChannel.size === 0) {
                     channels.delete(channelId);
+                } else{
+                    for (const client of clientsInChannel) {
+                        if (client.readyState === WebSocket.OPEN) {
+                            client.send(JSON.stringify({ type: 'service', message: `User disconnected` }));
+                        }
+                    }
                 }
             }
         }

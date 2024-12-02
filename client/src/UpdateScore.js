@@ -3,6 +3,7 @@ import Button from "react-bootstrap/esm/Button";
 import Closebutton from "./Closebutton";
 import { contract, getGame, setPoints, setPhase, setRole, getRole, getAccount, increaseRound, newRound, getRound, clearGame, getPoints  } from "./utils";
 import { useEffect, useState } from "react";
+import Chat from "./Chat";
 
 const scoreFilter = contract.filters.PointsUpdated(getGame());
 const winningFilter = contract.filters.Winning(getGame());
@@ -87,7 +88,7 @@ export default function UpdateScore(){
                 <img src={logo} className="App-logo" alt="logo" />
             </header>  
             <Closebutton/>
-
+            <Chat/>
             { buttonPressed ? 
                 (<h2 className="loading"> Updating the Score </h2>) :
                 (

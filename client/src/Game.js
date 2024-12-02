@@ -10,6 +10,7 @@ import Guess from "./Guess";
 import FeedbacksWindow from "./FeedbacksWindow";
 import { useEffect, useState } from "react";
 import Score from "./Score";
+import Chat from "./Chat";
 
 const secretCodeFilter = contract.filters.SecretCodeSent(getGame());
 
@@ -22,8 +23,6 @@ export default function Game(){
             setTurn(0);
             window.location="/";
         });
-
-    // TODO: if round > 4 ==> closegame
 
     return(
         <div className="App">
@@ -45,6 +44,7 @@ export default function Game(){
             <Score/>
             <GuessesWindow/>
             <FeedbacksWindow/>
+            <Chat/>
             <Closebutton/>
             <AFKButton/>
         </div>

@@ -22,7 +22,7 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>96/96</span>
+        <span class='fraction'>97/97</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">80.68% </span>
@@ -37,7 +37,7 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>104/104</span>
+        <span class='fraction'>105/105</span>
       </div>
     </div>
   </div>
@@ -455,7 +455,8 @@
 410
 411
 412
-413</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+413
+414</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -486,20 +487,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">797×</span>
+<span class="cline-any cline-yes">836×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">793×</span>
+<span class="cline-any cline-yes">832×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">673×</span>
-<span class="cline-any cline-yes">673×</span>
-<span class="cline-any cline-yes">673×</span>
-<span class="cline-any cline-yes">656×</span>
-<span class="cline-any cline-yes">72×</span>
+<span class="cline-any cline-yes">700×</span>
+<span class="cline-any cline-yes">700×</span>
+<span class="cline-any cline-yes">700×</span>
+<span class="cline-any cline-yes">684×</span>
+<span class="cline-any cline-yes">48×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -559,6 +560,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -700,9 +702,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">204×</span>
-<span class="cline-any cline-yes">203×</span>
-<span class="cline-any cline-yes">202×</span>
+<span class="cline-any cline-yes">231×</span>
+<span class="cline-any cline-yes">230×</span>
+<span class="cline-any cline-yes">230×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -794,10 +796,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">84×</span>
+<span class="cline-any cline-yes">96×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">84×</span>
-<span class="cline-any cline-yes">76×</span>
+<span class="cline-any cline-yes">96×</span>
+<span class="cline-any cline-yes">52×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -971,6 +973,7 @@ contract MasterMind {
             "You're not allowed to play this game."
         );
 &nbsp;
+        games[id].setCodeBreaker(payable(msg.sender)); // just increase the game phase
         playing[msg.sender] = true;
         emit GameJoined(msg.sender, id);
     }
@@ -1096,7 +1099,7 @@ contract MasterMind {
     function sendGuess(Color[N_HOLES] calldata code, uint256 id) external 
         <span class="missing-if-branch" title="else path not taken" >E</span>userAllowed(id) <span class="missing-if-branch" title="else path not taken" >E</span>handleAFK(id) {
         games[id].pushGuess(code);
-        emit GuessSent(id, msg.sender);
+        emit GuessSent(id, msg.sender, code);
     }
 &nbsp;
     /**
@@ -1114,7 +1117,7 @@ contract MasterMind {
         <span class="missing-if-branch" title="else path not taken" >E</span>userAllowed(id) <span class="missing-if-branch" title="else path not taken" >E</span>handleAFK(id){
         require(CC &lt;= N_HOLES &amp;&amp; NC &lt;= N_HOLES &amp;&amp; CC + NC &lt;= N_HOLES, "Invalid feedback.");
         games[id].pushFeedback(CC, NC);
-        emit FeedbackSent(id, msg.sender);
+        emit FeedbackSent(id, msg.sender, CC, NC);
     }
 &nbsp;
     /**
@@ -1147,7 +1150,7 @@ contract MasterMind {
      */
     function startDispute(uint256 id, uint8 feedback_id) external 
         <span class="missing-if-branch" title="else path not taken" >E</span>userAllowed(id) {
-        require(feedback_id &lt; N_FEEDBACKS, "Feedback ID not valid.");
+        require(feedback_id &lt; N_GUESSES, "Feedback ID not valid.");
         
         emit Dispute(id, feedback_id);
         uint256 stake = games[id].popStake();
@@ -1285,7 +1288,7 @@ contract MasterMind {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sat Nov 23 2024 18:54:28 GMT+0100 (Ora standard dell’Europa centrale)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Mon Dec 02 2024 19:36:36 GMT+0100 (Ora standard dell’Europa centrale)
 </div>
 </div>
 <script src="../prettify.js"></script>

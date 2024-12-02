@@ -61,7 +61,9 @@ const Chat = () => {
 
   // Save messages to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(messages));
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(messages.filter(
+      (x) => x.user !== "System"
+    )));
   }, [messages]);
 
   useEffect(() => {
@@ -109,6 +111,9 @@ const Chat = () => {
 
       if (message.type === "message") {
         setMessages((prev) => [...prev, { user: "Other", text: message.text }]);
+      } else if (message.type === "service") {
+        console.debug("Service:", message.message);
+        setMessages((prev) => [...prev, { user: "System", text: message.message }]);
       } else if (message.type === "info") {
         console.debug("Info:", message.message);
       } else if (message.type === "error") {
@@ -201,12 +206,16 @@ const Chat = () => {
                 className="chat-message"
                 style={{
                   alignSelf:
-                    message.user === currentAccount ? "flex-end" : "flex-start",
+                    message.user === currentAccount ? "flex-end" : (
+                      message.user === "System" ? "center" : "flex-start"),
                   backgroundColor:
-                    message.user === currentAccount ? "#daf7a6" : "#a6e3f7",
+                    message.user === currentAccount ? "#daf7a6" :  (
+                      message.user === "System" ? "transparent" : "#a6e3f7"),
+                  fontStyle : message.user === "System" ? "italic" : ""
                 }}
               >
-                <strong>{message.user === currentAccount ? "Me" : message.user}</strong>:{" "}
+                <strong>{message.user === currentAccount ? "Me" : (
+                  message.user === "System" ? "" : message.user)}</strong>{" "}
                 {message.text}
               </div>
             ))}

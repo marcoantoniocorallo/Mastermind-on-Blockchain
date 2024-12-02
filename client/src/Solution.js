@@ -13,6 +13,7 @@ import logo from './logo.png';
 import Closebutton from "./Closebutton";
 import Score from "./Score";
 import SecretCode from "./SecretCode";
+import Chat from "./Chat";
 
 async function onDispute(feedback_n){
     try{
@@ -250,7 +251,7 @@ export default function Solution(){
                 </Button>
                 </>
             )}
-
+            <Chat/>
             <Closebutton/>
             <AFKButton/>
         </div>

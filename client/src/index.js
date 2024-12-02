@@ -56,10 +56,6 @@ root.render(
           path='/'
           element={pageOf[getPhase()]}
         />
-        <Route
-          path="/test"
-          element={<UpdateScore/>}
-        />
       </Routes>
     </BrowserRouter>
 );

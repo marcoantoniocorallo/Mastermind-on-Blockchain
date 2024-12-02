@@ -973,11 +973,11 @@ describe("Play Game Tests", function () {
                 if (codemaker == owner)
                     await expect(contract.connect(codemaker).updateScore(0))
                         .to.emit(contract, "PointsUpdated")
-                        .withArgs(0, score_own += 8);
+                        .withArgs(0, score_own += 11);
                 else
                     await expect(contract.connect(codemaker).updateScore(0))
                         .to.emit(contract, "PointsUpdated")
-                        .withArgs(0, score_addr1 += 8);
+                        .withArgs(0, score_addr1 += 11);
             }
 
             [codemaker, codebreaker] = [codebreaker, codemaker];
@@ -1321,10 +1321,16 @@ describe("Play Game Tests", function () {
 
         for (let index = 0; index < N_TURNS; index++) {
 
+            await expect(contract.connect(codemaker).AFK(0))
+                .to.be.revertedWith("Denied operation.");
+
             await expect(contract.connect(codemaker).sendCode(hash(code, salt), 0))
                 .to.emit(contract, "SecretCodeSent");
 
             for (let index = 0; index < 8; index++) {
+                await expect(contract.connect(codebreaker).AFK(0))
+                    .to.be.revertedWith("Denied operation.");
+
                 await expect(contract.connect(codebreaker).sendGuess([Color.Red, Color.Red, Color.Yellow, Color.Red], 0))
                     .to.emit(contract, "GuessSent")
                     .withArgs(0, codebreaker.address, [Color.Red, Color.Red, Color.Yellow, Color.Red]);
