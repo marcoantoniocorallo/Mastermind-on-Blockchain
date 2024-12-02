@@ -1,6 +1,6 @@
 # Variables
 CLIENT_DIR = client
-SERVER_SCRIPT = ChatServer.js
+SERVER_SCRIPT = $(CLIENT_DIR)/ChatServer.js
 
 .PHONY: start server client tests coverage gas_reporter run_two_clients clean
 
