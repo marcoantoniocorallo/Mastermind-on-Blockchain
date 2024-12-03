@@ -5,13 +5,12 @@
   "main": "index.js",
   "scripts": {
     "start:chat": "node client/ChatServer.js",
-    "start:client": "cd client && npm start",
-    "start:client1": "cd client && PORT=3000 npm start",
+    "start:client": "cd client && PORT=3000 npm start",
     "start:client2": "cd client && PORT=3001 npm start",
-    "start": "concurrently \"npm run start:chat\" \"npm run start:client1\" \"npm run start:client2\"",
-    "test": "npx hardhat test",
-    "coverage": "npx hardhat coverage",
-    "gas:reporter": "npx hardhat run --network <YOUR_NETWORK> scripts/gas-reporter.js",
+    "start": "concurrently \"npm run start:chat\" \"npm run start:client\" \"npm run start:client2\"",
+    "start:test": "npx hardhat test",
+    "start:coverage": "npx hardhat coverage",
+    "start:gas": "REPORT_GAS=TRUE npx hardhat test",
     "clean": "pkill -f 'npm start' || true && pkill -f 'node ChatServer' || true"
   },
   "repository": {
