@@ -2,11 +2,7 @@ import React, { useState, useEffect } from "react";
 import Button from "react-bootstrap/esm/Button";
 import Form from 'react-bootstrap/Form'; 
 import { contract, getCode, getSalt, hash, getGame, getRole, setSolution, getSolution, getAccount, 
-    clearGame, getGuessHistory, getFeedbackHistory, images,
-    dispute_time,
-    setPhase,
-    setRole,
-    setPoints
+    clearGame, getGuessHistory, getFeedbackHistory, images, dispute_time, setPhase,
 } from "./utils";
 import AFKButton from "./AFKButton";
 import logo from './logo.png';
@@ -73,7 +69,7 @@ export default function Solution(){
             clearGame();
         });
 
-        timeout = setTimeout(on_timeout, dispute_time+8000);
+        timeout = setTimeout(on_timeout, dispute_time+10000);
 
     }
 

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { ethers } from "ethers";
 import { contract, getCode, getGame, setTurn, setCode, setPhase, setSalt, hash, getPhase, images } from "./utils";
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';

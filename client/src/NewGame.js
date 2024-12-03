@@ -2,10 +2,7 @@ import logo from './logo.png';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Form from 'react-bootstrap/Form';
-import { 
-    getAccount, contract, provider, init, filter, readEvent, setPhase, readLastEvent, 
-    setGame
-} from './utils';
+import { getAccount, contract, init, setPhase, setGame } from './utils';
 
 init();
 

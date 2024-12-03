@@ -2,13 +2,11 @@ import SecretCode from "./SecretCode";
 import Closebutton from "./Closebutton";
 import AFKButton from './AFKButton';
 import logo from './logo.png';
-import { contract, getFeedback, getGame, getPhase, getRole, getTurn, setPhase, setTurn } from "./utils";
-import Solution from "./Solution";
+import { contract, getGame, getPhase, getRole, setPhase, setTurn } from "./utils";
 import GuessesWindow from "./GuessesWindow";
 import Feedback from "./Feedback";
 import Guess from "./Guess";
 import FeedbacksWindow from "./FeedbacksWindow";
-import { useEffect, useState } from "react";
 import Score from "./Score";
 import Chat from "./Chat";
 

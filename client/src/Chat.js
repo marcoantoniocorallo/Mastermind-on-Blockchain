@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ethers } from "ethers";
 import { getGame } from "./utils";
 import { FaRegPaperPlane } from "react-icons/fa"; 
 import "./App.css";

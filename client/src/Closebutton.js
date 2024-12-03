@@ -1,6 +1,5 @@
 import CloseButton from 'react-bootstrap/CloseButton';
-import {getGame, listenLeft, contract, getAccount, setPhase, clearGame
-} from './utils';
+import {getGame, contract, getAccount, clearGame} from './utils';
 import { useEffect } from 'react';
 
 const leftGameFilter = contract.filters.GameLeft(getGame());

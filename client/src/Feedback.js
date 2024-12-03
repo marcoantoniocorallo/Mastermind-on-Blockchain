@@ -2,7 +2,7 @@ import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row'; 
-import { contract, getCode, getGame } from "./utils";
+import { contract, getGame } from "./utils";
 
 async function submitFeedback(CC, NC){
     console.debug("Submitting feedback:",CC,NC);

@@ -1,7 +1,9 @@
 import logo from "./logo.png";
 import Button from "react-bootstrap/esm/Button";
 import Closebutton from "./Closebutton";
-import { contract, getGame, setPoints, setPhase, setRole, getRole, getAccount, increaseRound, newRound, getRound, clearGame, getPoints  } from "./utils";
+import { contract, getGame, setPoints, setPhase, setRole, getRole, getAccount, newRound, 
+    getRound, clearGame, getPoints 
+} from "./utils";
 import { useEffect, useState } from "react";
 import Chat from "./Chat";
 

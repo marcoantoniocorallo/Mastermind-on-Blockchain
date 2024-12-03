@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { ethers } from "ethers";
-import { contract, getCode, getGame, images, setGuess, getTurn, getPhase } from "./utils";
+import { contract, getGame, images, setGuess, } from "./utils";
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 

@@ -1,5 +1,5 @@
 import Button from 'react-bootstrap/Button';
-import { getGame, contract, afk_time, waitEvent, afkPressed, pressedAfk, removeAfk, isClaim,
+import { getGame, contract, afk_time, afkPressed, removeAfk,
     claimButton,getAccount, afkButtonStatus, init, clearGame
 } from './utils';
 import { useEffect } from 'react';
@@ -55,7 +55,7 @@ async function send_afk(){
         const receipt = await tx.wait();
         console.debug(receipt);
         
-        timeout = setTimeout(on_timeout, afk_time+5000);
+        timeout = setTimeout(on_timeout, afk_time+10000);
 
     } catch(err){
         if (err.code === 'UNPREDICTABLE_GAS_LIMIT') alert(err.error.message.substring(20));

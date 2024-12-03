@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { contract, getGame, getFeedbackHistory, setFeedback, setFeedbackHistory, setPhase, increaseTurn, getRole, getTurn, getPhase } from "./utils";
+import { contract, getGame, getFeedbackHistory, setFeedback, setFeedbackHistory, setPhase, 
+  increaseTurn, getRole, getTurn
+} from "./utils";
 
 const FeedbacksWindow = () => {
   let n_feedbacks = getTurn();

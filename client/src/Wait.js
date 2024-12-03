@@ -1,9 +1,6 @@
 import logo from './logo.png';
 import Closebutton from './Closebutton';
-import { 
-    getAccount, getGame, contract, init, readEvent, provider, setPhase, 
-    leaveGame, waitEvent, listenLeft
-} from './utils';
+import { getGame, contract, init, setPhase, } from './utils';
 
 const joinGameFilter = contract.filters.GameJoined(null, getGame());
 

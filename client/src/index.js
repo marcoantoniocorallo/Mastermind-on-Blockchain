@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './Login';
 import reportWebVitals from './reportWebVitals';
 import './index.css';
@@ -11,11 +11,7 @@ import Game from "./Game";
 import Solution from './Solution';
 import UpdateScore from './UpdateScore';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { getPhase, provider, init, authenticate, deauthenticate, isAuthenticated, connectToMastermind 
-
-} from './utils';
-import Chat from './Chat';
-import SecretCode from './SecretCode';
+import { getPhase, provider, init, authenticate, deauthenticate, isAuthenticated} from './utils';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
