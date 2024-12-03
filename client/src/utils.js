@@ -1,6 +1,5 @@
 import { ethers, EtherscanProvider, signer } from "ethers";
 import { ABI, CONTRACT_ADDRESS, LOCAL_ADDRESS } from "./ABI";
-import { hexlify, hexZeroPad } from '@ethersproject/bytes';
 import red from "./red.png";
 import white from "./white.png";
 import black from "./black.png";
@@ -8,8 +7,8 @@ import yellow from "./yellow.png";
 import green from "./green.png";
 import blue from "./blue.png";
 
-// comment and uncomment the latter when switch on sepolia
-const CONTRACT = LOCAL_ADDRESS; // const CONTRACT = CONTRACT_ADDRESS;
+const CONTRACT = CONTRACT_ADDRESS;  // uncomment this line to run in the sepolia testnet
+// const CONTRACT = LOCAL_ADDRESS;  // uncomment this line to run in the hardhat testnet
 const PROVIDER = new ethers.providers.Web3Provider(window.ethereum);
 
 export var contract, provider;

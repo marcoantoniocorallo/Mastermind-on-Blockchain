@@ -143,6 +143,7 @@ const Chat = () => {
       JSON.stringify({
         type: "message",
         text,
+        channelId: channelId
       })
     );
 

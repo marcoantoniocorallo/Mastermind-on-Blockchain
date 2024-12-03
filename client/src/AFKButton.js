@@ -41,7 +41,7 @@ const closeGameListener = () => {
         window.location="/";
     } else{
         console.debug("winning alert not arrived yet.");
-        setTimeout(closeGameListener, 2000);
+        setTimeout(closeGameListener, 8000);
     }
 };
 

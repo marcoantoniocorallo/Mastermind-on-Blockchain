@@ -9,15 +9,17 @@ const channels = new Map();
 
 // Handle new client connections
 server.on('connection', (socket) => {
+    console.debug("Connection arrived");
     let channelId = null;
 
     // Handle messages from the client
     socket.on('message', (data) => {
         try {
+            console.debug("Message arrived", data);
             const message = JSON.parse(data);
 
             // When a client connects to a channel
-            if (message.type === 'connect' && message.channelId) {
+            if (message.type === 'connect' && (message.channelId || message.channelId === 0)) {
                 channelId = message.channelId;
 
                 // Add the client to the specified channel
@@ -31,7 +33,7 @@ server.on('connection', (socket) => {
                 socket.send(JSON.stringify({ type: 'info', message: `Connected to channel: ${channelId}` }));
 
                 // if 2 users are connected => send service message
-                if (channels.get(channelId).size == 2)
+                if (channels.get(channelId).size >= 2)
                     for (const client of channels.get(channelId)) {
                         if (client.readyState === WebSocket.OPEN) {
                             client.send(JSON.stringify({ type: 'service', message: `User connected` }));
@@ -42,7 +44,7 @@ server.on('connection', (socket) => {
             }
 
             // Forward messages to all clients in the same channel
-            if (message.type === 'message' && message.text && channelId) {
+            if (message.type === 'message' && message.text && (channelId || channelId == 0)) {
                 console.debug(`Message in channel ${channelId}: ${message.text}`);
                 const clientsInChannel = channels.get(channelId);
 

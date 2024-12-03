@@ -73,7 +73,7 @@ export default function Solution(){
             clearGame();
         });
 
-        timeout = setTimeout(on_timeout, dispute_time+5000);
+        timeout = setTimeout(on_timeout, dispute_time+8000);
 
     }
 
