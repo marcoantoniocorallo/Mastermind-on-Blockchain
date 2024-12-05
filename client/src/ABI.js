@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = "0x19D4672DB280a289e070D415CB32F118342b366E";
+export const CONTRACT_ADDRESS = "0x801Fc8a2B653d8F3b31e0ed812948be414a7D1dc";
 
 export const LOCAL_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
 
@@ -112,6 +112,12 @@ export const ABI = [
         "internalType": "uint256",
         "name": "id",
         "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "challenger",
+        "type": "address"
       }
     ],
     "name": "GameCreated",

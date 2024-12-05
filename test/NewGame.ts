@@ -12,7 +12,7 @@ describe("Create/Join Game Tests", function () {
     // game created by the owner of the contract
     await expect(contract["newGame()"]())
       .to.emit(contract, "GameCreated")
-      .withArgs(owner.address, 0);
+      .withArgs(owner.address, 0, ethers.ZeroAddress);
 
     // game joined by another user
     await expect(contract.connect(addr1)["joinGame()"]())
@@ -27,7 +27,7 @@ describe("Create/Join Game Tests", function () {
     // game created by the owner of the contract
     await expect(contract["newGame()"]())
       .to.emit(contract, "GameCreated")
-      .withArgs(owner.address, 0);
+      .withArgs(owner.address, 0, ethers.ZeroAddress);
 
     // game joined by the onwer himself
     await expect(contract["joinGame()"]())
@@ -41,7 +41,7 @@ describe("Create/Join Game Tests", function () {
     // game created by the owner of the contract
     await expect(contract["newGame()"]())
       .to.emit(contract, "GameCreated")
-      .withArgs(owner.address, 0);
+      .withArgs(owner.address, 0, ethers.ZeroAddress);
 
     await expect(contract["newGame()"]())
     .to.be.revertedWith("The player is already registered for a game.");
@@ -54,7 +54,7 @@ describe("Create/Join Game Tests", function () {
     // game created by the owner of the contract
     await expect(contract["newGame()"]())
       .to.emit(contract, "GameCreated")
-      .withArgs(owner.address, 0);
+      .withArgs(owner.address, 0, ethers.ZeroAddress);
 
     // game joined by someone else
     await expect(contract.connect(addr1)["joinGame()"]())
@@ -73,7 +73,7 @@ describe("Create/Join Game Tests", function () {
     // game created by the owner of the contract
     await expect(contract["newGame()"]())
       .to.emit(contract, "GameCreated")
-      .withArgs(owner.address, 0);
+      .withArgs(owner.address, 0, ethers.ZeroAddress);
 
     // game joined by another user
     await expect(contract.connect(addr1)["joinGame()"]())
@@ -83,7 +83,7 @@ describe("Create/Join Game Tests", function () {
     // game created by the owner of the contract
     await expect(contract.connect(addr2)["newGame()"]())
       .to.emit(contract, "GameCreated")
-      .withArgs(addr2.address, 1);
+      .withArgs(addr2.address, 1, ethers.ZeroAddress);
 
   });
 
@@ -93,7 +93,7 @@ describe("Create/Join Game Tests", function () {
     // game created by the owner of the contract
     await expect(contract["newGame(address)"](addr2))
       .to.emit(contract, "GameCreated")
-      .withArgs(owner.address, 0);
+      .withArgs(owner.address, 0, addr2);
 
     // game joined by another user
     await expect(contract.connect(addr2)["joinGame(uint256)"](0))
@@ -108,11 +108,11 @@ describe("Create/Join Game Tests", function () {
     // game created by the owner of the contract
     await expect(contract["newGame()"]())
       .to.emit(contract, "GameCreated")
-      .withArgs(owner.address, 0);
+      .withArgs(owner.address, 0, ethers.ZeroAddress);
 
     await expect(contract.connect(addr1)["newGame(address)"](addr2))
       .to.emit(contract, "GameCreated")
-      .withArgs(addr1.address, 1);
+      .withArgs(addr1.address, 1, addr2);
 
 
     // game joined by another user
@@ -128,7 +128,7 @@ describe("Create/Join Game Tests", function () {
     // game created by the owner of the contract
     await expect(contract["newGame(address)"](addr1))
       .to.emit(contract, "GameCreated")
-      .withArgs(owner.address, 0);
+      .withArgs(owner.address, 0, addr1);
 
     // game joined by another user
     await expect(contract.connect(addr2)["joinGame(uint256)"](0))
@@ -156,7 +156,7 @@ describe("Create/Join Game Tests", function () {
     // game created by the owner of the contract
     await expect(contract["newGame()"]())
       .to.emit(contract, "GameCreated")
-      .withArgs(owner.address, 0);
+      .withArgs(owner.address, 0, ethers.ZeroAddress);
 
     // game created by the owner of the contract
     await expect(contract.connect(addr1)["joinGame()"]())
@@ -174,7 +174,7 @@ describe("Create/Join Game Tests", function () {
     // game created by the owner of the contract
     await expect(contract["newGame()"]())
       .to.emit(contract, "GameCreated")
-      .withArgs(owner.address, 0);
+      .withArgs(owner.address, 0, ethers.ZeroAddress);
 
     // game created by the owner of the contract
     await expect(contract.leaveGame(0))
@@ -189,7 +189,7 @@ describe("Create/Join Game Tests", function () {
     // game created by the owner of the contract
     await expect(contract["newGame()"]())
       .to.emit(contract, "GameCreated")
-      .withArgs(owner.address, 0);
+      .withArgs(owner.address, 0, ethers.ZeroAddress);
 
     // game created by the owner of the contract
     await expect(contract.connect(addr1)["joinGame()"]())
@@ -209,7 +209,7 @@ describe("Create/Join Game Tests", function () {
     // game created by the owner of the contract
     await expect(contract["newGame()"]())
       .to.emit(contract, "GameCreated")
-      .withArgs(owner.address, 0);
+      .withArgs(owner.address, 0, ethers.ZeroAddress);
 
     // game created by the owner of the contract
     await expect(contract.leaveGame(0))

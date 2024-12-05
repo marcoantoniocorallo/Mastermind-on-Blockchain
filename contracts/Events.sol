@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "./Constants.sol";
 
-event GameCreated(address indexed who, uint256 indexed id);
+event GameCreated(address indexed who, uint256 indexed id, address indexed challenger);
 event GameJoined(address indexed who, uint256 indexed id);
 event StakeDeclared(uint256 indexed id, address who, uint256 _stake);
 event StakePut(uint256 indexed id, address who, uint256 _stake);

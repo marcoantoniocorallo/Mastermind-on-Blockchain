@@ -229,6 +229,14 @@ export function getPoints(){
     return tmp ? tmp : 0;
 }
 
+export function getMyGames(){
+    return window.localStorage.getItem(getAccount()+"_my_games");
+}
+
+export function setMyGames(s){
+    window.localStorage.setItem(getAccount()+"_my_games", s);
+}
+
 export function getRound(){
     const tmp = window.localStorage.getItem(getAccount()+"_round");
     return tmp ? Number(tmp) : 0;
@@ -335,9 +343,11 @@ export function decimalToHex(d, padding) {
 
 export function clearGame(){
     const account = getAccount();
+    const games = JSON.parse(getMyGames());
     contract.removeAllListeners();
     window.localStorage.clear();
     authenticate(account);
+    setMyGames(JSON.stringify(games));
     window.location="/";
 }
 

@@ -79,7 +79,7 @@ contract MasterMind {
         );
 
         playing[msg.sender] = true;
-        emit GameCreated(msg.sender, gameId);
+        emit GameCreated(msg.sender, gameId, challenger_addr);
 
         return gameId++;
     }
