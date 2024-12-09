@@ -68,6 +68,9 @@ Then you can run a client via scripts:
 - `npm run start:coverage` shows the test coverage.
 - `npm run start:gas` computes an estimation of the gas consumed by the application, by means of the package `hardhat-gas-reporter`.
 
+## NatSpec Documentation
+The automatic generated *NatSpec* documentation of the smart contract is available [here](./docs/MasterMind.md).
+
 ## Demo
 <video width="500" height="300" controls>
   <source src="./Demo.mp4" type="video/mp4">
