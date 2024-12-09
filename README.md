@@ -76,5 +76,5 @@ Then you can run a client via scripts:
 ## Future Works
 - Host the chat server in a remote machine;
 - Punished users will be black-listed;
-- An ad-hoc minimization of the gas;
+- A further minimization of the gas;
 - Better renderization of the front-end;
