@@ -74,9 +74,8 @@ Then you can run a client via scripts:
 The automatic generated *NatSpec* documentation of the smart contract is available [here](./docs/MasterMind.md).
 
 ## Demo
-<video width="500" height="300" controls>
-  <source src="./Demo.mp4" type="video/mp4">
-</video>
+https://github.com/user-attachments/assets/3e2b9e6c-f2df-4fae-8359-e4757a671eb2
+
 
 ## Future Works
 - Host the chat server in a remote machine;
