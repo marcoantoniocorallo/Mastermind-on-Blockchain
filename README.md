@@ -1,4 +1,6 @@
-![logo](logo.png)
+<p align="center">
+  <img src="logo.png" alt="MasterMind on Ethereum logo"/>
+</p>
 
 ---
 # MasterMind on Blockchain
